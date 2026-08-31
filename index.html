@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>合約設備數量統計與管理系統 - 4大系統與 Google Sheet 串接</title>
+
+  <!-- Google Fonts: Outfit & Inter & Noto Sans TC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=Outfit:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Custom Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+
+<body>
+  <!-- Ambient background glow -->
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
+  <div id="app">
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+      <div class="container flex items-center justify-between">
+        <div class="nav-brand">
+          <div class="brand-icon-wrapper">
+            <i class="fas fa-microchip"></i>
+          </div>
+          <div class="brand-text">
+            <h1>合約設備管理與統計系統</h1>
+            <div class="flex items-center gap-2" style="margin-top: 2px;">
+              <span class="brand-badge">4大系統整合</span>
+              <span class="brand-badge"
+                style="color: #34d399; border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.15);">16家公司專屬分頁</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-actions">
+          <!-- View Switcher -->
+          <div class="flex items-center gap-1"
+            style="background: rgba(0,0,0,0.3); padding: 3px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <button id="btn-view-table" class="btn btn-sm btn-primary" title="設備清單總覽">
+              <i class="fas fa-table-list"></i>
+              <span>設備明細</span>
+            </button>
+            <button id="btn-view-report" class="btn btn-sm btn-secondary" title="各系統 3-5 年年度數量與汰換分析報表">
+              <i class="fas fa-chart-column"></i>
+              <span>3-5年年度報表</span>
+            </button>
+          </div>
+
+          <!-- Super Admin User Approval Button (Visible only to admin) -->
+          <button id="btn-open-user-mgmt" class="btn btn-secondary btn-sm hidden" style="border-color: rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.1); color: #60a5fa;" title="審核與管理註冊帳號">
+            <i class="fas fa-users-gear"></i>
+            <span>帳號審核</span>
+            <span id="pending-users-count" class="badge" style="background:#ef4444; color:#fff; font-size:10px; padding:2px 6px; border-radius:10px; margin-left:4px; display:none;">0</span>
+          </button>
+
+          <!-- Current Logged In User -->
+          <div id="user-profile-badge" class="user-badge" title="當前登入帳號">
+            <div id="user-avatar" class="user-avatar">用</div>
+            <div class="user-info">
+              <span id="user-fullname" class="user-name">系統使用者</span>
+            </div>
+          </div>
+
+          <!-- Logout Button -->
+          <button id="btn-logout" class="btn btn-secondary btn-sm" title="登出系統" style="padding: 7px 10px;">
+            <i class="fas fa-arrow-right-from-bracket"></i>
+            <span>登出</span>
+          </button>
+
+          <!-- Login / Register Button (Visible when logged out) -->
+          <button id="btn-open-login" class="btn btn-primary btn-sm hidden" title="登入系統或申請新帳戶">
+            <i class="fas fa-user-lock"></i>
+            <span>登入 / 註冊</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="container" style="flex: 1; padding-top: 16px; padding-bottom: 40px;">
+
+      <!-- Company Tabs Navigation (多公司專屬分頁導覽列) -->
+      <section class="company-tabs-wrapper">
+        <div class="company-tabs-header">
+          <div class="company-tabs-title">
+            <i class="fas fa-building"></i>
+            <span>公司專屬分頁 (依公司獨立查詢與統計)</span>
+          </div>
+          <div class="text-xs text-muted" id="company-tabs-hint">
+            點擊切換各公司分頁
+          </div>
+        </div>
+        <div id="company-tabs-container" class="company-tabs-scroll">
+          <!-- Dynamically rendered by ui.js -->
+        </div>
+      </section>
+
+      <!-- Top KPI Summary Cards -->
+      <section class="stats-grid">
+        <!-- 合約設備總數 -->
+        <div class="glass-card stat-card" style="--accent-color: #3b82f6;">
+          <div class="stat-header">
+            <span class="stat-title">合約設備總數量</span>
+            <div class="stat-icon" style="color: #60a5fa;"><i class="fas fa-server"></i></div>
+          </div>
+          <div class="stat-value-container">
+            <span id="kpi-total-devices" class="stat-value">0</span>
+            <span class="stat-unit">台/組/支</span>
+          </div>
+          <div class="stat-sub">所有合約規劃總計</div>
+        </div>
+
+        <!-- 已交貨數量 -->
+        <div class="glass-card stat-card" style="--accent-color: #10b981;">
+          <div class="stat-header">
+            <span class="stat-title">已交貨總數量</span>
+            <div class="stat-icon" style="color: #34d399;"><i class="fas fa-box-open"></i></div>
+          </div>
+          <div class="stat-value-container">
+            <span id="kpi-delivered-qty" class="stat-value" style="color: #34d399;">0</span>
+            <span class="stat-unit">台/組/支</span>
+          </div>
+          <div class="stat-sub">現場已完成點交上線</div>
+        </div>
+
+        <!-- 未交貨數量 -->
+        <div class="glass-card stat-card" style="--accent-color: #f59e0b;">
+          <div class="stat-header">
+            <span class="stat-title">未交貨 / 待點交數量</span>
+            <div class="stat-icon" style="color: #fbbf24;"><i class="fas fa-truck-ramp-box"></i></div>
+          </div>
+          <div class="stat-value-container">
+            <span id="kpi-undelivered-qty" class="stat-value" style="color: #fbbf24;">0</span>
+            <span class="stat-unit">台/組/支</span>
+          </div>
+          <div class="stat-sub">待排程交貨驗收</div>
+        </div>
+
+        <!-- 1. 對講機系統 -->
+        <div class="glass-card stat-card" style="--accent-color: var(--sys-intercom);">
+          <div class="stat-header">
+            <span class="stat-title">1. 對講機系統</span>
+            <div class="stat-icon" style="color: var(--sys-intercom);"><i class="fas fa-walkie-talkie"></i></div>
+          </div>
+          <div class="stat-value-container">
+            <span id="kpi-intercom-qty" class="stat-value">0</span>
+            <span class="stat-unit">台</span>
+          </div>
+          <div class="stat-sub">門口機 / 緊急對講 / 總機</div>
+        </div>
+
+        <!-- 2. 攝影機系統 -->
+        <div class="glass-card stat-card" style="--accent-color: var(--sys-camera);">
+          <div class="stat-header">
+            <span class="stat-title">2. 攝影機系統</span>
+            <div class="stat-icon" style="color: var(--sys-camera);"><i class="fas fa-video"></i></div>
+          </div>
+          <div class="stat-value-container">
+            <span id="kpi-camera-qty" class="stat-value">0</span>
+            <span class="stat-unit">支</span>
+          </div>
+          <div class="stat-sub">4K攝影機 / 全景 / 球機</div>
+        </div>
+
+        <!-- 3. 門禁系統 -->
+        <div class="glass-card stat-card" style="--accent-color: var(--sys-access);">
+          <div class="stat-header">
+            <span class="stat-title">3. 門禁系統</span>
+            <div class="stat-icon" style="color: var(--sys-access);"><i class="fas fa-door-open"></i></div>
+          </div>
+          <div class="stat-value-container">
+            <span id="kpi-access-qty" class="stat-value">0</span>
+            <span class="stat-unit">組/道</span>
+          </div>
+          <div class="stat-sub">刷卡主機 / 閘門考勤通道</div>
+        </div>
+
+        <!-- 4. 電子鎖系統 -->
+        <div class="glass-card stat-card" style="--accent-color: var(--sys-lock);">
+          <div class="stat-header">
+            <span class="stat-title">4. 電子鎖系統</span>
+            <div class="stat-icon" style="color: var(--sys-lock);"><i class="fas fa-key"></i></div>
+          </div>
+          <div class="stat-value-container">
+            <span id="kpi-lock-qty" class="stat-value">0</span>
+            <span class="stat-unit">組</span>
+          </div>
+          <div class="stat-sub">陽極鎖 / 磁力鎖 / 陰極鎖</div>
+        </div>
+      </section>
+
+      <!-- Tab View 1: Equipment Detail List View -->
+      <div id="section-table-view">
+        <!-- 4 Major Systems Category Tab Navigation -->
+        <section class="system-tabs-container">
+          <div class="system-tabs">
+            <button class="sys-tab-btn active" data-sys="all">
+              <i class="fas fa-layer-group"></i>
+              <span>全部系統總覽</span>
+              <span class="sys-tab-count">0項</span>
+            </button>
+            <button class="sys-tab-btn" data-sys="對講機">
+              <i class="fas fa-walkie-talkie"></i>
+              <span>1. 對講機系統</span>
+              <span class="sys-tab-count">0項</span>
+            </button>
+            <button class="sys-tab-btn" data-sys="攝影機">
+              <i class="fas fa-video"></i>
+              <span>2. 攝影機系統</span>
+              <span class="sys-tab-count">0項</span>
+            </button>
+            <button class="sys-tab-btn" data-sys="門禁系統">
+              <i class="fas fa-door-open"></i>
+              <span>3. 門禁系統</span>
+              <span class="sys-tab-count">0項</span>
+            </button>
+            <button class="sys-tab-btn" data-sys="電子鎖">
+              <i class="fas fa-key"></i>
+              <span>4. 電子鎖系統</span>
+              <span class="sys-tab-count">0項</span>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <!-- 僅看未交貨快速過濾 -->
+            <button id="btn-filter-undelivered" class="btn btn-secondary btn-sm" title="僅顯示未交貨或待點交設備">
+              <i class="fas fa-truck-ramp-box"></i>
+              <span>未交貨設備 (<span id="kpi-undelivered-btn-qty">0</span>)</span>
+            </button>
+
+            <!-- 匯出 Excel / CSV -->
+            <button id="btn-export" class="btn btn-secondary btn-sm" title="將目前篩選資料匯出為 Excel CSV">
+              <i class="fas fa-file-export"></i>
+              <span>匯出清單 CSV</span>
+            </button>
+
+            <!-- 新增設備 -->
+            <button id="btn-add-device" class="btn btn-primary btn-sm">
+              <i class="fas fa-plus"></i>
+              <span>新增設備</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Search & Advanced Filter Toolbar -->
+        <section class="glass-card toolbar-card">
+          <div class="filter-grid">
+            <!-- 關鍵字搜尋 (建案名稱、型號、設備名稱、合約) -->
+            <div class="input-group">
+              <i class="fas fa-search"></i>
+              <input type="text" id="filter-search" class="form-control" placeholder="搜尋建案名稱、品牌型號、設備名稱、合約編號、備註...">
+            </div>
+
+            <!-- 公司權限篩選 -->
+            <div class="input-group">
+              <i class="fas fa-building"></i>
+              <select id="filter-company" class="form-control">
+                <option value="all">載入公司中...</option>
+              </select>
+            </div>
+
+            <!-- 設備型號篩選 (新增) -->
+            <div class="input-group">
+              <i class="fas fa-tag"></i>
+              <select id="filter-model" class="form-control">
+                <option value="all">🏷️ 全部型號</option>
+              </select>
+            </div>
+
+            <!-- 交貨狀態篩選 -->
+            <div class="input-group">
+              <i class="fas fa-truck"></i>
+              <select id="filter-delivery-status" class="form-control">
+                <option value="all">全部交貨狀態 (已交貨 / 未交貨)</option>
+                <option value="已交貨">已交貨 (已點交)</option>
+                <option value="未交貨">未交貨 (待點交/排程中)</option>
+              </select>
+            </div>
+
+            <!-- 年度區間篩選 (新增) -->
+            <div class="input-group">
+              <i class="fas fa-calendar-days"></i>
+              <select id="filter-year" class="form-control">
+                <option value="all">📅 全部年度 (2023 - 2030)</option>
+                <option value="2023">2023 年度</option>
+                <option value="2024">2024 年度</option>
+                <option value="2025">2025 年度</option>
+                <option value="2026">2026 年度 (預計)</option>
+                <option value="2027">2027 年度 (預計)</option>
+                <option value="2028">2028 年度 (預計)</option>
+                <option value="2029">2029 年度 (預計)</option>
+                <option value="2030">2030 年度 (預計)</option>
+                <option value="range-2024-2026">2024 ~ 2026 (近 3 年)</option>
+                <option value="range-2026-2028">2026 ~ 2028 (未來 3 年)</option>
+                <option value="range-2026-2030">2026 ~ 2030 (未來 5 年)</option>
+              </select>
+            </div>
+
+            <!-- 重新整理按鈕 -->
+            <button id="btn-refresh" class="btn btn-secondary" style="width: 100%;">
+              <i class="fas fa-arrows-rotate"></i>
+              <span>重新載入</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- 當前篩選條件 / 當前分頁總數量即時統計橫條 -->
+        <section class="filter-stats-bar">
+          <div class="filter-stats-chips">
+            <span id="table-records-count" class="font-bold text-main" style="font-size:0.9rem; margin-right:4px;">共 0
+              筆設備</span>
+            <div class="stat-chip stat-chip-total" title="當前篩選條件下的合約設備總數量">
+              <i class="fas fa-cubes"></i> 本分頁總數：<span id="tab-stat-total-qty">0</span>
+            </div>
+            <div class="stat-chip stat-chip-delivered" title="已交貨完成總數量">
+              <i class="fas fa-check-circle"></i> 已交貨：<span id="tab-stat-delivered-qty">0</span>
+            </div>
+            <div class="stat-chip stat-chip-undelivered" title="待排程交貨總數量">
+              <i class="fas fa-truck-ramp-box"></i> 未交貨：<span id="tab-stat-undelivered-qty">0</span>
+            </div>
+            <div class="stat-chip stat-chip-rate" title="已交貨達成比例">
+              <i class="fas fa-percent"></i> 交貨率：<span id="tab-stat-delivery-rate">0%</span>
+            </div>
+          </div>
+          <div class="text-xs text-subtle">
+            <i class="fas fa-shield-halved"></i> 依系統、型號與年度區間即時計算
+          </div>
+        </section>
+
+        <!-- Equipment Table Container -->
+        <section>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 110px;">設備ID / 合約</th>
+                  <th style="width: 120px;">所屬公司</th>
+                  <th style="width: 140px;">建案名稱</th>
+                  <th style="width: 100px;">系統分類</th>
+                  <th>設備名稱與品牌型號</th>
+                  <th style="width: 130px;">數量 (已交/未交/總數)</th>
+                  <th style="width: 100px;">交貨狀態</th>
+                  <th style="width: 110px;">交貨日期</th>
+                  <th>備註</th>
+                  <th style="width: 80px; text-align: center;">操作</th>
+                </tr>
+              </thead>
+              <tbody id="equipment-table-body">
+                <tr>
+                  <td colspan="10" style="text-align: center; padding: 40px;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 1.5rem; color: #3b82f6;"></i>
+                    <p style="margin-top: 8px; color: var(--text-muted);">正在載入設備資料庫...</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- Tab View 2: Annual 3-5 Years Analytics Report View -->
+      <div id="section-report-view" class="hidden">
+        <!-- Report Header & Dropdown Toolbar -->
+        <section class="glass-card toolbar-card" style="margin-top: 24px; margin-bottom: 20px;">
+          <div class="flex items-center justify-between flex-wrap gap-4"
+            style="margin-bottom: 14px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+            <div>
+              <h2 class="text-lg font-bold flex items-center gap-2">
+                <i class="fas fa-chart-line" style="color: #60a5fa;"></i>
+                <span>各系統各型號各年度數量與交貨分析報表 (未來 3-5 年預測)</span>
+              </h2>
+              <p class="text-xs text-muted">可按系統分類、品牌型號、交貨狀態 (已交貨/未交貨) 查詢各年度數量與未來趨勢</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="btn-export-report" class="btn btn-secondary btn-sm">
+                <i class="fas fa-file-excel"></i>
+                <span>匯出各系統型號年度報表 (CSV)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dropdowns Grid: 各系統、各型號、交貨狀態、預測時間、分析維度 -->
+          <div class="filter-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+            <!-- 1. 公司選單 -->
+            <div>
+              <label class="form-label text-xs">🏢 所屬公司</label>
+              <div class="input-group">
+                <i class="fas fa-building"></i>
+                <select id="report-filter-company" class="form-control">
+                  <option value="all">載入中...</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 2. 系統類別選單 -->
+            <div>
+              <label class="form-label text-xs">⚙️ 系統分類</label>
+              <div class="input-group">
+                <i class="fas fa-layer-group"></i>
+                <select id="report-filter-system" class="form-control">
+                  <option value="all">📊 全部 4 大系統</option>
+                  <option value="對講機">📞 1. 對講機系統</option>
+                  <option value="攝影機">📹 2. 攝影機系統</option>
+                  <option value="門禁系統">🚪 3. 門禁系統</option>
+                  <option value="電子鎖">🔐 4. 電子鎖系統</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 3. 品牌型號選單 (各型號查詢) -->
+            <div>
+              <label class="form-label text-xs">🏷️ 品牌型號 (各型號)</label>
+              <div class="input-group">
+                <i class="fas fa-tag"></i>
+                <select id="report-filter-model" class="form-control">
+                  <option value="all">🏷️ 全部型號</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 4. 交貨狀態選單 (已交貨 / 未交貨) -->
+            <div>
+              <label class="form-label text-xs">📦 交貨狀態篩選</label>
+              <div class="input-group">
+                <i class="fas fa-truck-ramp-box"></i>
+                <select id="report-filter-delivery" class="form-control">
+                  <option value="all">全部 (已交貨+未交貨)</option>
+                  <option value="已交貨">僅查詢【已交貨】數量</option>
+                  <option value="未交貨">僅查詢【未交貨】數量</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 5. 數量維度選單 -->
+            <div>
+              <label class="form-label text-xs">📈 數量計算維度</label>
+              <div class="input-group">
+                <i class="fas fa-sliders"></i>
+                <select id="report-filter-metric" class="form-control">
+                  <option value="all_qty">合約總數量</option>
+                  <option value="delivered">已交貨數量</option>
+                  <option value="undelivered">未交貨/待點交數量</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 6. 時間預測範圍 -->
+            <div>
+              <label class="form-label text-xs">📅 時間分析跨度</label>
+              <div class="input-group">
+                <i class="fas fa-calendar-alt"></i>
+                <select id="report-filter-horizon" class="form-control">
+                  <option value="5">未來 5 年預測 (2026 ~ 2030)</option>
+                  <option value="3">未來 3 年預測 (2026 ~ 2028)</option>
+                  <option value="all">全歷程統計 (2023 ~ 2030)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Dynamic Visual Trend Chart Section -->
+        <section class="glass-card" style="padding: 24px; margin-bottom: 20px;">
+          <div class="flex items-center justify-between flex-wrap gap-2" style="margin-bottom: 16px;">
+            <div class="flex items-center gap-2">
+              <span id="chart-report-title" class="font-bold text-main text-sm">各系統各型號年度數量走勢圖</span>
+              <span class="badge badge-system text-xs"
+                style="background: rgba(59, 130, 246, 0.15); color: #60a5fa;">年度交貨模型</span>
+            </div>
+            <!-- Chart Legends -->
+            <div class="flex items-center gap-3 text-xs">
+              <div class="flex items-center gap-1"><span
+                  style="width:10px; height:10px; border-radius:2px; background:var(--sys-intercom);"></span> 對講機</div>
+              <div class="flex items-center gap-1"><span
+                  style="width:10px; height:10px; border-radius:2px; background:var(--sys-camera);"></span> 攝影機</div>
+              <div class="flex items-center gap-1"><span
+                  style="width:10px; height:10px; border-radius:2px; background:var(--sys-access);"></span> 門禁系統</div>
+              <div class="flex items-center gap-1"><span
+                  style="width:10px; height:10px; border-radius:2px; background:var(--sys-lock);"></span> 電子鎖</div>
+            </div>
+          </div>
+
+          <!-- SVG Interactive Chart Container -->
+          <div id="annual-chart-container" style="width: 100%; min-height: 280px; position: relative;"></div>
+        </section>
+
+        <!-- Model Breakdown Detailed Matrix Table -->
+        <section style="margin-bottom: 24px;">
+          <div class="flex items-center justify-between" style="margin-bottom: 10px; padding: 0 4px;">
+            <span class="text-sm text-muted font-semibold"><i class="fas fa-list-check text-primary"></i>
+              各系統各型號各建案年度數量明細表</span>
+            <span class="text-xs text-subtle">單位：台 / 支 / 組 / 套</span>
+          </div>
+
+          <div class="table-wrapper">
+            <table class="data-table" id="annual-models-table">
+              <thead id="annual-models-thead">
+                <!-- 由 JS 動態產生各年度標題欄位 -->
+              </thead>
+              <tbody id="annual-models-tbody">
+                <!-- 由 JS 動態產生各型號資料列 -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- =========================================================================
+       Modals
+       ========================================================================= -->
+
+  <!-- 1. 新增 / 編輯設備彈窗 -->
+  <div id="modal-equipment" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modal-eq-title" class="text-lg font-bold">➕ 新增設備紀錄</h3>
+        <button class="action-btn" data-close-modal="modal-equipment"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="form-equipment">
+        <input type="hidden" id="eq-id">
+        <div class="modal-body">
+          <div class="form-grid-2">
+            <div>
+              <label class="form-label">所屬公司 <span class="required">*</span></label>
+              <select id="eq-company" class="modal-input" required></select>
+            </div>
+            <div>
+              <label class="form-label">合約編號</label>
+              <input type="text" id="eq-contract-id" class="modal-input" placeholder="例如：CT-2025-001">
+            </div>
+          </div>
+
+          <div>
+            <label class="form-label">建案名稱 <span class="required">*</span></label>
+            <input type="text" id="eq-project-name" class="modal-input" placeholder="例如：竹科P1晶圓廠新建工程、信義智慧科技園區" required>
+          </div>
+
+          <div class="form-grid-2" style="margin-top: 16px;">
+            <div>
+              <label class="form-label">4大系統類別 <span class="required">*</span></label>
+              <select id="eq-system-type" class="modal-input" required>
+                <option value="對講機">1. 對講機系統</option>
+                <option value="攝影機">2. 攝影機系統</option>
+                <option value="門禁系統">3. 門禁系統</option>
+                <option value="電子鎖">4. 電子鎖系統</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">交貨狀態 <span class="required">*</span></label>
+              <select id="eq-delivery-status" class="modal-input" required>
+                <option value="已交貨">已交貨 (已完成現場點交)</option>
+                <option value="未交貨">未交貨 (待交貨/排程中)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div>
+              <label class="form-label">設備名稱 <span class="required">*</span></label>
+              <input type="text" id="eq-device-name" class="modal-input" placeholder="例如：IP觸控式門口對講主機" required>
+            </div>
+            <div>
+              <label class="form-label">品牌型號 <span class="required">*</span></label>
+              <input type="text" id="eq-model" class="modal-input" placeholder="例如：Panasonic VL-V900" required>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div>
+              <label class="form-label">合約總數量 <span class="required">*</span></label>
+              <input type="number" id="eq-quantity" class="modal-input" min="1" value="1" required>
+            </div>
+            <div>
+              <label class="form-label">計量單位</label>
+              <input type="text" id="eq-unit" class="modal-input" value="台" placeholder="台 / 組 / 支 / 套">
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div>
+              <label class="form-label">已交貨數量</label>
+              <input type="number" id="eq-delivered-qty" class="modal-input" min="0" value="0">
+            </div>
+            <div>
+              <label class="form-label">未交貨數量</label>
+              <input type="number" id="eq-undelivered-qty" class="modal-input" min="0" value="0">
+            </div>
+          </div>
+
+          <div class="form-grid-2" style="margin-top: 16px;">
+            <div>
+              <label class="form-label">預計 / 實際交貨日期</label>
+              <input type="date" id="eq-delivery-date" class="modal-input">
+            </div>
+          </div>
+
+          <div style="margin-top: 16px;">
+            <label class="form-label">備註</label>
+            <textarea id="eq-remarks" class="modal-input" rows="3" placeholder="請填寫交貨備註說明..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal="modal-equipment">取消</button>
+          <button type="submit" id="btn-save-eq" class="btn btn-primary"><i class="fas fa-save"></i> 儲存設備</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. 登入與申請帳戶彈窗 (Auth Modal: Login & Register) -->
+  <div id="modal-login" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 id="auth-modal-title" class="text-lg font-bold flex items-center gap-2">
+          <i class="fas fa-shield-halved text-primary"></i>
+          <span>系統帳號中心</span>
+        </h3>
+        <button class="action-btn" data-close-modal="modal-login" id="btn-close-auth-modal"><i class="fas fa-times"></i></button>
+      </div>
+
+      <!-- Auth Tab Navigation: [登入帳號] vs [申請新帳戶] -->
+      <div class="auth-tabs-nav">
+        <button type="button" class="auth-tab-btn active" id="tab-btn-login" data-tab="login">
+          <i class="fas fa-right-to-bracket"></i>
+          <span>登入系統</span>
+        </button>
+        <button type="button" class="auth-tab-btn" id="tab-btn-register" data-tab="register">
+          <i class="fas fa-user-plus"></i>
+          <span>申請新帳戶</span>
+        </button>
+      </div>
+
+      <!-- Tab 1: 登入表單 -->
+      <div id="auth-pane-login" class="auth-pane">
+        <form id="form-login">
+          <div class="modal-body" style="padding-top: 0;">
+            <div style="margin-bottom: 14px;">
+              <label class="form-label">使用者帳號 <span class="required">*</span></label>
+              <input type="text" id="login-username" class="modal-input" placeholder="請輸入帳號" required>
+            </div>
+            <div style="margin-bottom: 18px;">
+              <label class="form-label">登入密碼 <span class="required">*</span></label>
+              <input type="password" id="login-password" class="modal-input" placeholder="請輸入登入密碼" required>
+            </div>
+
+            <div id="login-error-msg" style="display: none; padding: 10px 14px; border-radius: 6px; background: rgba(244,63,94,0.15); color: #f43f5e; font-size: 0.85rem; margin-bottom: 14px; border: 1px solid rgba(244,63,94,0.3);">
+            </div>
+
+            <button type="submit" id="btn-submit-login" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 0.95rem;">
+              <i class="fas fa-sign-in-alt"></i> 登入系統
+            </button>
+
+            <div style="text-align: center; margin-top: 16px;">
+              <span class="text-xs text-muted">還沒有帳號嗎？</span>
+              <span class="text-xs auth-switch-link" id="link-to-register">立即申請新帳戶</span>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Tab 2: 申請新帳戶表單 -->
+      <div id="auth-pane-register" class="auth-pane hidden">
+        <form id="form-register">
+          <div class="modal-body" style="padding-top: 0;">
+            <div class="form-grid-2">
+              <div>
+                <label class="form-label">申請帳號 <span class="required">*</span></label>
+                <input type="text" id="reg-username" class="modal-input" placeholder="例如：user01" required>
+              </div>
+              <div>
+                <label class="form-label">使用者姓名 / 稱謂 <span class="required">*</span></label>
+                <input type="text" id="reg-fullname" class="modal-input" placeholder="例如：王大明" required>
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div>
+                <label class="form-label">設定密碼 <span class="required">*</span></label>
+                <input type="password" id="reg-password" class="modal-input" placeholder="至少 4 位數密碼" required>
+              </div>
+              <div>
+                <label class="form-label">確認密碼 <span class="required">*</span></label>
+                <input type="password" id="reg-confirm-password" class="modal-input" placeholder="再次輸入密碼" required>
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div>
+                <label class="form-label">聯絡電話 / 分機</label>
+                <input type="text" id="reg-phone" class="modal-input" placeholder="例如：0912-345-678">
+              </div>
+              <div>
+                <label class="form-label">電子信箱</label>
+                <input type="email" id="reg-email" class="modal-input" placeholder="例如：user@company.com">
+              </div>
+            </div>
+
+            <div id="reg-error-msg" style="display: none; padding: 10px 14px; border-radius: 6px; background: rgba(244,63,94,0.15); color: #f43f5e; font-size: 0.85rem; margin-bottom: 14px; border: 1px solid rgba(244,63,94,0.3);">
+            </div>
+
+            <button type="submit" id="btn-submit-register" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 0.95rem;">
+              <i class="fas fa-paper-plane"></i> 送出帳號申請 (待超級管理者審核)
+            </button>
+
+            <div style="text-align: center; margin-top: 14px;">
+              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 8px;">
+                <i class="fas fa-shield-halved"></i> 帳號申請後將由超級管理者審核並指定公司權限，啟用後方可登入。
+              </div>
+              <span class="text-xs text-muted">已經有註冊帳號？</span>
+              <span class="text-xs auth-switch-link" id="link-to-login">返回登入</span>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Modal: 超級管理者 帳號審核與啟用管理彈窗 -->
+  <div id="modal-user-mgmt" class="modal-backdrop">
+    <div class="glass-card modal-content" style="max-width: 920px; width: 95%;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fas fa-users-gear" style="color: #60a5fa;"></i>
+          <span>系統帳號審核與公司查看權限管理 (超級管理者專屬)</span>
+        </div>
+        <button id="btn-close-user-mgmt-modal" class="modal-close-btn" title="關閉">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div style="padding: 16px 20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <span style="font-size:13px; color:#94a3b8;">
+            <i class="fas fa-circle-info"></i> 新申請帳號需經審核，點擊【審核與權限設定】可個別挑選該帳號允許查看的公司分頁。
+          </span>
+          <button id="btn-refresh-users-list" class="btn btn-secondary btn-sm" style="padding:4px 10px; font-size:12px;">
+            <i class="fas fa-arrows-rotate"></i> 重新整理
+          </button>
+        </div>
+
+        <div class="table-responsive" style="max-height: 440px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;">
+          <table class="data-table" style="width: 100%; font-size: 13px;">
+            <thead>
+              <tr>
+                <th style="width: 13%;">帳號 (Username)</th>
+                <th style="width: 15%;">姓名 / 稱謂</th>
+                <th style="width: 20%;">聯絡資訊</th>
+                <th style="width: 24%;">授權查看之公司權限</th>
+                <th style="width: 11%; text-align: center;">狀態</th>
+                <th style="width: 17%; text-align: center;">審核操作</th>
+              </tr>
+            </thead>
+            <tbody id="user-mgmt-tbody">
+              <tr><td colspan="6" class="text-center" style="padding:20px; color:#94a3b8;"><i class="fas fa-spinner fa-spin"></i> 載入帳號清單中...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Modal: 審核授權與公司查看權限選擇彈窗 -->
+  <div id="modal-user-permission" class="modal-backdrop">
+    <div class="glass-card modal-content" style="max-width: 620px; width: 95%;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fas fa-user-shield" style="color: #60a5fa;"></i>
+          <span>審核授權與公司查看權限設定</span>
+        </div>
+        <button id="btn-close-permission-modal" class="modal-close-btn" title="關閉">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form id="form-user-permission" style="padding: 16px 20px;">
+        <input type="hidden" id="perm-username-hidden">
+        
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-size: 11px; color: #94a3b8;">申請者帳號與姓名</div>
+            <div style="font-size: 15px; font-weight: 700; color: #f8fafc; margin-top: 2px;">
+              <span id="perm-user-name-display">user_01</span>
+              <span id="perm-user-fullname-display" style="font-size: 13px; color: #93c5fd; font-weight: 500; margin-left: 8px;">(張專員)</span>
+            </div>
+          </div>
+          <div id="perm-user-status-badge">
+            <span class="badge" style="background: rgba(245,158,11,0.15); color: #fbbf24;">待審核</span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+          <div>
+            <label class="form-label" style="font-size: 12px; margin-bottom: 6px; display: block;">帳號狀態</label>
+            <select id="perm-select-status" class="modal-input" style="width: 100%; padding: 8px 12px; font-size: 13px;">
+              <option value="啟用">✅ 啟用 (允許登入)</option>
+              <option value="待審核">⏳ 待審核 (暫不放行)</option>
+              <option value="停用">⛔ 停用 (禁止登入)</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 12px; margin-bottom: 6px; display: block;">系統操作角色</label>
+            <select id="perm-select-role" class="modal-input" style="width: 100%; padding: 8px 12px; font-size: 13px;">
+              <option value="client">一般人員 (僅能檢視授權公司)</option>
+              <option value="editor">編輯人員 (可新增/編輯設備)</option>
+              <option value="admin">超級管理員 (全功能管理)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label class="form-label" style="font-size: 12px; margin-bottom: 0; font-weight: 600; color: #f1f5f9;">
+              <i class="fas fa-building text-primary" style="margin-right: 4px;"></i> 選擇允許查看之公司分頁 (權限管制)
+            </label>
+            <div style="display: flex; gap: 6px;">
+              <button type="button" id="btn-perm-select-all" class="btn btn-secondary btn-sm" style="padding: 2px 8px; font-size: 11px;">全選 (16家公司)</button>
+              <button type="button" id="btn-perm-clear-all" class="btn btn-secondary btn-sm" style="padding: 2px 8px; font-size: 11px;">全部清除</button>
+            </div>
+          </div>
+
+          <div id="perm-companies-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); padding: 12px; border-radius: 8px; max-height: 200px; overflow-y: auto;">
+            <!-- Checkboxes dynamically generated in ui.js -->
+          </div>
+          <div style="font-size: 11px; color: #94a3b8; margin-top: 6px;">
+            <i class="fas fa-shield-alt" style="color: #60a5fa;"></i> 僅有被勾選授權的公司分頁，該使用者登入後才能檢視與統計；未被授權者將嚴格隱藏與隔離。
+          </div>
+        </div>
+
+        <div class="modal-footer" style="padding: 0; margin-top: 16px; border-top: none; display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" id="btn-perm-cancel" class="btn btn-secondary" style="padding: 8px 16px; font-size: 13px;">取消</button>
+          <button type="submit" id="btn-perm-save" class="btn btn-primary" style="padding: 8px 18px; font-size: 13px;">
+            <i class="fas fa-check-circle"></i> 儲存審核與權限設定
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
