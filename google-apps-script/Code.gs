@@ -6,7 +6,7 @@
  * 2. 清空現有程式碼，將此檔案內容全部複製貼上並存檔 (Ctrl + S)
  * 3. 點擊右上角「部署」->「新增部署作業」
  * 4. 齒輪選擇「網頁應用程式 (Web App)」
- * 5. 說明：設備管理 API (16家公司獨立工作表分頁)
+ * 5. 說明：設備管理 API (16家公司獨立工作表分頁、支援完整電話/信箱帳號註冊與審核)
  * 6. 執行身分：我 (您的 Google 帳號)
  * 7. 誰可以存取：任何人 (Anyone) - 確保跨域能正常讀寫
  * 8. 點擊「部署」，複製「網頁應用程式網址 (Web App URL)」貼到前端系統即可！
@@ -30,6 +30,10 @@ const EQ_HEADERS = [
   'delivery_date', 'remarks', 'updated_at'
 ];
 
+const USER_HEADERS = [
+  'username', 'password', 'full_name', 'role', 'allowed_companies', 'status', 'email', 'phone', 'created_at'
+];
+
 /**
  * 處理 GET 請求
  */
@@ -42,7 +46,7 @@ function doGet(e) {
       case 'ping':
         result = { 
           success: true, 
-          message: '設備管理系統 API 運作正常 (支援 16 家公司獨立工作表分頁)', 
+          message: '設備管理系統 API 運作正常 (支援 16 家公司獨立工作表分頁與完整使用者資訊)', 
           timestamp: new Date().toISOString() 
         };
         break;
@@ -137,7 +141,7 @@ function doPost(e) {
         break;
 
       case 'saveUser':
-        result = saveUser(data, username);
+        result = saveUser(data || postData, username);
         break;
 
       case 'init':
@@ -161,6 +165,58 @@ function doPost(e) {
 function createJsonResponse(data) {
   return ContentService.createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * 使用者欄位名稱正規化對照表 (相容中文表頭與英文表頭)
+ */
+function normalizeUserHeaderKey(rawHeader) {
+  if (!rawHeader) return '';
+  const h = String(rawHeader).trim().toLowerCase();
+  if (h === 'username' || h === '帳號' || h === '使用者名稱' || h === '用戶名') return 'username';
+  if (h === 'password' || h === '密碼') return 'password';
+  if (h === 'full_name' || h === 'fullname' || h === '姓名' || h === '稱謂' || h === '使用者姓名') return 'full_name';
+  if (h === 'role' || h === '角色' || h === '權限') return 'role';
+  if (h === 'allowed_companies' || h === 'allowedcompanies' || h === '授權公司' || h === '公司權限' || h === '公司') return 'allowed_companies';
+  if (h === 'status' || h === '狀態' || h === '帳號狀態' || h === '審核狀態') return 'status';
+  if (h === 'email' || h === '信箱' || h === '電子信箱' || h === '郵件' || h === 'e-mail') return 'email';
+  if (h === 'phone' || h === '電話' || h === '聯絡電話' || h === '分機' || h === '手機') return 'phone';
+  if (h === 'created_at' || h === 'createdat' || h === '建立時間' || h === '申請時間' || h === '註冊時間' || h === '時間') return 'created_at';
+  return h;
+}
+
+/**
+ * 檢查並自動補齊 Users 工作表之標題列 (確保電話、信箱、建立時間欄位存在)
+ */
+function ensureUserSheetHeaders(sheet) {
+  if (!sheet) return;
+  const desiredHeaders = USER_HEADERS;
+  
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(desiredHeaders);
+    sheet.getRange(1, 1, 1, desiredHeaders.length)
+      .setFontWeight('bold')
+      .setBackground('#1E293B')
+      .setFontColor('#F8FAFC');
+    sheet.setFrozenRows(1);
+    return;
+  }
+
+  const headerRange = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1));
+  const rawHeaders = headerRange.getValues()[0].map(function(h) { return String(h).trim(); });
+  const normalized = rawHeaders.map(normalizeUserHeaderKey);
+
+  desiredHeaders.forEach(function(key) {
+    if (normalized.indexOf(key) === -1) {
+      const targetCol = rawHeaders.length + 1;
+      sheet.getRange(1, targetCol).setValue(key)
+        .setFontWeight('bold')
+        .setBackground('#1E293B')
+        .setFontColor('#F8FAFC');
+      rawHeaders.push(key);
+      normalized.push(key);
+    }
+  });
 }
 
 /**
@@ -192,21 +248,22 @@ function initDatabaseIfEmpty(forceReset) {
   if (!ss) return;
 
   // 1. Users 表
-  const userHeaders = ['username', 'password', 'full_name', 'role', 'allowed_companies', 'status'];
   let userSheet = ss.getSheetByName(SYSTEM_SHEETS.USERS);
   if (!userSheet || forceReset) {
     if (!userSheet) userSheet = ss.insertSheet(SYSTEM_SHEETS.USERS);
     userSheet.clear();
-    userSheet.appendRow(userHeaders);
-    userSheet.getRange(1, 1, 1, userHeaders.length).setFontWeight('bold').setBackground('#1E293B').setFontColor('#F8FAFC');
+    userSheet.appendRow(USER_HEADERS);
+    userSheet.getRange(1, 1, 1, USER_HEADERS.length).setFontWeight('bold').setBackground('#1E293B').setFontColor('#F8FAFC');
     userSheet.setFrozenRows(1);
 
-    userSheet.appendRow(['admin', 'admin123', '系統超級管理員', 'admin', '*', '啟用']);
-    userSheet.appendRow(['tech01', 'tech123', '工務維護工程師-小張', 'tech', '宗亞,宗鈺,宗泰,資訊星,宗群,宗友', '啟用']);
-    userSheet.appendRow(['zongya_mgr', 'zongya123', '宗亞總務主管', 'client', '宗亞', '啟用']);
-    userSheet.appendRow(['zongyu_mgr', 'zongyu123', '宗鈺廠務專員', 'client', '宗鈺', '啟用']);
-    userSheet.appendRow(['infostar_mgr', 'info123', '資訊星技術總監', 'client', '資訊星', '啟用']);
-    userSheet.appendRow(['zongtai_mgr', 'zongtai123', '宗泰工程經理', 'client', '宗泰', '啟用']);
+    userSheet.appendRow(['admin', 'admin123', '系統超級管理員', 'admin', '*', '啟用', 'admin@cems.com', '02-2788-1234 #800', '2025-01-01 00:00:00']);
+    userSheet.appendRow(['tech01', 'tech123', '工務維護工程師-小張', 'tech', '宗亞,宗鈺,宗泰,資訊星,宗群,宗友', '啟用', 'tech01@cems.com', '0912-345-678', '2025-01-01 00:00:00']);
+    userSheet.appendRow(['zongya_mgr', 'zongya123', '宗亞總務主管', 'client', '宗亞', '啟用', 'zongya@cems.com', '02-2788-1234 #101', '2025-01-01 00:00:00']);
+    userSheet.appendRow(['zongyu_mgr', 'zongyu123', '宗鈺廠務專員', 'client', '宗鈺', '啟用', 'zongyu@cems.com', '02-2788-5678 #102', '2025-01-01 00:00:00']);
+    userSheet.appendRow(['infostar_mgr', 'info123', '資訊星技術總監', 'client', '資訊星', '啟用', 'info@cems.com', '02-8792-3344 #301', '2025-01-01 00:00:00']);
+    userSheet.appendRow(['zongtai_mgr', 'zongtai123', '宗泰工程經理', 'client', '宗泰', '啟用', 'zongtai@cems.com', '03-578-8888 #201', '2025-01-01 00:00:00']);
+  } else {
+    ensureUserSheetHeaders(userSheet);
   }
 
   // 2. Companies 表 (16家公司)
@@ -315,13 +372,14 @@ function initDatabaseIfEmpty(forceReset) {
  */
 function handleLogin(username, password) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(SYSTEM_SHEETS.USERS);
+  let sheet = ss.getSheetByName(SYSTEM_SHEETS.USERS);
   if (!sheet) return { success: false, error: '找不到使用者資料表' };
+  ensureUserSheetHeaders(sheet);
 
   const data = sheet.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
-    if (String(row[0]).trim() === String(username).trim()) {
+    if (String(row[0]).trim().toLowerCase() === String(username).trim().toLowerCase()) {
       if (String(row[1]) === String(password)) {
         const status = String(row[5] || '待審核').trim();
         if (row[0] !== 'admin' && status !== '啟用') {
@@ -346,7 +404,10 @@ function handleLogin(username, password) {
             fullName: row[2] || row[0],
             role: row[3] || 'client',
             status: status,
-            allowedCompanies: allowedCompanies
+            allowedCompanies: allowedCompanies,
+            email: row[6] || '',
+            phone: row[7] || '',
+            createdAt: row[8] || ''
           }
         };
       } else {
@@ -359,7 +420,7 @@ function handleLogin(username, password) {
 }
 
 /**
- * 處理帳號申請 / 註冊 (預設為「待審核」狀態，需由超級管理者啟用)
+ * 處理帳號申請 / 註冊 (預設為「待審核」狀態，確實寫入電話與信箱，需由超級管理者啟用)
  */
 function handleRegister(userData) {
   if (!userData || !userData.username || !userData.password) {
@@ -372,12 +433,13 @@ function handleRegister(userData) {
     initDatabaseIfEmpty(false);
     sheet = ss.getSheetByName(SYSTEM_SHEETS.USERS);
   }
+  ensureUserSheetHeaders(sheet);
 
   const username = String(userData.username).trim();
   const password = String(userData.password).trim();
   const fullName = String(userData.fullName || userData.full_name || username).trim();
   const role = String(userData.role || 'client').trim();
-  const companyName = String(userData.companyName || userData.company_name || userData.allowedCompanies || '*').trim();
+  const companyName = String(userData.companyName || userData.company_name || userData.allowedCompanies || userData.allowed_companies || '*').trim();
   const email = String(userData.email || '').trim();
   const phone = String(userData.phone || '').trim();
 
@@ -391,7 +453,7 @@ function handleRegister(userData) {
 
   const nowStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss');
   
-  // 新增使用者資料行 (預設狀態為「待審核」)
+  // 新增使用者資料行 (預設狀態為「待審核」，記錄 9 個完整欄位)
   sheet.appendRow([
     username,
     password,
@@ -404,7 +466,7 @@ function handleRegister(userData) {
     nowStr
   ]);
 
-  logAudit(username, 'REGISTER', '新帳號註冊申請 (狀態: 待審核)');
+  logAudit(username, 'REGISTER', '新帳號註冊申請: ' + username + ' (姓名:' + fullName + ', 電話:' + phone + ', 信箱:' + email + ', 狀態: 待審核)');
 
   return {
     success: true,
@@ -413,6 +475,8 @@ function handleRegister(userData) {
       username: username,
       fullName: fullName,
       role: role,
+      phone: phone,
+      email: email,
       status: '待審核'
     }
   };
@@ -591,23 +655,40 @@ function getCompaniesList() {
 }
 
 /**
- * 取得所有使用者 (限管理員使用)
+ * 取得所有使用者 (限管理員使用，完整回傳姓名、公司權限、狀態、信箱、電話、時間)
  */
 function getUsersList() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(SYSTEM_SHEETS.USERS);
+  let sheet = ss.getSheetByName(SYSTEM_SHEETS.USERS);
   if (!sheet) return { success: true, list: [] };
+  ensureUserSheetHeaders(sheet);
 
   const data = sheet.getDataRange().getValues();
+  if (data.length <= 1) return { success: true, list: [] };
+
+  const headers = data[0].map(normalizeUserHeaderKey);
+  const idxUsername = headers.indexOf('username') !== -1 ? headers.indexOf('username') : 0;
+  const idxFullName = headers.indexOf('full_name') !== -1 ? headers.indexOf('full_name') : 2;
+  const idxRole = headers.indexOf('role') !== -1 ? headers.indexOf('role') : 3;
+  const idxAllowed = headers.indexOf('allowed_companies') !== -1 ? headers.indexOf('allowed_companies') : 4;
+  const idxStatus = headers.indexOf('status') !== -1 ? headers.indexOf('status') : 5;
+  const idxEmail = headers.indexOf('email') !== -1 ? headers.indexOf('email') : 6;
+  const idxPhone = headers.indexOf('phone') !== -1 ? headers.indexOf('phone') : 7;
+  const idxCreatedAt = headers.indexOf('created_at') !== -1 ? headers.indexOf('created_at') : 8;
+
   const list = [];
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
+    if (!row[idxUsername] || String(row[idxUsername]).trim() === '') continue;
     list.push({
-      username: row[0],
-      fullName: row[2],
-      role: row[3],
-      allowedCompanies: row[4],
-      status: row[5]
+      username: String(row[idxUsername]).trim(),
+      fullName: String(row[idxFullName] || row[idxUsername]).trim(),
+      role: String(row[idxRole] || 'client').trim(),
+      allowedCompanies: String(row[idxAllowed] || '*').trim(),
+      status: String(row[idxStatus] || '待審核').trim(),
+      email: String(row[idxEmail] || '').trim(),
+      phone: String(row[idxPhone] || '').trim(),
+      createdAt: String(row[idxCreatedAt] || '').trim()
     });
   }
   return { success: true, list: list };
@@ -752,37 +833,53 @@ function saveCompany(companyData, username) {
 }
 
 /**
- * 新增/更新使用者
+ * 新增/更新使用者 (完整支援 username, password, full_name, role, allowed_companies, status, email, phone, created_at)
  */
 function saveUser(userData, username) {
   if (!userData || !userData.username) return { success: false, error: '缺少帳號名稱' };
-  const sheet = getOrCreateSheet(SYSTEM_SHEETS.USERS, ['username', 'password', 'full_name', 'role', 'allowed_companies', 'status']);
-  
+  const sheet = getOrCreateSheet(SYSTEM_SHEETS.USERS, USER_HEADERS);
+  ensureUserSheetHeaders(sheet);
+
+  const uName = String(userData.username).trim();
+  const rawEmail = userData.email !== undefined ? String(userData.email).trim() : null;
+  const rawPhone = userData.phone !== undefined ? String(userData.phone).trim() : null;
+  const rawFullName = (userData.full_name || userData.fullName) ? String(userData.full_name || userData.fullName).trim() : null;
+  const nowStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss');
+
   const data = sheet.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
-    if (String(data[i][0]).trim() === String(userData.username).trim()) {
-      sheet.getRange(i + 1, 1, 1, 6).setValues([[
-        userData.username,
-        userData.password || data[i][1],
-        userData.full_name || data[i][2],
-        userData.role || data[i][3],
-        userData.allowed_companies || data[i][4],
-        userData.status || '啟用'
-      ]]);
-      logAudit(username, 'UPDATE_USER', '更新使用者: ' + userData.username);
+    if (String(data[i][0]).trim().toLowerCase() === uName.toLowerCase()) {
+      const existingRow = data[i];
+      const updatedRow = [
+        uName,
+        userData.password || existingRow[1] || '123456',
+        rawFullName !== null ? rawFullName : (existingRow[2] || uName),
+        userData.role || existingRow[3] || 'client',
+        (userData.allowed_companies !== undefined ? userData.allowed_companies : (userData.allowedCompanies !== undefined ? userData.allowedCompanies : (existingRow[4] || '*'))),
+        userData.status || existingRow[5] || '啟用',
+        rawEmail !== null ? rawEmail : (existingRow[6] || ''),
+        rawPhone !== null ? rawPhone : (existingRow[7] || ''),
+        existingRow[8] || nowStr
+      ];
+      sheet.getRange(i + 1, 1, 1, updatedRow.length).setValues([updatedRow]);
+      logAudit(username || uName, 'UPDATE_USER', '更新使用者: ' + uName + ' (狀態: ' + updatedRow[5] + ', 授權: ' + updatedRow[4] + ')');
       return { success: true };
     }
   }
 
+  // 新增使用者
   sheet.appendRow([
-    userData.username,
+    uName,
     userData.password || '123456',
-    userData.full_name || '',
+    rawFullName || uName,
     userData.role || 'client',
-    userData.allowed_companies || '*',
-    userData.status || '啟用'
+    userData.allowed_companies || userData.allowedCompanies || '*',
+    userData.status || '待審核',
+    rawEmail || '',
+    rawPhone || '',
+    nowStr
   ]);
-  logAudit(username, 'ADD_USER', '新增使用者: ' + userData.username);
+  logAudit(username || uName, 'ADD_USER', '新增使用者: ' + uName);
   return { success: true };
 }
 

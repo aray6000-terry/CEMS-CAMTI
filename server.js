@@ -287,14 +287,20 @@ const server = http.createServer((req, res) => {
         return;
       }
 
-      console.log(`[Proxy] 正在向 Google Sheet 寫入新使用者註冊資料 (狀態: 待審核): ${username} (${fullName})...`);
+      console.log(`[Proxy] 正在向 Google Sheet 寫入新使用者註冊資料 (狀態: 待審核): ${username} (${fullName}), 電話: ${phone}, 信箱: ${email}...`);
 
       const savePayload = {
-        action: 'saveUser',
+        action: 'register',
         username: username,
+        password: password,
+        fullName: fullName,
+        full_name: fullName,
+        phone: phone,
+        email: email,
         data: {
           username: username,
           password: password,
+          fullName: fullName,
           full_name: fullName,
           role: 'client',
           allowed_companies: '*',
@@ -314,6 +320,8 @@ const server = http.createServer((req, res) => {
             user: {
               username: username,
               fullName: fullName,
+              phone: phone,
+              email: email,
               status: '待審核'
             }
           }));

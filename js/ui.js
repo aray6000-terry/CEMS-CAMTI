@@ -627,6 +627,16 @@ class UIManager {
     document.getElementById('perm-user-name-display').textContent = username;
     document.getElementById('perm-user-fullname-display').textContent = `(${user.fullName || user.full_name || username})`;
 
+    // 顯示申請人之電話與電子信箱聯絡資訊
+    const contactBox = document.getElementById('perm-user-contact-display');
+    if (contactBox) {
+      let cHtml = '';
+      if (user.phone) cHtml += `<span style="color:#cbd5e1;"><i class="fas fa-phone" style="font-size:11px; opacity:0.7; margin-right:4px;"></i>${user.phone}</span>`;
+      if (user.email) cHtml += `<span style="color:#93c5fd;"><i class="fas fa-envelope" style="font-size:11px; opacity:0.7; margin-right:4px;"></i>${user.email}</span>`;
+      if (!cHtml) cHtml = '<span style="color:#64748b; font-size:11px;">(未填寫聯絡電話與信箱)</span>';
+      contactBox.innerHTML = cHtml;
+    }
+
     // 狀態
     const statusSelect = document.getElementById('perm-select-status');
     if (statusSelect) statusSelect.value = user.status || '啟用';

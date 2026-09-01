@@ -202,12 +202,18 @@ class AuthService {
       try {
         const gasUrl = window.apiService.getApiUrl();
         const postData = {
-          action: 'saveUser',
+          action: 'register',
           username: username,
+          password: password,
+          fullName: fullName,
+          full_name: fullName,
+          phone: phone,
+          email: email,
           data: {
             username: username,
             password: password,
             full_name: fullName,
+            fullName: fullName,
             role: 'client',
             allowed_companies: '*',
             status: '待審核',
