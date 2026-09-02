@@ -233,6 +233,17 @@
             </button>
           </div>
 
+          <!-- Brand Subtabs under System Category (系統分類下新增廠牌分類) -->
+          <div id="brand-subtabs-container" class="brand-subtabs-container">
+            <div class="brand-subtabs-label">
+              <i class="fas fa-industry text-primary"></i>
+              <span>廠牌分類</span>
+            </div>
+            <div id="brand-chips-list" class="brand-chips-list">
+              <!-- 動態注入各廠牌 Chips (全部廠牌、各廠牌名稱與數量) -->
+            </div>
+          </div>
+
           <div class="flex items-center gap-2">
             <!-- 僅看未交貨快速過濾 -->
             <button id="btn-filter-undelivered" class="btn btn-secondary btn-sm" title="僅顯示未交貨或待點交設備">
@@ -271,7 +282,15 @@
               </select>
             </div>
 
-            <!-- 設備型號篩選 (新增) -->
+            <!-- 廠牌分類篩選 (新增) -->
+            <div class="input-group">
+              <i class="fas fa-industry"></i>
+              <select id="filter-brand" class="form-control">
+                <option value="all">🏭 全部廠牌</option>
+              </select>
+            </div>
+
+            <!-- 設備型號篩選 -->
             <div class="input-group">
               <i class="fas fa-tag"></i>
               <select id="filter-model" class="form-control">
@@ -416,6 +435,17 @@
                   <option value="攝影機">📹 2. 攝影機系統</option>
                   <option value="門禁系統">🚪 3. 門禁系統</option>
                   <option value="電子鎖">🔐 4. 電子鎖系統</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 2.5 廠牌分類選單 (新增) -->
+            <div>
+              <label class="form-label text-xs">🏭 廠牌分類</label>
+              <div class="input-group">
+                <i class="fas fa-industry"></i>
+                <select id="report-filter-brand" class="form-control">
+                  <option value="all">🏭 全部廠牌</option>
                 </select>
               </div>
             </div>
@@ -577,12 +607,25 @@
 
           <div class="form-grid-2">
             <div>
+              <label class="form-label">廠牌分類 (可手動輸入或選取) <span class="required">*</span></label>
+              <input type="text" id="eq-brand" list="datalist-brands" class="modal-input" placeholder="可直接輸入新廠牌或下拉選取..." required autocomplete="off">
+              <datalist id="datalist-brands"></datalist>
+            </div>
+            <div>
+              <label class="form-label">品牌型號 (可手動輸入或選取) <span class="required">*</span></label>
+              <input type="text" id="eq-model" list="datalist-models" class="modal-input" placeholder="可直接輸入新型號或下拉選取..." required autocomplete="off">
+              <datalist id="datalist-models"></datalist>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div>
               <label class="form-label">設備名稱 <span class="required">*</span></label>
               <input type="text" id="eq-device-name" class="modal-input" placeholder="例如：IP觸控式門口對講主機" required>
             </div>
             <div>
-              <label class="form-label">品牌型號 <span class="required">*</span></label>
-              <input type="text" id="eq-model" class="modal-input" placeholder="例如：Panasonic VL-V900" required>
+              <label class="form-label">計量單位</label>
+              <input type="text" id="eq-unit" class="modal-input" value="台" placeholder="台 / 組 / 支 / 套">
             </div>
           </div>
 
@@ -592,8 +635,8 @@
               <input type="number" id="eq-quantity" class="modal-input" min="1" value="1" required>
             </div>
             <div>
-              <label class="form-label">計量單位</label>
-              <input type="text" id="eq-unit" class="modal-input" value="台" placeholder="台 / 組 / 支 / 套">
+              <label class="form-label">預計 / 實際交貨日期</label>
+              <input type="date" id="eq-delivery-date" class="modal-input">
             </div>
           </div>
 
@@ -605,13 +648,6 @@
             <div>
               <label class="form-label">未交貨數量</label>
               <input type="number" id="eq-undelivered-qty" class="modal-input" min="0" value="0">
-            </div>
-          </div>
-
-          <div class="form-grid-2" style="margin-top: 16px;">
-            <div>
-              <label class="form-label">預計 / 實際交貨日期</label>
-              <input type="date" id="eq-delivery-date" class="modal-input">
             </div>
           </div>
 

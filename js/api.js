@@ -767,10 +767,17 @@ class ApiService {
       salesRep = defaultReps[item.company_name] || '業務專員';
     }
 
+    // 廠牌正規化 (若未填寫或舊資料，自動智慧推導)
+    let brand = (item.brand || item.廠牌 || item.廠牌分類 || item.品牌 || '').toString().trim();
+    if (!brand) {
+      brand = this.extractBrand(item.model, item.device_name, item.system_type);
+    }
+
     return Object.assign({}, item, {
       id: item.id || ('EQ-' + Math.floor(1000 + Math.random() * 9000)),
       project_name: item.project_name || item.location || '新建案工程',
       sales_rep: salesRep,
+      brand: brand,
       delivery_status: status,
       delivered_qty: d,
       undelivered_qty: u,
@@ -778,6 +785,42 @@ class ApiService {
       unit: item.unit || '台',
       remarks: item.remarks || ''
     });
+  }
+
+  /**
+   * 智慧推導設備廠牌 (針對歷史資料或匯入資料缺失時自動補正)
+   */
+  extractBrand(model = '', deviceName = '', systemType = '') {
+    const text = `${model} ${deviceName}`.trim();
+    if (!text) return '其他廠牌';
+
+    const knownBrands = [
+      'Panasonic', 'Commax', 'Hikvision', 'Soyal', 'Gianni', 'Akuvox', 'Dahua',
+      'Fujitsu', 'Yale', 'Dormakaba', 'Avigilon', 'Axis', 'Honeywell', 'Sony',
+      'HID', 'Amroad', 'Aiphone', 'Samsung', 'Gateman', 'Bosch', 'Fermax',
+      'Vimar', 'Bticino', 'Milestone', 'Kaba', 'Vingcard', 'Hanwha', 'Uniview',
+      'Chiyu', 'Pegasus', 'Yisheng', 'Klipsch', 'SecuFirst', 'ABB', 'Turing'
+    ];
+
+    for (const kb of knownBrands) {
+      if (new RegExp('\\b' + kb + '\\b', 'i').test(text)) {
+        return kb;
+      }
+    }
+
+    // 若未命中已知品牌，取型號或設備名稱的第一個詞
+    const candidate = (model || deviceName).trim().split(/[\s\-_/]/)[0];
+    if (candidate && candidate.length >= 2 && !/^\d+$/.test(candidate)) {
+      return candidate.charAt(0).toUpperCase() + candidate.slice(1);
+    }
+
+    // 依系統分類提供合理預設
+    if (systemType === '對講機') return 'Panasonic';
+    if (systemType === '攝影機') return 'Hikvision';
+    if (systemType === '門禁系統') return 'Soyal';
+    if (systemType === '電子鎖') return 'Yale';
+
+    return '標準廠牌';
   }
 
   isLiveMode() {

@@ -25,7 +25,7 @@ const COMPANY_NAMES = [
 ];
 
 const EQ_HEADERS = [
-  'id', 'company_name', 'contract_id', 'project_name', 'sales_rep', 'system_type', 'device_name',
+  'id', 'company_name', 'contract_id', 'project_name', 'sales_rep', 'system_type', 'brand', 'device_name',
   'model', 'quantity', 'delivered_qty', 'undelivered_qty', 'unit', 'delivery_status',
   'delivery_date', 'remarks', 'updated_at'
 ];
@@ -635,6 +635,7 @@ function normalizeHeaderKey(rawHeader) {
   if (h === 'project_name' || h === '建案名稱' || h === '工程名稱' || h === '建案' || h === '案名' || h === '專案' || h === '專案名稱') return 'project_name';
   if (h === 'sales_rep' || h === 'sales' || h.indexOf('業務') !== -1 || h === '業務人員' || h === '業務' || h === '業務專員' || h === '負責業務' || h === '業務員' || h === '專案業務') return 'sales_rep';
   if (h === 'system_type' || h === '系統分類' || h === '系統別' || h === '系統類別' || h === '系統') return 'system_type';
+  if (h === 'brand' || h === '廠牌' || h === '廠牌分類' || h === '設備廠牌' || h === '品牌' || h === '廠牌名稱') return 'brand';
   if (h === 'device_name' || h === '設備名稱' || h === '品名' || h === '項目名稱') return 'device_name';
   if (h === 'model' || h === '品牌型號' || h === '型號' || h === '規格型號' || h === '規格') return 'model';
   if (h === 'quantity' || h === '合約總數' || h === '總數量' || h === '合約數量' || h === '數量') return 'quantity';
@@ -871,6 +872,7 @@ function saveEquipment(item, username) {
     project_name: item.project_name || '',
     sales_rep: item.sales_rep || '',
     system_type: item.system_type || '對講機',
+    brand: item.brand || '',
     device_name: item.device_name || '',
     model: item.model || '',
     quantity: totalQty,
@@ -887,7 +889,7 @@ function saveEquipment(item, username) {
     ? targetHeaders.map(function(key) { return (valMap[key] !== undefined) ? valMap[key] : (item[key] || ''); })
     : [
       id, companyName, item.contract_id || '', item.project_name || '', item.sales_rep || '',
-      item.system_type || '對講機', item.device_name || '', item.model || '', totalQty, deliveredQty,
+      item.system_type || '對講機', item.brand || '', item.device_name || '', item.model || '', totalQty, deliveredQty,
       undeliveredQty, item.unit || '台', status, item.delivery_date || todayStr, item.remarks || '', todayStr
     ];
 

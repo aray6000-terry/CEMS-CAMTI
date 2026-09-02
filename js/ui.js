@@ -60,6 +60,13 @@ class UIManager {
       });
     }
 
+    const repBrand = document.getElementById('report-filter-brand');
+    if (repBrand) {
+      repBrand.addEventListener('change', (e) => {
+        window.appStore.setReportBrand(e.target.value);
+      });
+    }
+
     const repModel = document.getElementById('report-filter-model');
     if (repModel) {
       repModel.addEventListener('change', (e) => {
@@ -117,6 +124,14 @@ class UIManager {
     if (companySelect) {
       companySelect.addEventListener('change', (e) => {
         window.appStore.setCompanyFilter(e.target.value);
+      });
+    }
+
+    // 2.5 清單頁 - 廠牌分類篩選下拉選單 (新增)
+    const brandSelect = document.getElementById('filter-brand');
+    if (brandSelect) {
+      brandSelect.addEventListener('change', (e) => {
+        window.appStore.setBrandFilter(e.target.value);
       });
     }
 
@@ -375,7 +390,9 @@ class UIManager {
     this.renderCompanyTabs(store);
     this.renderKPIs(store);
     this.renderSystemTabCounts(store);
+    this.renderBrandSubtabs(store);
     this.renderCompanyDropdown(store);
+    this.renderBrandDropdown(store);
     this.renderListModelDropdown(store);
     this.renderTabStatsBar(store);
     this.renderEquipmentTable(store);
@@ -823,6 +840,67 @@ class UIManager {
   }
 
   /**
+   * 渲染 4大系統分頁下之「廠牌分類次標籤 (Brand Subtabs)」
+   */
+  renderBrandSubtabs(store) {
+    const container = document.getElementById('brand-chips-list');
+    if (!container) return;
+
+    const brandItems = store.getListAvailableBrandsWithCounts();
+    const currentBrand = store.filters.brand;
+    const totalCount = brandItems.reduce((acc, cur) => acc + cur.count, 0);
+
+    let html = `
+      <button type="button" class="brand-chip ${currentBrand === 'all' ? 'active' : ''}" data-brand="all" title="查看當前系統下全部廠牌">
+        <span>全部廠牌</span>
+        <span class="brand-chip-count">${totalCount}</span>
+      </button>
+    `;
+
+    brandItems.forEach(item => {
+      const isActive = (currentBrand === item.brand);
+      html += `
+        <button type="button" class="brand-chip ${isActive ? 'active' : ''}" data-brand="${item.brand}" title="僅顯示 ${item.brand} 廠牌設備">
+          <i class="fas fa-industry" style="font-size:0.65rem; opacity:0.8;"></i>
+          <span>${item.brand}</span>
+          <span class="brand-chip-count">${item.count}</span>
+        </button>
+      `;
+    });
+
+    container.innerHTML = html;
+
+    // 點擊廠牌 Chips 即時篩選
+    container.querySelectorAll('.brand-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const b = btn.getAttribute('data-brand');
+        store.setBrandFilter(b);
+        const filterBrandSel = document.getElementById('filter-brand');
+        if (filterBrandSel) filterBrandSel.value = b;
+      });
+    });
+  }
+
+  /**
+   * 渲染清單頁的設備廠牌篩選下拉選單
+   */
+  renderBrandDropdown(store) {
+    const select = document.getElementById('filter-brand');
+    if (!select) return;
+
+    const brands = store.getListAvailableBrands();
+    const currentVal = store.filters.brand;
+
+    let optionsHtml = `<option value="all">🏭 全部廠牌 (${brands.length}家)</option>`;
+    brands.forEach(b => {
+      const selected = (currentVal === b) ? 'selected' : '';
+      optionsHtml += `<option value="${b}" ${selected}>🏭 ${b}</option>`;
+    });
+
+    select.innerHTML = optionsHtml;
+  }
+
+  /**
    * 渲染清單頁的設備型號篩選下拉選單
    */
   renderListModelDropdown(store) {
@@ -931,8 +1009,9 @@ class UIManager {
           </td>
           <td>
             <div class="font-semibold text-main">${item.device_name}</div>
-            <div class="text-xs text-subtle" style="color: #93c5fd;">
-              <i class="fas fa-tag" style="margin-right:2px;"></i> ${item.model || '標準型號'}
+            <div class="text-xs" style="margin-top:3px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+              <span class="badge-brand"><i class="fas fa-industry"></i> ${item.brand || '標準廠牌'}</span>
+              <span class="text-subtle" style="color: #93c5fd;"><i class="fas fa-tag" style="margin-right:2px;"></i> ${item.model || '標準型號'}</span>
             </div>
           </td>
           <td>
@@ -1024,6 +1103,20 @@ class UIManager {
       selectComp.innerHTML = optionsHtml;
     }
 
+    // 1.5 動態載入廠牌分類選單 (連動系統分類)
+    const selectBrand = document.getElementById('report-filter-brand');
+    if (selectBrand) {
+      const availableBrands = store.getAvailableBrands();
+      const currentBrand = store.reportFilters.brand;
+
+      let brandOptions = `<option value="all">🏭 全部廠牌 (${availableBrands.length}家)</option>`;
+      availableBrands.forEach(b => {
+        const selected = (currentBrand === b) ? 'selected' : '';
+        brandOptions += `<option value="${b}" ${selected}>🏭 ${b}</option>`;
+      });
+      selectBrand.innerHTML = brandOptions;
+    }
+
     // 2. 動態載入品牌型號選單
     const selectModel = document.getElementById('report-filter-model');
     if (selectModel) {
@@ -1083,8 +1176,9 @@ class UIManager {
       thead.innerHTML = `
         <tr>
           <th style="width: 100px;">系統分類</th>
-          <th style="width: 150px;">品牌型號</th>
-          <th style="width: 170px;">設備名稱</th>
+          <th style="width: 110px;">廠牌分類</th>
+          <th style="width: 140px;">品牌型號</th>
+          <th style="width: 160px;">設備名稱</th>
           <th style="width: 130px;">建案名稱</th>
           <th style="width: 100px;">業務人員</th>
           <th style="width: 110px;">所屬公司</th>
@@ -1101,7 +1195,7 @@ class UIManager {
     if (tbody) {
       const rows = reportData.modelBreakdownList;
       if (rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="${10 + reportData.years.length}" class="text-center" style="padding:35px; color:#94a3b8;">查無符合「${reportData.deliveryStatus === 'all' ? '全部' : reportData.deliveryStatus}」條件之型號年度數據</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="${11 + reportData.years.length}" class="text-center" style="padding:35px; color:#94a3b8;">查無符合「${reportData.deliveryStatus === 'all' ? '全部' : reportData.deliveryStatus}」條件之型號年度數據</td></tr>`;
       } else {
         tbody.innerHTML = rows.map(r => {
           const isDelivered = (r.delivery_status === '已交貨');
@@ -1132,6 +1226,9 @@ class UIManager {
                 <span class="badge badge-system" data-sys="${r.system_type}">
                   ${r.system_type}
                 </span>
+              </td>
+              <td>
+                <span class="badge-brand"><i class="fas fa-industry"></i> ${r.brand || '標準廠牌'}</span>
               </td>
               <td>
                 <span class="font-bold" style="color: #93c5fd;">${r.model}</span>
@@ -1285,6 +1382,7 @@ class UIManager {
       document.getElementById('eq-project-name').value = item.project_name || '';
       document.getElementById('eq-sales-rep').value = item.sales_rep || '';
       document.getElementById('eq-system-type').value = item.system_type || '對講機';
+      document.getElementById('eq-brand').value = item.brand || '';
       document.getElementById('eq-device-name').value = item.device_name || '';
       document.getElementById('eq-model').value = item.model || '';
       
@@ -1315,6 +1413,22 @@ class UIManager {
         ? currentCompFilter
         : (allowedCompNames[0] || '');
       document.getElementById('eq-company').value = defaultComp;
+
+      // 若目前有指定篩選特定系統或廠牌，貼心自動帶入
+      if (window.appStore.activeSystem !== 'all') {
+        document.getElementById('eq-system-type').value = window.appStore.activeSystem;
+      }
+      if (window.appStore.filters.brand !== 'all') {
+        document.getElementById('eq-brand').value = window.appStore.filters.brand;
+      } else {
+        document.getElementById('eq-brand').value = '';
+      }
+      if (window.appStore.filters.model !== 'all') {
+        document.getElementById('eq-model').value = window.appStore.filters.model;
+      } else {
+        document.getElementById('eq-model').value = '';
+      }
+
       document.getElementById('eq-quantity').value = '1';
       document.getElementById('eq-delivered-qty').value = '1';
       document.getElementById('eq-undelivered-qty').value = '0';
@@ -1326,7 +1440,54 @@ class UIManager {
       }
     }
 
+    // 動態載入並綁定廠牌與型號的下拉選單 (Datalist) 與連動篩選
+    this.populateEquipmentModalDatalists();
+
     this.openModal(this.modalEquipment);
+  }
+
+  /**
+   * 動態載入並更新設備彈窗中的廠牌與品牌型號下拉選單 (Datalist)
+   * 支援既有資料庫下拉點選與自由手動鍵入，並具備廠牌/型號連動推薦
+   */
+  populateEquipmentModalDatalists() {
+    const brandListEl = document.getElementById('datalist-brands');
+    const modelListEl = document.getElementById('datalist-models');
+    const systemTypeEl = document.getElementById('eq-system-type');
+    const brandInput = document.getElementById('eq-brand');
+    const modelInput = document.getElementById('eq-model');
+
+    if (!brandListEl || !modelListEl) return;
+
+    // 1. 填入廠牌 datalist
+    const updateBrandList = () => {
+      const currentSys = systemTypeEl ? systemTypeEl.value : 'all';
+      const brands = window.appStore.getAllUniqueBrands(currentSys);
+      brandListEl.innerHTML = brands.map(b => `<option value="${b}">${b}</option>`).join('');
+    };
+
+    // 2. 依所選/輸入廠牌更新型號 datalist
+    const updateModelList = () => {
+      const selectedBrand = brandInput ? brandInput.value.trim() : '';
+      const models = window.appStore.getAllUniqueModels(selectedBrand);
+      modelListEl.innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join('');
+    };
+
+    updateBrandList();
+    updateModelList();
+
+    // 3. 綁定連動互動 (覆寫 onchange/oninput 避免重複監聽堆疊)
+    if (systemTypeEl) {
+      systemTypeEl.onchange = () => {
+        updateBrandList();
+        updateModelList();
+      };
+    }
+
+    if (brandInput) {
+      brandInput.oninput = () => updateModelList();
+      brandInput.onchange = () => updateModelList();
+    }
   }
 
   /**
@@ -1341,6 +1502,28 @@ class UIManager {
     const undeliveredQty = Number(document.getElementById('eq-undelivered-qty').value) || (totalQty - deliveredQty);
     const status = document.getElementById('eq-delivery-status').value;
 
+    const brandVal = document.getElementById('eq-brand').value.trim();
+    const modelVal = document.getElementById('eq-model').value.trim();
+    const deviceNameVal = document.getElementById('eq-device-name').value.trim();
+
+    if (!brandVal) {
+      alert('請輸入或從下拉選單選取廠牌分類！');
+      document.getElementById('eq-brand').focus();
+      return;
+    }
+
+    if (!modelVal) {
+      alert('請輸入或從下拉選單選取品牌型號！');
+      document.getElementById('eq-model').focus();
+      return;
+    }
+
+    if (!deviceNameVal) {
+      alert('請填寫設備名稱！');
+      document.getElementById('eq-device-name').focus();
+      return;
+    }
+
     const data = {
       id: document.getElementById('eq-id').value.trim(),
       company_name: document.getElementById('eq-company').value,
@@ -1348,9 +1531,10 @@ class UIManager {
       project_name: document.getElementById('eq-project-name').value.trim(),
       sales_rep: document.getElementById('eq-sales-rep').value.trim(),
       system_type: document.getElementById('eq-system-type').value,
+      brand: brandVal,
       delivery_status: status,
-      device_name: document.getElementById('eq-device-name').value.trim(),
-      model: document.getElementById('eq-model').value.trim(),
+      device_name: deviceNameVal,
+      model: modelVal,
       quantity: totalQty,
       delivered_qty: deliveredQty,
       undelivered_qty: undeliveredQty,
@@ -1359,17 +1543,13 @@ class UIManager {
       remarks: document.getElementById('eq-remarks').value.trim()
     };
 
-    if (!data.device_name) {
-      alert('請填寫設備名稱');
-      return;
-    }
     if (!data.project_name) {
-      alert('請填寫建案名稱');
+      alert('請填寫建案名稱！');
       return;
     }
 
     const actionText = isEdit ? '修改' : '新增';
-    const confirmMsg = `【確認${actionText}設備】\n\n・建案/專案：${data.project_name}\n・業務人員：${data.sales_rep || '未指定'}\n・系統類別：${data.system_type}\n・設備名稱：${data.device_name}\n・品牌型號：${data.model || '標準型號'}\n・合約總數：${data.quantity} ${data.unit}\n・交貨狀態：${data.delivery_status} (已交:${data.delivered_qty} / 未交:${data.undelivered_qty})\n\n請確認是否儲存？`;
+    const confirmMsg = `【確認${actionText}設備】\n\n・建案/專案：${data.project_name}\n・業務人員：${data.sales_rep || '未指定'}\n・系統分類：${data.system_type}\n・廠牌分類：${data.brand}\n・品牌型號：${data.model}\n・設備名稱：${data.device_name}\n・合約總數：${data.quantity} ${data.unit}\n・交貨狀態：${data.delivery_status} (已交:${data.delivered_qty} / 未交:${data.undelivered_qty})\n\n請確認是否儲存？`;
     
     if (!confirm(confirmMsg)) {
       return;

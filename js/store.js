@@ -10,9 +10,10 @@ class AppStore {
     this.loading = false;
     this.activeSystem = 'all'; // 'all', '對講機', '攝影機', '門禁系統', '電子鎖'
     
-    // 清單過濾條件 (支援公司、型號、交貨狀態、年度區間、關鍵字)
+    // 清單過濾條件 (支援公司、系統分類、廠牌分類、型號、交貨狀態、年度區間、關鍵字)
     this.filters = {
       company: 'all',
+      brand: 'all',            // 設備廠牌篩選
       model: 'all',            // 設備型號篩選
       delivery_status: 'all',  // 'all', '已交貨', '未交貨'
       year: 'all',             // 'all', '2023' ~ '2030', 'range-2024-2026', 'range-2026-2028', 'range-2026-2030'
@@ -20,10 +21,11 @@ class AppStore {
       undeliveredOnly: false
     };
 
-    // 3-5年年度分析報表過濾條件
+    // 3-5年年度分析報表過濾條件 (支援公司、系統、廠牌、型號多層級連動)
     this.reportFilters = {
       company: 'all',
       system: 'all',           // 'all', '對講機', '攝影機', '門禁系統', '電子鎖'
+      brand: 'all',            // 'all' 或特定廠牌
       model: 'all',            // 'all' 或特定型號
       deliveryStatus: 'all',   // 'all', '已交貨', '未交貨'
       metric: 'all_qty',       // 'all_qty' (總數量), 'delivered' (已交貨), 'undelivered' (未交貨)
@@ -98,13 +100,21 @@ class AppStore {
   // --- 清單頁篩選方法 ---
   setSystemFilter(systemType) {
     this.activeSystem = systemType;
+    this.filters.brand = 'all'; // 切換系統分頁時重設廠牌
     this.filters.model = 'all'; // 切換系統分頁時重設型號選單
     this.notify();
   }
 
   setCompanyFilter(companyName) {
     this.filters.company = companyName;
+    this.filters.brand = 'all'; // 更換公司時重設廠牌
     this.filters.model = 'all'; // 更換公司時重設型號選單
+    this.notify();
+  }
+
+  setBrandFilter(brand) {
+    this.filters.brand = brand;
+    this.filters.model = 'all'; // 更換廠牌時重設型號選單
     this.notify();
   }
 
@@ -136,12 +146,20 @@ class AppStore {
   // --- 年度報表頁篩選方法 ---
   setReportCompany(company) {
     this.reportFilters.company = company;
+    this.reportFilters.brand = 'all';
     this.reportFilters.model = 'all';
     this.notify();
   }
 
   setReportSystem(system) {
     this.reportFilters.system = system;
+    this.reportFilters.brand = 'all';
+    this.reportFilters.model = 'all';
+    this.notify();
+  }
+
+  setReportBrand(brand) {
+    this.reportFilters.brand = brand;
     this.reportFilters.model = 'all';
     this.notify();
   }
@@ -181,13 +199,57 @@ class AppStore {
   }
 
   /**
-   * 取得清單頁可用型號清單 (依所選公司與4大系統分頁過濾)
+   * 取得清單頁可用廠牌清單 (依所選公司與當前系統分頁過濾)
+   */
+  getListAvailableBrands() {
+    const accessible = this.equipment.filter(item => {
+      if (!window.authService.canAccessCompany(item.company_name)) return false;
+      if (this.filters.company !== 'all' && item.company_name !== this.filters.company) return false;
+      if (this.activeSystem !== 'all' && item.system_type !== this.activeSystem) return false;
+      return true;
+    });
+
+    const brandsSet = new Set();
+    accessible.forEach(item => {
+      const b = (item.brand || '').trim();
+      if (b) brandsSet.add(b);
+    });
+
+    return Array.from(brandsSet).sort();
+  }
+
+  /**
+   * 取得清單頁各廠牌及其設備項目筆數 (供頂部次分類 Chips / Pills 即時顯示)
+   */
+  getListAvailableBrandsWithCounts() {
+    const accessible = this.equipment.filter(item => {
+      if (!window.authService.canAccessCompany(item.company_name)) return false;
+      if (this.filters.company !== 'all' && item.company_name !== this.filters.company) return false;
+      if (this.activeSystem !== 'all' && item.system_type !== this.activeSystem) return false;
+      return true;
+    });
+
+    const counts = {};
+    accessible.forEach(item => {
+      const b = (item.brand || '其他廠牌').trim();
+      counts[b] = (counts[b] || 0) + 1;
+    });
+
+    return Object.keys(counts).sort().map(b => ({
+      brand: b,
+      count: counts[b]
+    }));
+  }
+
+  /**
+   * 取得清單頁可用型號清單 (依所選公司、系統分頁及廠牌進一步智慧過濾)
    */
   getListAvailableModels() {
     const accessible = this.equipment.filter(item => {
       if (!window.authService.canAccessCompany(item.company_name)) return false;
       if (this.filters.company !== 'all' && item.company_name !== this.filters.company) return false;
       if (this.activeSystem !== 'all' && item.system_type !== this.activeSystem) return false;
+      if (this.filters.brand !== 'all' && (item.brand || '').trim() !== this.filters.brand) return false;
       return true;
     });
 
@@ -202,13 +264,34 @@ class AppStore {
   }
 
   /**
-   * 取得報表頁可用型號清單
+   * 取得報表頁可用廠牌清單 (依所選公司與系統分類過濾)
+   */
+  getAvailableBrands() {
+    const accessible = this.equipment.filter(item => {
+      if (!window.authService.canAccessCompany(item.company_name)) return false;
+      if (this.reportFilters.company !== 'all' && item.company_name !== this.reportFilters.company) return false;
+      if (this.reportFilters.system !== 'all' && item.system_type !== this.reportFilters.system) return false;
+      return true;
+    });
+
+    const brandsSet = new Set();
+    accessible.forEach(item => {
+      const b = (item.brand || '').trim();
+      if (b) brandsSet.add(b);
+    });
+
+    return Array.from(brandsSet).sort();
+  }
+
+  /**
+   * 取得報表頁可用型號清單 (依所選公司、系統分類與廠牌分類過濾)
    */
   getAvailableModels() {
     const accessible = this.equipment.filter(item => {
       if (!window.authService.canAccessCompany(item.company_name)) return false;
       if (this.reportFilters.company !== 'all' && item.company_name !== this.reportFilters.company) return false;
       if (this.reportFilters.system !== 'all' && item.system_type !== this.reportFilters.system) return false;
+      if (this.reportFilters.brand !== 'all' && (item.brand || '').trim() !== this.reportFilters.brand) return false;
       return true;
     });
 
@@ -218,6 +301,55 @@ class AppStore {
         modelsSet.add(item.model.trim());
       }
     });
+
+    return Array.from(modelsSet).sort();
+  }
+
+  /**
+   * 取得整個資料庫中所有獨立廠牌清單 (供彈窗 datalist 下拉選取)
+   */
+  getAllUniqueBrands(systemType = null) {
+    const brandsSet = new Set();
+    this.equipment.forEach(item => {
+      if (!systemType || systemType === 'all' || item.system_type === systemType) {
+        const b = (item.brand || '').trim();
+        if (b) brandsSet.add(b);
+      }
+    });
+    // 如果指定系統但數量較少，也補上全庫常用廠牌
+    if (brandsSet.size === 0) {
+      this.equipment.forEach(item => {
+        const b = (item.brand || '').trim();
+        if (b) brandsSet.add(b);
+      });
+    }
+    return Array.from(brandsSet).sort();
+  }
+
+  /**
+   * 取得整個資料庫中所有獨立型號清單 (可指定廠牌進行連動過濾，供彈窗 datalist 下拉選取)
+   */
+  getAllUniqueModels(brand = null) {
+    const modelsSet = new Set();
+    const cleanBrand = (brand || '').trim().toLowerCase();
+    
+    this.equipment.forEach(item => {
+      const itemBrand = (item.brand || '').trim().toLowerCase();
+      if (!cleanBrand || itemBrand === cleanBrand) {
+        if (item.model && item.model.trim()) {
+          modelsSet.add(item.model.trim());
+        }
+      }
+    });
+
+    // 若指定廠牌查無型號，回傳所有型號以利挑選
+    if (modelsSet.size === 0) {
+      this.equipment.forEach(item => {
+        if (item.model && item.model.trim()) {
+          modelsSet.add(item.model.trim());
+        }
+      });
+    }
 
     return Array.from(modelsSet).sort();
   }
@@ -234,7 +366,10 @@ class AppStore {
       // 2. 4大系統分頁篩選
       if (this.activeSystem !== 'all' && item.system_type !== this.activeSystem) return false;
 
-      // 3. 設備型號篩選 (新增)
+      // 2.5 廠牌分類篩選 (新增)
+      if (this.filters.brand !== 'all' && (item.brand || '').trim() !== this.filters.brand) return false;
+
+      // 3. 設備型號篩選
       if (this.filters.model !== 'all' && item.model !== this.filters.model) return false;
 
       // 4. 交貨狀態精確過濾 (已交貨 / 未交貨)
@@ -395,6 +530,7 @@ class AppStore {
       if (!window.authService.canAccessCompany(item.company_name)) return false;
       if (this.reportFilters.company !== 'all' && item.company_name !== this.reportFilters.company) return false;
       if (this.reportFilters.system !== 'all' && item.system_type !== this.reportFilters.system) return false;
+      if (this.reportFilters.brand !== 'all' && (item.brand || '').trim() !== this.reportFilters.brand) return false;
       if (this.reportFilters.model !== 'all' && item.model !== this.reportFilters.model) return false;
       
       // 交貨狀態過濾
@@ -507,7 +643,7 @@ class AppStore {
     // 各型號詳細交貨矩陣明細
     const modelGroups = {};
     accessibleEquipment.forEach(item => {
-      const key = `${item.system_type}__${item.model || '未標示型號'}__${item.project_name || '未指定建案'}`;
+      const key = `${item.system_type}__${item.brand || '標準廠牌'}__${item.model || '未標示型號'}__${item.project_name || '未指定建案'}`;
       const q = Number(item.quantity) || 1;
       const dQty = Number(item.delivered_qty) !== undefined ? Number(item.delivered_qty) : (item.delivery_status === '已交貨' ? q : 0);
       const uQty = Number(item.undelivered_qty) !== undefined ? Number(item.undelivered_qty) : (q - dQty);
@@ -515,6 +651,7 @@ class AppStore {
       if (!modelGroups[key]) {
         modelGroups[key] = {
           system_type: item.system_type,
+          brand: item.brand || '標準廠牌',
           model: item.model || '標準通用型',
           device_name: item.device_name,
           project_name: item.project_name || '新建案工程',
@@ -557,6 +694,7 @@ class AppStore {
       modelBreakdownList,
       company: this.reportFilters.company,
       system: this.reportFilters.system,
+      brand: this.reportFilters.brand,
       model: this.reportFilters.model,
       deliveryStatus: this.reportFilters.deliveryStatus,
       metric: this.reportFilters.metric,
@@ -575,7 +713,7 @@ class AppStore {
     }
 
     const headers = [
-      '設備ID', '所屬公司', '合約編號', '建案名稱', '業務人員', '系統分類', '設備名稱',
+      '設備ID', '所屬公司', '合約編號', '建案名稱', '業務人員', '系統分類', '廠牌', '設備名稱',
       '品牌型號', '合約總數量', '已交貨數量', '未交貨數量', '單位', '交貨狀態',
       '預計/實際交貨日', '備註', '最後更新'
     ];
@@ -587,6 +725,7 @@ class AppStore {
       `"${(item.project_name || '').replace(/"/g, '""')}"`,
       `"${(item.sales_rep || '').replace(/"/g, '""')}"`,
       item.system_type || '',
+      `"${(item.brand || '').replace(/"/g, '""')}"`,
       `"${(item.device_name || '').replace(/"/g, '""')}"`,
       `"${(item.model || '').replace(/"/g, '""')}"`,
       item.quantity || 1,
@@ -633,12 +772,13 @@ class AppStore {
     const colName = isDeliveredOnly ? '已交貨數量' : (isUndeliveredOnly ? '未交貨數量' : '數量');
 
     const headers = [
-      '系統分類', '品牌型號', '設備名稱', '建案名稱', '業務人員', '所屬公司', '合約總數量', '已交貨數量', '未交貨數量', '交貨狀態',
+      '系統分類', '廠牌', '品牌型號', '設備名稱', '建案名稱', '業務人員', '所屬公司', '合約總數量', '已交貨數量', '未交貨數量', '交貨狀態',
       ...yearCols.map(y => `${y}年${colName}`)
     ];
 
     const csvRows = rows.map(r => [
       r.system_type,
+      `"${(r.brand || '').replace(/"/g, '""')}"`,
       `"${r.model.replace(/"/g, '""')}"`,
       `"${r.device_name.replace(/"/g, '""')}"`,
       `"${r.project_name.replace(/"/g, '""')}"`,
@@ -657,7 +797,7 @@ class AppStore {
       })
     ]);
 
-    const titleRow = `合約設備各系統各型號年度交貨報表 - 公司:${reportData.company} - 系統:${reportData.system} - 型號:${reportData.model} - 狀態:${reportData.deliveryStatus}\r\n`;
+    const titleRow = `合約設備各系統各型號年度交貨報表 - 公司:${reportData.company} - 系統:${reportData.system} - 廠牌:${reportData.brand} - 型號:${reportData.model} - 狀態:${reportData.deliveryStatus}\r\n`;
     const csvContent = '\uFEFF' + titleRow + [
       headers.join(','),
       ...csvRows.map(r => r.join(','))
