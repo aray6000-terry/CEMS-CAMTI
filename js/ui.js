@@ -872,7 +872,7 @@ class UIManager {
     if (items.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="10">
+          <td colspan="11">
             <div class="empty-state">
               <i class="fas fa-search"></i>
               <h3>查無符合條件的合約設備</h3>
@@ -916,6 +916,12 @@ class UIManager {
           <td>
             <div class="font-semibold text-main" style="color: #f1f5f9;">
               <i class="fas fa-building text-primary" style="margin-right:4px;"></i>${item.project_name || '未指定建案'}
+            </div>
+          </td>
+          <td>
+            <div class="text-sm font-medium" style="color: #cbd5e1; display: flex; align-items: center; gap: 4px;">
+              <i class="fas fa-user-tie" style="font-size: 0.8rem; color: #94a3b8;"></i>
+              <span>${item.sales_rep || '-'}</span>
             </div>
           </td>
           <td>
@@ -1080,6 +1086,7 @@ class UIManager {
           <th style="width: 150px;">品牌型號</th>
           <th style="width: 170px;">設備名稱</th>
           <th style="width: 130px;">建案名稱</th>
+          <th style="width: 100px;">業務人員</th>
           <th style="width: 110px;">所屬公司</th>
           <th style="width: 85px; text-align:center;">合約總數</th>
           <th style="width: 85px; text-align:center; color:#34d399;">已交數量</th>
@@ -1094,7 +1101,7 @@ class UIManager {
     if (tbody) {
       const rows = reportData.modelBreakdownList;
       if (rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="${9 + reportData.years.length}" class="text-center" style="padding:35px; color:#94a3b8;">查無符合「${reportData.deliveryStatus === 'all' ? '全部' : reportData.deliveryStatus}」條件之型號年度數據</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="${10 + reportData.years.length}" class="text-center" style="padding:35px; color:#94a3b8;">查無符合「${reportData.deliveryStatus === 'all' ? '全部' : reportData.deliveryStatus}」條件之型號年度數據</td></tr>`;
       } else {
         tbody.innerHTML = rows.map(r => {
           const isDelivered = (r.delivery_status === '已交貨');
@@ -1134,6 +1141,9 @@ class UIManager {
               </td>
               <td>
                 <span class="text-xs" style="color:#e2e8f0;"><i class="fas fa-building text-subtle"></i> ${r.project_name}</span>
+              </td>
+              <td>
+                <span class="text-xs" style="color:#cbd5e1;"><i class="fas fa-user-tie text-muted"></i> ${r.sales_rep || '-'}</span>
               </td>
               <td>
                 <div class="company-tag">${r.company_name}</div>
@@ -1273,6 +1283,7 @@ class UIManager {
       document.getElementById('eq-company').value = item.company_name || allowedCompNames[0];
       document.getElementById('eq-contract-id').value = item.contract_id || '';
       document.getElementById('eq-project-name').value = item.project_name || '';
+      document.getElementById('eq-sales-rep').value = item.sales_rep || '';
       document.getElementById('eq-system-type').value = item.system_type || '對講機';
       document.getElementById('eq-device-name').value = item.device_name || '';
       document.getElementById('eq-model').value = item.model || '';
@@ -1298,6 +1309,7 @@ class UIManager {
       if (titleEl) titleEl.innerHTML = `➕ 新增合約設備紀錄`;
       form.reset();
       document.getElementById('eq-id').value = '';
+      document.getElementById('eq-sales-rep').value = '';
       const currentCompFilter = window.appStore.filters.company;
       const defaultComp = (currentCompFilter !== 'all' && allowedCompNames.includes(currentCompFilter))
         ? currentCompFilter
@@ -1334,6 +1346,7 @@ class UIManager {
       company_name: document.getElementById('eq-company').value,
       contract_id: document.getElementById('eq-contract-id').value.trim(),
       project_name: document.getElementById('eq-project-name').value.trim(),
+      sales_rep: document.getElementById('eq-sales-rep').value.trim(),
       system_type: document.getElementById('eq-system-type').value,
       delivery_status: status,
       device_name: document.getElementById('eq-device-name').value.trim(),
@@ -1356,7 +1369,7 @@ class UIManager {
     }
 
     const actionText = isEdit ? '修改' : '新增';
-    const confirmMsg = `【確認${actionText}設備】\n\n・建案名稱：${data.project_name}\n・系統類別：${data.system_type}\n・設備名稱：${data.device_name}\n・品牌型號：${data.model || '標準型號'}\n・合約總數：${data.quantity} ${data.unit}\n・交貨狀態：${data.delivery_status} (已交:${data.delivered_qty} / 未交:${data.undelivered_qty})\n\n請確認是否儲存？`;
+    const confirmMsg = `【確認${actionText}設備】\n\n・建案/專案：${data.project_name}\n・業務人員：${data.sales_rep || '未指定'}\n・系統類別：${data.system_type}\n・設備名稱：${data.device_name}\n・品牌型號：${data.model || '標準型號'}\n・合約總數：${data.quantity} ${data.unit}\n・交貨狀態：${data.delivery_status} (已交:${data.delivered_qty} / 未交:${data.undelivered_qty})\n\n請確認是否儲存？`;
     
     if (!confirm(confirmMsg)) {
       return;

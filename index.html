@@ -257,10 +257,10 @@
         <!-- Search & Advanced Filter Toolbar -->
         <section class="glass-card toolbar-card">
           <div class="filter-grid">
-            <!-- 關鍵字搜尋 (建案名稱、型號、設備名稱、合約) -->
+            <!-- 關鍵字搜尋 (建案名稱、業務人員、型號、設備名稱、合約) -->
             <div class="input-group">
               <i class="fas fa-search"></i>
-              <input type="text" id="filter-search" class="form-control" placeholder="搜尋建案名稱、品牌型號、設備名稱、合約編號、備註...">
+              <input type="text" id="filter-search" class="form-control" placeholder="搜尋建案名稱、業務人員、品牌型號、設備名稱、合約編號、備註...">
             </div>
 
             <!-- 公司權限篩選 -->
@@ -348,6 +348,7 @@
                   <th style="width: 110px;">設備ID / 合約</th>
                   <th style="width: 120px;">所屬公司</th>
                   <th style="width: 140px;">建案名稱</th>
+                  <th style="width: 110px;">業務人員</th>
                   <th style="width: 100px;">系統分類</th>
                   <th>設備名稱與品牌型號</th>
                   <th style="width: 130px;">數量 (已交/未交/總數)</th>
@@ -359,7 +360,7 @@
               </thead>
               <tbody id="equipment-table-body">
                 <tr>
-                  <td colspan="10" style="text-align: center; padding: 40px;">
+                  <td colspan="11" style="text-align: center; padding: 40px;">
                     <i class="fas fa-spinner fa-spin" style="font-size: 1.5rem; color: #3b82f6;"></i>
                     <p style="margin-top: 8px; color: var(--text-muted);">正在載入設備資料庫...</p>
                   </td>
@@ -544,9 +545,15 @@
             </div>
           </div>
 
-          <div>
-            <label class="form-label">建案名稱 <span class="required">*</span></label>
-            <input type="text" id="eq-project-name" class="modal-input" placeholder="例如：竹科P1晶圓廠新建工程、信義智慧科技園區" required>
+          <div class="form-grid-2">
+            <div>
+              <label class="form-label">建案/專案名稱 <span class="required">*</span></label>
+              <input type="text" id="eq-project-name" class="modal-input" placeholder="例如：竹科P1晶圓廠新建工程、信義智慧科技園區" required>
+            </div>
+            <div>
+              <label class="form-label">業務人員</label>
+              <input type="text" id="eq-sales-rep" class="modal-input" placeholder="例如：陳專員、林經理">
+            </div>
           </div>
 
           <div class="form-grid-2" style="margin-top: 16px;">

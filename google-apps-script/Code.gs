@@ -25,7 +25,7 @@ const COMPANY_NAMES = [
 ];
 
 const EQ_HEADERS = [
-  'id', 'company_name', 'contract_id', 'project_name', 'system_type', 'device_name',
+  'id', 'company_name', 'contract_id', 'project_name', 'sales_rep', 'system_type', 'device_name',
   'model', 'quantity', 'delivered_qty', 'undelivered_qty', 'unit', 'delivery_status',
   'delivery_date', 'remarks', 'updated_at'
 ];
@@ -220,6 +220,45 @@ function ensureUserSheetHeaders(sheet) {
 }
 
 /**
+ * 檢查並自動補齊各公司專屬工作表之標題列 (確保 sales_rep 業務人員欄位於專案名稱後方安全存在)
+ */
+function ensureEquipmentSheetHeaders(sheet) {
+  if (!sheet) return;
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(EQ_HEADERS);
+    sheet.getRange(1, 1, 1, EQ_HEADERS.length)
+      .setFontWeight('bold')
+      .setBackground('#1E293B')
+      .setFontColor('#F8FAFC');
+    sheet.setFrozenRows(1);
+    return;
+  }
+
+  const lastCol = Math.max(sheet.getLastColumn(), 1);
+  const rawHeaders = sheet.getRange(1, 1, 1, lastCol).getValues()[0].map(function(h) { return String(h).trim(); });
+  const normalized = rawHeaders.map(normalizeHeaderKey);
+
+  if (normalized.indexOf('sales_rep') === -1) {
+    const projectIdx = normalized.indexOf('project_name');
+    if (projectIdx !== -1) {
+      // 在 project_name 後方插入一欄，確保欄位緊鄰於專案名稱後面
+      sheet.insertColumnAfter(projectIdx + 1);
+      sheet.getRange(1, projectIdx + 2).setValue('sales_rep')
+        .setFontWeight('bold')
+        .setBackground('#1E293B')
+        .setFontColor('#F8FAFC');
+    } else {
+      // 若無 project_name 則追加在末端
+      const targetCol = rawHeaders.length + 1;
+      sheet.getRange(1, targetCol).setValue('sales_rep')
+        .setFontWeight('bold')
+        .setBackground('#1E293B')
+        .setFontColor('#F8FAFC');
+    }
+  }
+}
+
+/**
  * 取得指定工作表，若不存在則建立並寫入標題列
  */
 function getOrCreateSheet(sheetName, headers) {
@@ -303,29 +342,29 @@ function initDatabaseIfEmpty(forceReset) {
   // 3. 各公司專屬工作表分頁
   const sampleEqMap = {
     '宗亞': [
-      ['EQ-0101', '宗亞', 'CT-ZA-2025-01', '宗亞南港總部旗艦大樓', '對講機', 'IP觸控式門口對講主機', 'Panasonic VL-V900', 12, 12, 0, '台', '已交貨', '2024-01-15', '大門門廳與訪客中心已全數完成點交', '2025-02-01'],
-      ['EQ-0102', '宗亞', 'CT-ZA-2025-01', '宗亞南港總部旗艦大樓', '對講機', '室內緊急對講分機 (壁掛)', 'Commax CM-800', 36, 24, 12, '台', '未交貨', '2025-03-20', '高樓層12台待二期工程驗收交貨', '2025-02-01'],
-      ['EQ-0103', '宗亞', 'CT-ZA-2025-01', '宗亞智慧園區二期', '攝影機', '4K紅外線防暴半球型網路攝影機', 'Hikvision DS-2CD2186', 60, 60, 0, '支', '已交貨', '2024-02-01', '全區走廊與公共空間已安裝完畢', '2025-02-01'],
-      ['EQ-0104', '宗亞', 'CT-ZA-2025-01', '宗亞智慧園區二期', '門禁系統', '多頻雙模人臉/RFID門禁主機', 'Soyal AR-837-EA', 25, 25, 0, '組', '已交貨', '2024-03-10', '主要管制門扇已全數啟用', '2025-02-01'],
-      ['EQ-0105', '宗亞', 'CT-ZA-2025-01', '宗亞智慧園區二期', '電子鎖', '斷電開型微電腦靜音陽極鎖', 'Gianni EB-200', 50, 30, 20, '組', '未交貨', '2026-04-10', '第二批20組預計2026年到貨交貨', '2025-02-01']
+      ['EQ-0101', '宗亞', 'CT-ZA-2025-01', '宗亞南港總部旗艦大樓', '陳業務專員', '對講機', 'IP觸控式門口對講主機', 'Panasonic VL-V900', 12, 12, 0, '台', '已交貨', '2024-01-15', '大門門廳與訪客中心已全數完成點交', '2025-02-01'],
+      ['EQ-0102', '宗亞', 'CT-ZA-2025-01', '宗亞南港總部旗艦大樓', '陳業務專員', '對講機', '室內緊急對講分機 (壁掛)', 'Commax CM-800', 36, 24, 12, '台', '未交貨', '2025-03-20', '高樓層12台待二期工程驗收交貨', '2025-02-01'],
+      ['EQ-0103', '宗亞', 'CT-ZA-2025-01', '宗亞智慧園區二期', '林專案經理', '攝影機', '4K紅外線防暴半球型網路攝影機', 'Hikvision DS-2CD2186', 60, 60, 0, '支', '已交貨', '2024-02-01', '全區走廊與公共空間已安裝完畢', '2025-02-01'],
+      ['EQ-0104', '宗亞', 'CT-ZA-2025-01', '宗亞智慧園區二期', '林專案經理', '門禁系統', '多頻雙模人臉/RFID門禁主機', 'Soyal AR-837-EA', 25, 25, 0, '組', '已交貨', '2024-03-10', '主要管制門扇已全數啟用', '2025-02-01'],
+      ['EQ-0105', '宗亞', 'CT-ZA-2025-01', '宗亞智慧園區二期', '林專案經理', '電子鎖', '斷電開型微電腦靜音陽極鎖', 'Gianni EB-200', 50, 30, 20, '組', '未交貨', '2026-04-10', '第二批20組預計2026年到貨交貨', '2025-02-01']
     ],
     '宗鈺': [
-      ['EQ-0201', '宗鈺', 'CT-ZY-2025-02', '宗鈺內湖科技大樓', '對講機', 'SIP高階視訊管理總機', 'Akuvox R29C', 8, 8, 0, '台', '已交貨', '2023-11-01', '警衛中控室已點交', '2025-01-20'],
-      ['EQ-0202', '宗鈺', 'CT-ZY-2025-02', '宗鈺內湖科技大樓', '攝影機', '全景360度魚眼全景攝影機', 'Dahua DH-IPC-EBW81242', 24, 16, 8, '支', '未交貨', '2025-08-15', '地下停車場8支待二期施作', '2025-01-20'],
-      ['EQ-0203', '宗鈺', 'CT-ZY-2025-02', '宗鈺內湖科技大樓', '門禁系統', '掌靜脈高資安辨識主機', 'Fujitsu PalmSecure', 15, 15, 0, '套', '已交貨', '2024-05-10', '研發機房全數安裝', '2025-01-20'],
-      ['EQ-0204', '宗鈺', 'CT-ZY-2025-02', '宗鈺內湖科技大樓', '電子鎖', '重型感應指紋智慧防盜電子鎖', 'Yale YDM-7116', 20, 8, 12, '組', '未交貨', '2026-02-15', '主管辦公室換裝批次交貨', '2025-02-10']
+      ['EQ-0201', '宗鈺', 'CT-ZY-2025-02', '宗鈺內湖科技大樓', '王業務副理', '對講機', 'SIP高階視訊管理總機', 'Akuvox R29C', 8, 8, 0, '台', '已交貨', '2023-11-01', '警衛中控室已點交', '2025-01-20'],
+      ['EQ-0202', '宗鈺', 'CT-ZY-2025-02', '宗鈺內湖科技大樓', '王業務副理', '攝影機', '全景360度魚眼全景攝影機', 'Dahua DH-IPC-EBW81242', 24, 16, 8, '支', '未交貨', '2025-08-15', '地下停車場8支待二期施作', '2025-01-20'],
+      ['EQ-0203', '宗鈺', 'CT-ZY-2025-02', '宗鈺內湖科技大樓', '王業務副理', '門禁系統', '掌靜脈高資安辨識主機', 'Fujitsu PalmSecure', 15, 15, 0, '套', '已交貨', '2024-05-10', '研發機房全數安裝', '2025-01-20'],
+      ['EQ-0204', '宗鈺', 'CT-ZY-2025-02', '宗鈺內湖科技大樓', '王業務副理', '電子鎖', '重型感應指紋智慧防盜電子鎖', 'Yale YDM-7116', 20, 8, 12, '組', '未交貨', '2026-02-15', '主管辦公室換裝批次交貨', '2025-02-10']
     ],
     '宗泰': [
-      ['EQ-0301', '宗泰', 'CT-ZT-2024-03', '宗泰竹科研發廠房', '對講機', '防爆型工業對講通訊分機', 'J&R JR101-FK', 18, 18, 0, '台', '已交貨', '2024-05-20', '無塵室與產線區點交完成', '2025-01-15'],
-      ['EQ-0302', '宗泰', 'CT-ZT-2024-03', '宗泰竹科研發廠房', '攝影機', '4K紅外線防暴半球型網路攝影機', 'Hikvision DS-2CD2186', 70, 45, 25, '支', '未交貨', '2025-11-30', '外圍周界25支預計年底交貨', '2025-01-15'],
-      ['EQ-0303', '宗泰', 'CT-ZT-2024-03', '宗泰竹科研發廠房', '門禁系統', '快速伺服三叉閘門考勤通道', 'Kaba HSB-E02', 10, 6, 4, '道', '未交貨', '2026-03-15', '東側員工閘門待交貨', '2025-01-15'],
-      ['EQ-0304', '宗泰', 'CT-ZT-2024-03', '宗泰竹科研發廠房', '電子鎖', '600磅雙門磁力鎖附訊號接點', 'Gianni EM-600', 35, 35, 0, '組', '已交貨', '2024-06-01', '行政辦公室鋁門全數點交', '2025-01-15']
+      ['EQ-0301', '宗泰', 'CT-ZT-2024-03', '宗泰竹科研發廠房', '張業務主任', '對講機', '防爆型工業對講通訊分機', 'J&R JR101-FK', 18, 18, 0, '台', '已交貨', '2024-05-20', '無塵室與產線區點交完成', '2025-01-15'],
+      ['EQ-0302', '宗泰', 'CT-ZT-2024-03', '宗泰竹科研發廠房', '張業務主任', '攝影機', '4K紅外線防暴半球型網路攝影機', 'Hikvision DS-2CD2186', 70, 45, 25, '支', '未交貨', '2025-11-30', '外圍周界25支預計年底交貨', '2025-01-15'],
+      ['EQ-0303', '宗泰', 'CT-ZT-2024-03', '宗泰竹科研發廠房', '張業務主任', '門禁系統', '快速伺服三叉閘門考勤通道', 'Kaba HSB-E02', 10, 6, 4, '道', '未交貨', '2026-03-15', '東側員工閘門待交貨', '2025-01-15'],
+      ['EQ-0304', '宗泰', 'CT-ZT-2024-03', '宗泰竹科研發廠房', '張業務主任', '電子鎖', '600磅雙門磁力鎖附訊號接點', 'Gianni EM-600', 35, 35, 0, '組', '已交貨', '2024-06-01', '行政辦公室鋁門全數點交', '2025-01-15']
     ],
     '資訊星': [
-      ['EQ-0401', '資訊星', 'CT-IS-2024-04', '資訊星雲端數據中心', '對講機', 'IP觸控式門口對講主機', 'Panasonic VL-V900', 6, 6, 0, '台', '已交貨', '2024-08-10', 'IDC機房大門已啟用', '2025-02-05'],
-      ['EQ-0402', '資訊星', 'CT-IS-2024-04', '資訊星雲端數據中心', '攝影機', 'AI熱成像雙光譜周界球機', 'Hikvision DS-2TD4136', 16, 8, 8, '支', '未交貨', '2026-01-10', '第二批8支預計2026交貨', '2025-02-05'],
-      ['EQ-0403', '資訊星', 'CT-IS-2024-04', '資訊星雲端數據中心', '門禁系統', '掌靜脈高資安辨識主機', 'Fujitsu PalmSecure', 20, 20, 0, '套', '已交貨', '2024-09-01', 'IDC各機櫃通道已全數上線', '2025-02-05'],
-      ['EQ-0404', '資訊星', 'CT-IS-2024-04', '資訊星雲端數據中心', '電子鎖', '微電腦伺服機櫃電子聯鎖系統', 'Southco H3-EM', 60, 30, 30, '套', '未交貨', '2026-03-01', '第二批機櫃鎖預計2026交貨', '2025-02-05']
+      ['EQ-0401', '資訊星', 'CT-IS-2024-04', '資訊星雲端數據中心', '李業務總監', '對講機', 'IP觸控式門口對講主機', 'Panasonic VL-V900', 6, 6, 0, '台', '已交貨', '2024-08-10', 'IDC機房大門已啟用', '2025-02-05'],
+      ['EQ-0402', '資訊星', 'CT-IS-2024-04', '資訊星雲端數據中心', '李業務總監', '攝影機', 'AI熱成像雙光譜周界球機', 'Hikvision DS-2TD4136', 16, 8, 8, '支', '未交貨', '2026-01-10', '第二批8支預計2026交貨', '2025-02-05'],
+      ['EQ-0403', '資訊星', 'CT-IS-2024-04', '資訊星雲端數據中心', '李業務總監', '門禁系統', '掌靜脈高資安辨識主機', 'Fujitsu PalmSecure', 20, 20, 0, '套', '已交貨', '2024-09-01', 'IDC各機櫃通道已全數上線', '2025-02-05'],
+      ['EQ-0404', '資訊星', 'CT-IS-2024-04', '資訊星雲端數據中心', '李業務總監', '電子鎖', '微電腦伺服機櫃電子聯鎖系統', 'Southco H3-EM', 60, 30, 30, '套', '未交貨', '2026-03-01', '第二批機櫃鎖預計2026交貨', '2025-02-05']
     ]
   };
 
@@ -492,7 +531,8 @@ function normalizeHeaderKey(rawHeader) {
   if (h === 'id' || h === '設備id' || h === '編號' || h === '序號') return 'id';
   if (h === 'company_name' || h === '所屬公司' || h === '公司名稱' || h === '公司') return 'company_name';
   if (h === 'contract_id' || h === '合約編號' || h === '合約案號' || h === '合約號') return 'contract_id';
-  if (h === 'project_name' || h === '建案名稱' || h === '工程名稱' || h === '建案' || h === '案名') return 'project_name';
+  if (h === 'project_name' || h === '建案名稱' || h === '工程名稱' || h === '建案' || h === '案名' || h === '專案' || h === '專案名稱') return 'project_name';
+  if (h === 'sales_rep' || h === 'sales' || h === '業務人員' || h === '業務' || h === '業務專員' || h === '負責業務' || h === '業務員' || h === '專案業務') return 'sales_rep';
   if (h === 'system_type' || h === '系統分類' || h === '系統別' || h === '系統類別' || h === '系統') return 'system_type';
   if (h === 'device_name' || h === '設備名稱' || h === '品名' || h === '項目名稱') return 'device_name';
   if (h === 'model' || h === '品牌型號' || h === '型號' || h === '規格型號' || h === '規格') return 'model';
@@ -534,6 +574,9 @@ function getEquipmentList(userCompanies) {
         return;
       }
     }
+
+    // 自動檢查並補齊 sales_rep 等標頭
+    ensureEquipmentSheetHeaders(sheet);
 
     const data = sheet.getDataRange().getValues();
     if (data.length <= 1) return;
@@ -585,6 +628,7 @@ function getEquipmentList(userCompanies) {
       item.delivery_status = (dQty >= q) ? '已交貨' : (status || '未交貨');
       if (!item.unit) item.unit = '台';
       if (!item.project_name) item.project_name = '建案工程';
+      if (!item.sales_rep) item.sales_rep = '';
 
       list.push(item);
     }
@@ -703,6 +747,7 @@ function saveEquipment(item, username) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const companyName = item.company_name || '宗亞';
   const targetSheet = getOrCreateSheet(companyName, EQ_HEADERS);
+  ensureEquipmentSheetHeaders(targetSheet);
 
   const todayStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
   const id = item.id || ('EQ-' + Math.floor(1000 + Math.random() * 9000));
@@ -716,23 +761,34 @@ function saveEquipment(item, username) {
     ? Number(item.undelivered_qty) 
     : (totalQty - deliveredQty);
 
-  const rowValues = [
-    id,
-    companyName,
-    item.contract_id || '',
-    item.project_name || '',
-    item.system_type || '對講機',
-    item.device_name || '',
-    item.model || '',
-    totalQty,
-    deliveredQty,
-    undeliveredQty,
-    item.unit || '台',
-    status,
-    item.delivery_date || todayStr,
-    item.remarks || '',
-    todayStr
-  ];
+  // 動態依照工作表表頭順序組裝資料，確保絕無欄位位移
+  const targetHeaders = targetSheet.getRange(1, 1, 1, Math.max(targetSheet.getLastColumn(), 1)).getValues()[0].map(normalizeHeaderKey);
+  const valMap = {
+    id: id,
+    company_name: companyName,
+    contract_id: item.contract_id || '',
+    project_name: item.project_name || '',
+    sales_rep: item.sales_rep || '',
+    system_type: item.system_type || '對講機',
+    device_name: item.device_name || '',
+    model: item.model || '',
+    quantity: totalQty,
+    delivered_qty: deliveredQty,
+    undelivered_qty: undeliveredQty,
+    unit: item.unit || '台',
+    delivery_status: status,
+    delivery_date: item.delivery_date || todayStr,
+    remarks: item.remarks || '',
+    updated_at: todayStr
+  };
+
+  const rowValues = (targetHeaders.length > 0 && targetHeaders[0] !== '') 
+    ? targetHeaders.map(function(key) { return (valMap[key] !== undefined) ? valMap[key] : (item[key] || ''); })
+    : [
+      id, companyName, item.contract_id || '', item.project_name || '', item.sales_rep || '',
+      item.system_type || '對講機', item.device_name || '', item.model || '', totalQty, deliveredQty,
+      undeliveredQty, item.unit || '台', status, item.delivery_date || todayStr, item.remarks || '', todayStr
+    ];
 
   let foundInTarget = false;
   let targetRowIndex = -1;
@@ -754,10 +810,10 @@ function saveEquipment(item, username) {
 
   if (foundInTarget && targetRowIndex > 0) {
     targetSheet.getRange(targetRowIndex, 1, 1, rowValues.length).setValues([rowValues]);
-    logAudit(username, 'UPDATE_EQ', '更新設備[' + companyName + '分頁]: ' + id + ' (' + item.device_name + ')');
+    logAudit(username, 'UPDATE_EQ', '更新設備[' + companyName + '分頁]: ' + id + ' (' + item.device_name + ') 業務:' + (item.sales_rep || '未指定'));
   } else {
     targetSheet.appendRow(rowValues);
-    logAudit(username, 'ADD_EQ', '新增設備[' + companyName + '分頁]: ' + id + ' (' + item.device_name + ')');
+    logAudit(username, 'ADD_EQ', '新增設備[' + companyName + '分頁]: ' + id + ' (' + item.device_name + ') 業務:' + (item.sales_rep || '未指定'));
   }
 
   return { success: true, id: id };

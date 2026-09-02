@@ -274,7 +274,7 @@ class AppStore {
         if (itemStatus === '已交貨' && undelivered <= 0) return false;
       }
 
-      // 7. 關鍵字搜尋 (支援設備名稱、品牌型號、建案名稱、合約編號、備註、ID)
+      // 7. 關鍵字搜尋 (支援設備名稱、品牌型號、建案名稱、業務人員、合約編號、備註、ID)
       if (this.filters.keyword) {
         const q = this.filters.keyword;
         const match =
@@ -282,6 +282,7 @@ class AppStore {
           (item.device_name && item.device_name.toLowerCase().includes(q)) ||
           (item.model && item.model.toLowerCase().includes(q)) ||
           (item.project_name && item.project_name.toLowerCase().includes(q)) ||
+          (item.sales_rep && item.sales_rep.toLowerCase().includes(q)) ||
           (item.contract_id && item.contract_id.toLowerCase().includes(q)) ||
           (item.company_name && item.company_name.toLowerCase().includes(q)) ||
           (item.remarks && item.remarks.toLowerCase().includes(q));
@@ -517,6 +518,7 @@ class AppStore {
           model: item.model || '標準通用型',
           device_name: item.device_name,
           project_name: item.project_name || '新建案工程',
+          sales_rep: item.sales_rep || '-',
           company_name: item.company_name,
           unit: item.unit || '台',
           total_qty: 0,
@@ -573,7 +575,7 @@ class AppStore {
     }
 
     const headers = [
-      '設備ID', '所屬公司', '合約編號', '建案名稱', '系統分類', '設備名稱',
+      '設備ID', '所屬公司', '合約編號', '建案名稱', '業務人員', '系統分類', '設備名稱',
       '品牌型號', '合約總數量', '已交貨數量', '未交貨數量', '單位', '交貨狀態',
       '預計/實際交貨日', '備註', '最後更新'
     ];
@@ -583,6 +585,7 @@ class AppStore {
       item.company_name || '',
       item.contract_id || '',
       `"${(item.project_name || '').replace(/"/g, '""')}"`,
+      `"${(item.sales_rep || '').replace(/"/g, '""')}"`,
       item.system_type || '',
       `"${(item.device_name || '').replace(/"/g, '""')}"`,
       `"${(item.model || '').replace(/"/g, '""')}"`,
@@ -630,7 +633,7 @@ class AppStore {
     const colName = isDeliveredOnly ? '已交貨數量' : (isUndeliveredOnly ? '未交貨數量' : '數量');
 
     const headers = [
-      '系統分類', '品牌型號', '設備名稱', '建案名稱', '所屬公司', '合約總數量', '已交貨數量', '未交貨數量', '交貨狀態',
+      '系統分類', '品牌型號', '設備名稱', '建案名稱', '業務人員', '所屬公司', '合約總數量', '已交貨數量', '未交貨數量', '交貨狀態',
       ...yearCols.map(y => `${y}年${colName}`)
     ];
 
@@ -639,6 +642,7 @@ class AppStore {
       `"${r.model.replace(/"/g, '""')}"`,
       `"${r.device_name.replace(/"/g, '""')}"`,
       `"${r.project_name.replace(/"/g, '""')}"`,
+      `"${(r.sales_rep || '').replace(/"/g, '""')}"`,
       r.company_name,
       r.total_qty,
       r.delivered_qty,

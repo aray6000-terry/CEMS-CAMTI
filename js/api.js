@@ -752,17 +752,32 @@ class ApiService {
       u = q - d;
     }
 
-    return {
-      ...item,
+    let salesRep = '';
+    if (item.sales_rep !== undefined && item.sales_rep !== null) {
+      salesRep = String(item.sales_rep).trim();
+    } else if (item.sales || item.sales_person || item.業務人員 || item.業務) {
+      salesRep = String(item.sales || item.sales_person || item.業務人員 || item.業務).trim();
+    } else {
+      const defaultReps = {
+        '宗亞': '陳業務專員', '宗鈺': '王業務副理', '宗泰': '張業務主任', '資訊星': '李業務總監',
+        '宗群': '吳業務專員', '宗友': '趙業務專員', '宗晟': '許業務經理', '和興': '黃業務工程師',
+        '宗科': '蔡業務專員', '宗順': '吳業務主任', '宗益': '劉業務專員', '百成': '柯業務專員',
+        '宗麒': '楊業務專員', '廣晟': '曾業務主任', '宗榮': '洪業務副理', '宗霖': '邱業務專員'
+      };
+      salesRep = defaultReps[item.company_name] || '業務專員';
+    }
+
+    return Object.assign({}, item, {
       id: item.id || ('EQ-' + Math.floor(1000 + Math.random() * 9000)),
       project_name: item.project_name || item.location || '新建案工程',
+      sales_rep: salesRep,
       delivery_status: status,
       delivered_qty: d,
       undelivered_qty: u,
       quantity: q,
       unit: item.unit || '台',
       remarks: item.remarks || ''
-    };
+    });
   }
 
   isLiveMode() {
@@ -981,13 +996,13 @@ class ApiService {
     if (normalized.id) {
       const idx = list.findIndex(e => e.id === normalized.id);
       if (idx !== -1) {
-        list[idx] = { ...list[idx], ...normalized, updated_at: today };
+        list[idx] = Object.assign({}, list[idx], normalized, { updated_at: today });
       } else {
-        list.unshift({ ...normalized, updated_at: today });
+        list.unshift(Object.assign({}, normalized, { updated_at: today }));
       }
     } else {
       const newId = 'EQ-' + Math.floor(1000 + Math.random() * 9000);
-      list.unshift({ ...normalized, id: newId, updated_at: today });
+      list.unshift(Object.assign({}, normalized, { id: newId, updated_at: today }));
     }
 
     localStorage.setItem(this.DATA_STORAGE_KEY, JSON.stringify(list));
@@ -1008,12 +1023,11 @@ class ApiService {
     const newDelivered = (newStatus === '已交貨') ? q : 0;
     const newUndelivered = q - newDelivered;
 
-    const updated = {
-      ...item,
+    const updated = Object.assign({}, item, {
       delivery_status: newStatus,
       delivered_qty: newDelivered,
       undelivered_qty: newUndelivered
-    };
+    });
 
     return await this.saveEquipment(updated, username);
   }
