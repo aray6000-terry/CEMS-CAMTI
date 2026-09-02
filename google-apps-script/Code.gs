@@ -280,14 +280,22 @@ function onOpen() {
 }
 
 /**
- * 一鍵為所有現存 16 家公司工作表補齊「業務人員」欄位
+ * 一鍵為所有現存 16 家公司工作表補齊「業務人員」欄位並自動填入預設業務人員
  */
 function upgradeAllSheetsAddSalesRep() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   if (!ss) return { success: false, error: '找不到試算表' };
 
+  const defaultReps = {
+    '宗亞': '陳業務專員', '宗鈺': '王業務副理', '宗泰': '張業務主任', '資訊星': '李業務總監',
+    '宗群': '吳業務專員', '宗友': '趙業務專員', '宗晟': '許業務經理', '和興': '黃業務工程師',
+    '宗科': '蔡業務專員', '宗順': '吳業務主任', '宗益': '劉業務專員', '百成': '柯業務專員',
+    '宗麒': '楊業務專員', '廣晟': '曾業務主任', '宗榮': '洪業務副理', '宗霖': '邱業務專員'
+  };
+
   const sheets = ss.getSheets();
   let updatedCount = 0;
+  let filledRowsCount = 0;
   const updatedSheets = [];
 
   sheets.forEach(function(sheet) {
@@ -298,29 +306,55 @@ function upgradeAllSheetsAddSalesRep() {
       return;
     }
 
-    if (sheet.getLastRow() === 0) return;
+    const lastRow = sheet.getLastRow();
+    if (lastRow === 0) return;
 
     const lastCol = Math.max(sheet.getLastColumn(), 1);
     const rawHeaders = sheet.getRange(1, 1, 1, lastCol).getValues()[0].map(function(h) { return String(h).trim(); });
     const normalized = rawHeaders.map(normalizeHeaderKey);
 
-    if (normalized.indexOf('sales_rep') === -1) {
+    let salesRepCol = normalized.indexOf('sales_rep') + 1; // 1-indexed
+
+    // 1. 若缺少「業務人員」欄位，則自動於專案名稱後方插入
+    if (salesRepCol === 0) {
       const projectIdx = normalized.indexOf('project_name');
       const insertCol = (projectIdx !== -1) ? (projectIdx + 1) : 4;
       sheet.insertColumnAfter(insertCol);
-      sheet.getRange(1, insertCol + 1).setValue('業務人員')
+      salesRepCol = insertCol + 1;
+      sheet.getRange(1, salesRepCol).setValue('業務人員')
         .setFontWeight('bold')
         .setBackground('#1E293B')
         .setFontColor('#F8FAFC');
       updatedCount++;
       updatedSheets.push(sheetName);
     }
+
+    // 2. 檢查現存各資料列，若「業務人員」欄位為空，自動填入對應公司業務
+    if (lastRow > 1) {
+      const repName = defaultReps[sheetName] || '業務專員';
+      const cellRange = sheet.getRange(2, salesRepCol, lastRow - 1, 1);
+      const values = cellRange.getValues();
+      let changed = false;
+
+      for (let r = 0; r < values.length; r++) {
+        if (!values[r][0] || String(values[r][0]).trim() === '') {
+          values[r][0] = repName;
+          changed = true;
+          filledRowsCount++;
+        }
+      }
+
+      if (changed) {
+        cellRange.setValues(values);
+      }
+    }
   });
 
   return {
     success: true,
-    message: '已成功檢查所有工作表，共為 ' + updatedCount + ' 個公司分頁補齊「業務人員」欄位！',
+    message: '已成功檢查所有工作表，共為 ' + updatedCount + ' 個分頁建立新欄位，並為 ' + filledRowsCount + ' 筆設備填入負責業務姓名！',
     updatedCount: updatedCount,
+    filledRowsCount: filledRowsCount,
     updatedSheets: updatedSheets
   };
 }
