@@ -79,6 +79,10 @@ function doGet(e) {
         result = { success: true, message: '16 家公司專屬工作表與預設資料已重新初始化完成！' };
         break;
 
+      case 'upgradeSheets':
+        result = upgradeAllSheetsAddSalesRep();
+        break;
+
       default:
         result = { success: false, error: '未知的 GET action 參數: ' + action };
     }
@@ -147,6 +151,10 @@ function doPost(e) {
       case 'init':
         initDatabaseIfEmpty(true);
         result = { success: true, message: '16 家公司專屬工作表與預設資料已重新初始化完成！' };
+        break;
+
+      case 'upgradeSheets':
+        result = upgradeAllSheetsAddSalesRep();
         break;
 
       default:
@@ -243,19 +251,78 @@ function ensureEquipmentSheetHeaders(sheet) {
     if (projectIdx !== -1) {
       // 在 project_name 後方插入一欄，確保欄位緊鄰於專案名稱後面
       sheet.insertColumnAfter(projectIdx + 1);
-      sheet.getRange(1, projectIdx + 2).setValue('sales_rep')
+      sheet.getRange(1, projectIdx + 2).setValue('業務人員')
         .setFontWeight('bold')
         .setBackground('#1E293B')
         .setFontColor('#F8FAFC');
     } else {
       // 若無 project_name 則追加在末端
       const targetCol = rawHeaders.length + 1;
-      sheet.getRange(1, targetCol).setValue('sales_rep')
+      sheet.getRange(1, targetCol).setValue('業務人員')
         .setFontWeight('bold')
         .setBackground('#1E293B')
         .setFontColor('#F8FAFC');
     }
   }
+}
+
+/**
+ * 當試算表開啟時，自動在 Google Sheet 頂部建立系統專屬工具選單
+ */
+function onOpen() {
+  try {
+    const ui = SpreadsheetApp.getUi();
+    ui.createMenu('⚡ 設備管理工具')
+      .addItem('🚀 一鍵升級：補齊各分頁「業務人員」欄位', 'upgradeAllSheetsAddSalesRep')
+      .addItem('🔄 重新整理所有工作表標題列', 'upgradeAllSheetsAddSalesRep')
+      .addToUi();
+  } catch (e) {}
+}
+
+/**
+ * 一鍵為所有現存 16 家公司工作表補齊「業務人員」欄位
+ */
+function upgradeAllSheetsAddSalesRep() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (!ss) return { success: false, error: '找不到試算表' };
+
+  const sheets = ss.getSheets();
+  let updatedCount = 0;
+  const updatedSheets = [];
+
+  sheets.forEach(function(sheet) {
+    const sheetName = sheet.getName();
+    if (sheetName === SYSTEM_SHEETS.USERS || 
+        sheetName === SYSTEM_SHEETS.COMPANIES || 
+        sheetName === SYSTEM_SHEETS.LOGS) {
+      return;
+    }
+
+    if (sheet.getLastRow() === 0) return;
+
+    const lastCol = Math.max(sheet.getLastColumn(), 1);
+    const rawHeaders = sheet.getRange(1, 1, 1, lastCol).getValues()[0].map(function(h) { return String(h).trim(); });
+    const normalized = rawHeaders.map(normalizeHeaderKey);
+
+    if (normalized.indexOf('sales_rep') === -1) {
+      const projectIdx = normalized.indexOf('project_name');
+      const insertCol = (projectIdx !== -1) ? (projectIdx + 1) : 4;
+      sheet.insertColumnAfter(insertCol);
+      sheet.getRange(1, insertCol + 1).setValue('業務人員')
+        .setFontWeight('bold')
+        .setBackground('#1E293B')
+        .setFontColor('#F8FAFC');
+      updatedCount++;
+      updatedSheets.push(sheetName);
+    }
+  });
+
+  return {
+    success: true,
+    message: '已成功檢查所有工作表，共為 ' + updatedCount + ' 個公司分頁補齊「業務人員」欄位！',
+    updatedCount: updatedCount,
+    updatedSheets: updatedSheets
+  };
 }
 
 /**
@@ -532,7 +599,7 @@ function normalizeHeaderKey(rawHeader) {
   if (h === 'company_name' || h === '所屬公司' || h === '公司名稱' || h === '公司') return 'company_name';
   if (h === 'contract_id' || h === '合約編號' || h === '合約案號' || h === '合約號') return 'contract_id';
   if (h === 'project_name' || h === '建案名稱' || h === '工程名稱' || h === '建案' || h === '案名' || h === '專案' || h === '專案名稱') return 'project_name';
-  if (h === 'sales_rep' || h === 'sales' || h === '業務人員' || h === '業務' || h === '業務專員' || h === '負責業務' || h === '業務員' || h === '專案業務') return 'sales_rep';
+  if (h === 'sales_rep' || h === 'sales' || h.indexOf('業務') !== -1 || h === '業務人員' || h === '業務' || h === '業務專員' || h === '負責業務' || h === '業務員' || h === '專案業務') return 'sales_rep';
   if (h === 'system_type' || h === '系統分類' || h === '系統別' || h === '系統類別' || h === '系統') return 'system_type';
   if (h === 'device_name' || h === '設備名稱' || h === '品名' || h === '項目名稱') return 'device_name';
   if (h === 'model' || h === '品牌型號' || h === '型號' || h === '規格型號' || h === '規格') return 'model';
