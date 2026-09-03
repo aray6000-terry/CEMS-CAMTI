@@ -109,6 +109,35 @@ class AppStore {
     }
   }
 
+  /**
+   * 手動一鍵強制從 Google 試算表雲端同步最新資料庫
+   */
+  async syncFromCloud() {
+    this.loading = true;
+    this.notify();
+
+    const allowed = window.authService.getAccessibleCompanies();
+    try {
+      const res = await window.apiService.syncDatabaseFromCloud(allowed);
+      if (res && res.success) {
+        await this.loadData();
+        return {
+          success: true,
+          companiesCount: this.companies.length,
+          equipmentCount: this.equipment.length
+        };
+      } else {
+        throw new Error(res ? res.error : '同步失敗');
+      }
+    } catch (e) {
+      console.error('syncFromCloud 失敗:', e);
+      return { success: false, error: e.message };
+    } finally {
+      this.loading = false;
+      this.notify();
+    }
+  }
+
   // --- 清單頁篩選方法 ---
   setSystemFilter(systemType) {
     this.activeSystem = systemType;

@@ -1797,18 +1797,18 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-UDM-2025-01",
     "project_name": "優德美智慧綠能研發中心",
     "sales_rep": "陳專案經理",
-    "system_type": "燈控系統",
-    "brand": "Lutron",
-    "device_name": "Lutron QSGR-3P",
-    "model": 20,
+    "system_type": "對講系統",
+    "brand": "Panasonic",
+    "device_name": "7吋IP彩色影視對講室內機",
+    "model": "UDM-IT-700",
     "quantity": 20,
-    "delivered_qty": 0,
-    "undelivered_qty": null,
-    "unit": "已交貨",
-    "delivery_status": "2024-04-15",
-    "delivery_date": "一期研發樓層智慧照明調光主機已全數完成點交",
-    "remarks": "2025-02-15",
-    "updated_at": ""
+    "delivered_qty": 15,
+    "undelivered_qty": 5,
+    "unit": "台",
+    "delivery_status": "未交貨",
+    "delivery_date": "2025-06-30",
+    "remarks": "優德美研發中心一期對講工程",
+    "updated_at": "2025-02-15"
   },
   {
     "id": "EQ-1702",
@@ -1816,18 +1816,94 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-UDM-2025-01",
     "project_name": "優德美智慧綠能研發中心",
     "sales_rep": "陳專案經理",
+    "system_type": "門禁系統",
+    "brand": "Soyal",
+    "device_name": "IP網路型MIFARE門禁感應讀卡機",
+    "model": "Soyal AR-721-H",
+    "quantity": 12,
+    "delivered_qty": 12,
+    "undelivered_qty": 0,
+    "unit": "組",
+    "delivery_status": "已交貨",
+    "delivery_date": "2024-05-10",
+    "remarks": "門禁讀卡管制已上線",
+    "updated_at": "2025-02-15"
+  },
+  {
+    "id": "EQ-1703",
+    "company_name": "優德美科技",
+    "contract_id": "CT-UDM-2025-01",
+    "project_name": "優德美智慧綠能研發中心",
+    "sales_rep": "陳專案經理",
+    "system_type": "攝影機系統",
+    "brand": "Hikvision",
+    "device_name": "4K IP網路型紅外線半球攝影機",
+    "model": "Hikvision DS-2CD2143G2",
+    "quantity": 16,
+    "delivered_qty": 16,
+    "undelivered_qty": 0,
+    "unit": "支",
+    "delivery_status": "已交貨",
+    "delivery_date": "2024-04-20",
+    "remarks": "周界與走道高畫質監控",
+    "updated_at": "2025-02-15"
+  },
+  {
+    "id": "EQ-1704",
+    "company_name": "優德美科技",
+    "contract_id": "CT-UDM-2025-01",
+    "project_name": "優德美智慧綠能研發中心",
+    "sales_rep": "陳專案經理",
+    "system_type": "電子鎖",
+    "brand": "Gianni",
+    "device_name": "埋入式靜音陽極電子門鎖",
+    "model": "Gianni EB-200",
+    "quantity": 12,
+    "delivered_qty": 12,
+    "undelivered_qty": 0,
+    "unit": "組",
+    "delivery_status": "已交貨",
+    "delivery_date": "2024-05-10",
+    "remarks": "安全逃生門與辦公區聯動",
+    "updated_at": "2025-02-15"
+  },
+  {
+    "id": "EQ-1705",
+    "company_name": "優德美科技",
+    "contract_id": "CT-UDM-2025-01",
+    "project_name": "優德美智慧綠能研發中心",
+    "sales_rep": "陳專案經理",
+    "system_type": "燈控系統",
+    "brand": "Lutron",
+    "device_name": "全區多迴路智慧照明控制主機",
+    "model": "Lutron QSGR-3P",
+    "quantity": 20,
+    "delivered_qty": 20,
+    "undelivered_qty": 0,
+    "unit": "台",
+    "delivery_status": "已交貨",
+    "delivery_date": "2024-04-15",
+    "remarks": "研發樓層智慧照明調光主機已全數完成點交",
+    "updated_at": "2025-02-15"
+  },
+  {
+    "id": "EQ-1706",
+    "company_name": "優德美科技",
+    "contract_id": "CT-UDM-2025-01",
+    "project_name": "優德美智慧綠能研發中心",
+    "sales_rep": "陳專案經理",
     "system_type": "燈控系統",
     "brand": "Lite-Puter",
-    "device_name": "Lite-Puter PL-S0805",
-    "model": 35,
-    "quantity": 20,
-    "delivered_qty": 15,
-    "undelivered_qty": null,
-    "unit": "未交貨",
-    "delivery_status": "2025-06-30",
-    "delivery_date": "二期工程15套預計於年中交貨驗收",
-    "remarks": "2025-02-15",
-    "updated_at": ""
+    "device_name": "DMX多通道智慧調光控制器",
+    "model": "Lite-Puter PL-S0805",
+    "quantity": 35,
+    "delivered_qty": 20,
+    "undelivered_qty": 15,
+    "unit": "組",
+    "delivery_status": "未交貨",
+    "delivery_date": "2025-06-30",
+    "remarks": "二期展示區調光工程預計年中交貨",
+    "updated_at": "2025-02-15"
   },
   {
     "id": "EQ-1801",
@@ -1835,18 +1911,18 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-FY-2025-01",
     "project_name": "富鈺低碳節能展示總部",
     "sales_rep": "林技術主管",
-    "system_type": "燈控系統",
-    "brand": "Schneider",
-    "device_name": "Schneider MTN6725-0001",
-    "model": 16,
-    "quantity": 16,
-    "delivered_qty": 0,
-    "undelivered_qty": null,
-    "unit": "已交貨",
-    "delivery_status": "2024-03-20",
-    "delivery_date": "展廳與會議室 DALI 照明已正常運作",
-    "remarks": "2025-02-10",
-    "updated_at": ""
+    "system_type": "對講系統",
+    "brand": "Panasonic",
+    "device_name": "IP網路型保全對講總機",
+    "model": "Panasonic VL-VN1900",
+    "quantity": 8,
+    "delivered_qty": 8,
+    "undelivered_qty": 0,
+    "unit": "台",
+    "delivery_status": "已交貨",
+    "delivery_date": "2024-03-15",
+    "remarks": "總部警衛室與展示廳直通",
+    "updated_at": "2025-02-10"
   },
   {
     "id": "EQ-1802",
@@ -1856,23 +1932,99 @@ const INITIAL_MOCK_EQUIPMENT = [
     "sales_rep": "林技術主管",
     "system_type": "門禁系統",
     "brand": "Soyal",
-    "device_name": "Soyal AR-837-EA",
-    "model": 12,
-    "quantity": 6,
+    "device_name": "感應式人臉指紋辨識多功能門禁機",
+    "model": "Soyal AR-837-EA",
+    "quantity": 12,
     "delivered_qty": 6,
-    "undelivered_qty": null,
-    "unit": "未交貨",
+    "undelivered_qty": 6,
+    "unit": "組",
+    "delivery_status": "未交貨",
+    "delivery_date": "2025-08-30",
+    "remarks": "第一批6組已交，第二批待二期裝潢",
+    "updated_at": "2025-02-10"
+  },
+  {
+    "id": "EQ-1803",
+    "company_name": "富鈺節能科技",
+    "contract_id": "CT-FY-2025-01",
+    "project_name": "富鈺低碳節能展示總部",
+    "sales_rep": "林技術主管",
+    "system_type": "攝影機系統",
+    "brand": "Dahua",
+    "device_name": "500萬畫素IP戶外全彩紅外線攝影機",
+    "model": "Dahua IPC-HFW2431S",
+    "quantity": 14,
+    "delivered_qty": 14,
+    "undelivered_qty": 0,
+    "unit": "支",
     "delivery_status": "已交貨",
-    "remarks": "2025-02-10",
-    "updated_at": "",
-    "brand": "Schneider"
+    "delivery_date": "2024-03-20",
+    "remarks": "展示總部周界安防監控",
+    "updated_at": "2025-02-10"
+  },
+  {
+    "id": "EQ-1804",
+    "company_name": "富鈺節能科技",
+    "contract_id": "CT-FY-2025-01",
+    "project_name": "富鈺低碳節能展示總部",
+    "sales_rep": "林技術主管",
+    "system_type": "電子鎖",
+    "brand": "Yale",
+    "device_name": "推拉式防盜智慧電子鎖",
+    "model": "Yale YDM-7116",
+    "quantity": 10,
+    "delivered_qty": 10,
+    "undelivered_qty": 0,
+    "unit": "組",
+    "delivery_status": "已交貨",
+    "delivery_date": "2024-03-20",
+    "remarks": "主管室與機房管制聯動",
+    "updated_at": "2025-02-10"
+  },
+  {
+    "id": "EQ-1805",
+    "company_name": "富鈺節能科技",
+    "contract_id": "CT-FY-2025-01",
+    "project_name": "富鈺低碳節能展示總部",
+    "sales_rep": "林技術主管",
+    "system_type": "燈控系統",
+    "brand": "Schneider",
+    "device_name": "KNX/DALI低碳節能調光模組",
+    "model": "Schneider MTN6725-0001",
+    "quantity": 16,
+    "delivered_qty": 16,
+    "undelivered_qty": 0,
+    "unit": "台",
+    "delivery_status": "已交貨",
+    "delivery_date": "2024-03-20",
+    "remarks": "展廳與會議室 DALI 照明已正常運作",
+    "updated_at": "2025-02-10"
+  },
+  {
+    "id": "EQ-1806",
+    "company_name": "富鈺節能科技",
+    "contract_id": "CT-FY-2025-01",
+    "project_name": "富鈺低碳節能展示總部",
+    "sales_rep": "林技術主管",
+    "system_type": "燈控系統",
+    "brand": "Schneider",
+    "device_name": "智慧節能環境感應控制器",
+    "model": "Schneider SpaceLogic",
+    "quantity": 24,
+    "delivered_qty": 12,
+    "undelivered_qty": 12,
+    "unit": "組",
+    "delivery_status": "未交貨",
+    "delivery_date": "2025-10-15",
+    "remarks": "智慧能耗監控感應模組",
+    "updated_at": "2025-02-10"
   }
 ];
 
 class ApiService {
   constructor() {
-    this.API_URL_KEY = 'equip_mgmt_gas_api_url_v9';
-    this.DATA_STORAGE_KEY = 'equip_mgmt_local_equipment_v9';
+    this.API_URL_KEY = 'equip_mgmt_gas_api_url_v10';
+    this.DATA_STORAGE_KEY = 'equip_mgmt_local_equipment_v10';
     this.COMPANIES_KEY = 'equip_mgmt_local_companies_v9';
     this.DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbwmyzhEWhd9ADvJ4LZe-GIwelQERa696zuRUsJMMZcQwc087z-AvW5AHkLIMjSBrXrL3A/exec';
     
@@ -1937,6 +2089,22 @@ class ApiService {
    * 資料項目正規化工具函數
    */
   normalizeItem(item) {
+    // 智慧修復試算表欄位錯位 (例如 unit 誤填為已交貨/未交貨)
+    if (item.unit === '已交貨' || item.unit === '未交貨') {
+      const realStatus = item.unit;
+      const realDate = (item.delivery_status && String(item.delivery_status).match(/^\d{4}-\d{2}-\d{2}$/)) ? item.delivery_status : '';
+      const realRemarks = (typeof item.delivery_date === 'string' && item.delivery_date.length > 5) ? item.delivery_date : (item.remarks || '');
+      
+      item.delivery_status = realStatus;
+      if (realDate) item.delivery_date = realDate;
+      if (realRemarks) item.remarks = realRemarks;
+      item.unit = '台';
+
+      if (typeof item.model === 'number' && item.device_name && isNaN(Number(item.device_name))) {
+        item.model = item.device_name;
+      }
+    }
+
     const q = Number(item.quantity) || 1;
     let status = item.delivery_status;
     let d = (item.delivered_qty !== undefined && item.delivered_qty !== null) ? Number(item.delivered_qty) : null;
@@ -2265,6 +2433,25 @@ class ApiService {
     }
 
     return this.getLocalEquipment(allowedCompanies);
+  }
+
+  /**
+   * 強制從雲端 Google 試算表完整同步資料庫 (略過本機快取)
+   */
+  async syncDatabaseFromCloud(allowedCompanies = ['*']) {
+    console.log('🔄 開始手動強制同步雲端 Google 試算表資料庫...');
+    try {
+      const companies = await this.fetchCompanies();
+      const equipment = await this.fetchEquipmentList(allowedCompanies);
+      return {
+        success: true,
+        companiesCount: companies ? companies.length : 0,
+        equipmentCount: equipment ? equipment.length : 0
+      };
+    } catch (e) {
+      console.error('手動同步資料庫發生錯誤:', e);
+      return { success: false, error: e.message };
+    }
   }
 
   /**

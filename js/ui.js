@@ -212,6 +212,35 @@ class UIManager {
       });
     }
 
+    // 8.1 頂部「同步資料庫」按鈕 (手動一鍵強制同步雲端 Google 試算表最新資料)
+    const btnSyncDb = document.getElementById('btn-sync-database');
+    if (btnSyncDb) {
+      btnSyncDb.addEventListener('click', async () => {
+        const icon = btnSyncDb.querySelector('i');
+        const span = btnSyncDb.querySelector('span');
+        const oldText = span ? span.textContent : '同步資料庫';
+
+        if (icon) icon.classList.add('fa-spin');
+        if (span) span.textContent = '同步中...';
+        btnSyncDb.disabled = true;
+
+        try {
+          const res = await window.appStore.syncFromCloud();
+          if (res && res.success) {
+            this.showToast(`✅ 資料庫同步完成！共同步 ${res.companiesCount} 家公司、${res.equipmentCount} 筆設備資料`, 'success');
+          } else {
+            this.showToast(`⚠️ 同步完成（已切換本機備援）：共 ${window.appStore.equipment.length} 筆設備`, 'warning');
+          }
+        } catch (e) {
+          this.showToast(`⚠️ 同步發生異常: ${e.message}`, 'error');
+        } finally {
+          if (icon) icon.classList.remove('fa-spin');
+          if (span) span.textContent = oldText;
+          btnSyncDb.disabled = false;
+        }
+      });
+    }
+
     // 9. 匯出 CSV 按鈕
     const btnExport = document.getElementById('btn-export');
     if (btnExport) {

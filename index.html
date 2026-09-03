@@ -17,8 +17,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <!-- Custom Stylesheets -->
-  <link rel="stylesheet" href="css/main.css?v=20260903N">
-  <link rel="stylesheet" href="css/components.css?v=20260903N">
+  <link rel="stylesheet" href="css/main.css?v=20260904A">
+  <link rel="stylesheet" href="css/components.css?v=20260904A">
 </head>
 
 <body>
@@ -57,6 +57,12 @@
               <span>3-5年年度報表</span>
             </button>
           </div>
+
+          <!-- 同步資料庫按鈕 (強制穿透從 Google 試算表抓取最新資料) -->
+          <button id="btn-sync-database" class="btn btn-sm" style="border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.12); color: #34d399; font-weight: 600;" title="強制從 Google 試算表雲端同步最新資料庫">
+            <i class="fas fa-rotate"></i>
+            <span>同步資料庫</span>
+          </button>
 
           <!-- Super Admin User Approval Button (Visible only to admin) -->
           <button id="btn-open-user-mgmt" class="btn btn-secondary btn-sm hidden" style="border-color: rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.1); color: #60a5fa;" title="審核與管理註冊帳號">
@@ -911,11 +917,11 @@
   <div id="toast-container"></div>
 
   <!-- Scripts (Cache Buster 防止瀏覽器載入舊代碼) -->
-  <script src="js/auth.js?v=20260903N"></script>
-  <script src="js/api.js?v=20260903N"></script>
-  <script src="js/store.js?v=20260903N"></script>
-  <script src="js/ui.js?v=20260903N"></script>
-  <script src="js/app.js?v=20260903N"></script>
+  <script src="js/auth.js?v=20260904A"></script>
+  <script src="js/api.js?v=20260904A"></script>
+  <script src="js/store.js?v=20260904A"></script>
+  <script src="js/ui.js?v=20260904A"></script>
+  <script src="js/app.js?v=20260904A"></script>
 </body>
 
 </html>
