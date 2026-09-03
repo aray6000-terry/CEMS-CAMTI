@@ -402,9 +402,6 @@ class AppStore {
         if (itemSys !== activeSys) return false;
       }
 
-      // 2.5 廠牌分類篩選 (新增)
-      if (this.filters.brand !== 'all' && (item.brand || '').trim() !== this.filters.brand) return false;
-
       // 3. 設備型號篩選
       if (this.filters.model !== 'all' && item.model !== this.filters.model) return false;
 

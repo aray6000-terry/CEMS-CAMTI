@@ -116,12 +116,6 @@ class UIManager {
         document.querySelectorAll('.sys-tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         
-        // 切換系統分頁時，廠牌下拉選單重設為全部廠牌
-        const topBrandSel = document.getElementById('select-brand-category');
-        if (topBrandSel) topBrandSel.value = 'all';
-        const filterBrandSel = document.getElementById('filter-brand');
-        if (filterBrandSel) filterBrandSel.value = 'all';
-        
         window.appStore.setSystemFilter(sys);
       });
     });
@@ -134,38 +128,6 @@ class UIManager {
       });
     }
 
-    // 2.5 清單頁 - 廠牌分類篩選下拉選單 (篩選橫條)
-    const brandSelect = document.getElementById('filter-brand');
-    if (brandSelect) {
-      brandSelect.addEventListener('change', (e) => {
-        window.appStore.setBrandFilter(e.target.value);
-      });
-    }
-
-    // 2.6 清單頁頂部 - 廠牌分類下拉選單 (全域事件委託確保 100% 響應)
-    document.addEventListener('change', (e) => {
-      if (e.target && (e.target.id === 'select-brand-category' || e.target.id === 'filter-brand')) {
-        const val = e.target.value;
-        const topBrandSel = document.getElementById('select-brand-category');
-        if (topBrandSel && topBrandSel.value !== val) topBrandSel.value = val;
-        const filterBrandSel = document.getElementById('filter-brand');
-        if (filterBrandSel && filterBrandSel.value !== val) filterBrandSel.value = val;
-        window.appStore.setBrandFilter(val);
-      }
-    });
-
-    // 2.7 廠牌按鈕 (舊版按鈕相容點擊事件委託)
-    document.addEventListener('click', (e) => {
-      const chip = e.target.closest('.brand-chip');
-      if (chip) {
-        const b = chip.getAttribute('data-brand') || 'all';
-        const topBrandSel = document.getElementById('select-brand-category');
-        if (topBrandSel) topBrandSel.value = b;
-        const filterBrandSel = document.getElementById('filter-brand');
-        if (filterBrandSel) filterBrandSel.value = b;
-        window.appStore.setBrandFilter(b);
-      }
-    });
 
     // 3. 清單頁 - 設備型號篩選下拉選單
     const listModelSelect = document.getElementById('filter-model');
@@ -429,9 +391,7 @@ class UIManager {
     this.renderCompanyTabs(store);
     this.renderKPIs(store);
     this.renderSystemTabCounts(store);
-    this.renderBrandSubtabs(store);
     this.renderCompanyDropdown(store);
-    this.renderBrandDropdown(store);
     this.renderListModelDropdown(store);
     this.renderTabStatsBar(store);
     this.renderEquipmentTable(store);
