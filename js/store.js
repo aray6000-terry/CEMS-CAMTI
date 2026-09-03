@@ -116,7 +116,8 @@ class AppStore {
     this.loading = true;
     this.notify();
 
-    const allowed = window.authService.getAccessibleCompanies();
+    const currentUser = (window.authService && typeof window.authService.getCurrentUser === 'function') ? window.authService.getCurrentUser() : null;
+    const allowed = (currentUser && Array.isArray(currentUser.allowedCompanies)) ? currentUser.allowedCompanies : ['*'];
     try {
       const res = await window.apiService.syncDatabaseFromCloud(allowed);
       if (res && res.success) {

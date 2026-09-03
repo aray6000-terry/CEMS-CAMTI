@@ -72,6 +72,15 @@ class AuthService {
     });
   }
 
+  /**
+   * 取得當前使用者可存取的公司代碼清單 (陣列)
+   */
+  getAccessibleCompanies() {
+    if (!this.currentUser) return ['*'];
+    if (this.isAdmin()) return ['*'];
+    return this.currentUser.allowedCompanies || ['*'];
+  }
+
   canEdit() {
     if (!this.currentUser) return false;
     if (this.isAdmin()) return true;
