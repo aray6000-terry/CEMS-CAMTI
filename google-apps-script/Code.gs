@@ -318,23 +318,23 @@ function createJsonResponse(data) {
 function normalizeHeaderKey(rawHeader) {
   if (!rawHeader) return '';
   var h = String(rawHeader).trim().toLowerCase();
-  if (h === 'id' || h === '設備編號' || h === '編號' || h === '序號') return 'id';
-  if (h === 'company_name' || h === 'companyname' || h === '公司' || h === '公司名稱' || h === '所屬公司') return 'company_name';
-  if (h === 'contract_id' || h === 'contractid' || h === '合約編號' || h === '合約號' || h === '合約案號') return 'contract_id';
-  if (h === 'project_name' || h === 'projectname' || h === '專案名稱' || h === '建案名稱' || h === '工程名稱' || h === '建案') return 'project_name';
-  if (h === 'sales_rep' || h === 'salesrep' || h === '業務人員' || h === '負責業務' || h === '業務專員' || h === '業務') return 'sales_rep';
-  if (h === 'system_type' || h === 'systemtype' || h === '系統別' || h === '系統分類' || h === '系統類別' || h === '系統') return 'system_type';
-  if (h === 'brand' || h === '廠牌' || h === '品牌' || h === '廠牌分類') return 'brand';
-  if (h === 'device_name' || h === 'devicename' || h === '設備名稱' || h === '品名' || h === '項目名稱') return 'device_name';
-  if (h === 'model' || h === '型號' || h === '設備型號' || h === '規格型號') return 'model';
-  if (h === 'quantity' || h === '數量' || h === '合約數量' || h === '總數' || h === '合約總數') return 'quantity';
-  if (h === 'delivered_qty' || h === 'deliveredqty' || h === '已交貨數量' || h === '已交數量' || h === '已交數' || h === '已交') return 'delivered_qty';
-  if (h === 'undelivered_qty' || h === 'undeliveredqty' || h === '未交貨數量' || h === '未交數量' || h === '未交數' || h === '未交') return 'undelivered_qty';
-  if (h === 'unit' || h === '單位') return 'unit';
-  if (h === 'delivery_status' || h === 'deliverystatus' || h === '交貨狀態' || h === '狀態') return 'delivery_status';
-  if (h === 'delivery_date' || h === 'deliverydate' || h === '交貨日期' || h === '交期' || h === '預計交期') return 'delivery_date';
-  if (h === 'remarks' || h === '備註' || h === '說明') return 'remarks';
-  if (h === 'updated_at' || h === 'updatedat' || h === '更新時間' || h === '修改時間') return 'updated_at';
+  if (h === 'id' || h.indexOf('編號') !== -1 || h.indexOf('序號') !== -1) return 'id';
+  if (h.indexOf('公司') !== -1) return 'company_name';
+  if (h.indexOf('合約') !== -1 || h.indexOf('案號') !== -1) return 'contract_id';
+  if (h.indexOf('建案') !== -1 || h.indexOf('專案') !== -1 || h.indexOf('工程') !== -1) return 'project_name';
+  if (h.indexOf('業務') !== -1 || h.indexOf('負責') !== -1) return 'sales_rep';
+  if (h.indexOf('系統') !== -1 || h.indexOf('分類') !== -1 || h.indexOf('類別') !== -1) return 'system_type';
+  if (h.indexOf('廠牌') !== -1 || h.indexOf('品牌') !== -1) return 'brand';
+  if (h.indexOf('名稱') !== -1 || h.indexOf('品名') !== -1 || h.indexOf('項目') !== -1) return 'device_name';
+  if (h.indexOf('型號') !== -1 || h.indexOf('規格') !== -1) return 'model';
+  if (h.indexOf('已交') !== -1) return 'delivered_qty';
+  if (h.indexOf('未交') !== -1) return 'undelivered_qty';
+  if (h.indexOf('數量') !== -1 || h.indexOf('總數') !== -1 || h === '數量' || h === '總量') return 'quantity';
+  if (h.indexOf('單位') !== -1) return 'unit';
+  if (h.indexOf('狀態') !== -1) return 'delivery_status';
+  if (h.indexOf('日期') !== -1 || h.indexOf('交期') !== -1 || h.indexOf('時間') !== -1) return 'delivery_date';
+  if (h.indexOf('備註') !== -1 || h.indexOf('說明') !== -1) return 'remarks';
+  if (h.indexOf('更新') !== -1 || h.indexOf('修改') !== -1) return 'updated_at';
   return h;
 }
 
@@ -990,15 +990,22 @@ function getEquipmentList(userCompanies) {
 
       // 補齊預設值與系統別名稱正規化容錯
       if (!item.id) item.id = 'EQ-' + sheetName + '-' + i;
-      if (item.system_type) {
-        var st = String(item.system_type).trim().toLowerCase();
-        if (st.indexOf('門禁') !== -1 || st.indexOf('刷卡') !== -1 || st.indexOf('讀卡') !== -1 || st.indexOf('閘門') !== -1 || st.indexOf('access') !== -1) item.system_type = '門禁系統';
-        else if (st.indexOf('燈控') !== -1 || st.indexOf('照明') !== -1 || st.indexOf('調光') !== -1 || st.indexOf('燈光') !== -1 || st.indexOf('light') !== -1) item.system_type = '燈控系統';
-        else if (st.indexOf('攝影') !== -1 || st.indexOf('監視') !== -1 || st.indexOf('監控') !== -1 || st.indexOf('cctv') !== -1 || st.indexOf('camera') !== -1) item.system_type = '攝影機';
-        else if (st.indexOf('對講') !== -1 || st.indexOf('門口機') !== -1 || st.indexOf('室內機') !== -1 || st.indexOf('intercom') !== -1) item.system_type = '對講機';
-        else if (st.indexOf('鎖') !== -1 || st.indexOf('陽極') !== -1 || st.indexOf('磁力') !== -1 || st.indexOf('陰極') !== -1 || st.indexOf('lock') !== -1) item.system_type = '電子鎖';
-      } else {
+      // 智慧解析系統分類 (全方位從欄位、設備名稱、型號反向推導，徹底解決表頭不一致或落入預設值問題)
+      var rawType = String(item.system_type || (row.length > 5 ? row[5] : '') || '').trim();
+      var combinedText = (rawType + ' ' + (item.device_name || '') + ' ' + (item.model || '')).toLowerCase();
+
+      if (combinedText.indexOf('門禁') !== -1 || combinedText.indexOf('刷卡') !== -1 || combinedText.indexOf('讀卡') !== -1 || combinedText.indexOf('閘門') !== -1 || combinedText.indexOf('access') !== -1) {
+        item.system_type = '門禁系統';
+      } else if (combinedText.indexOf('燈控') !== -1 || combinedText.indexOf('照明') !== -1 || combinedText.indexOf('調光') !== -1 || combinedText.indexOf('燈光') !== -1 || combinedText.indexOf('light') !== -1) {
+        item.system_type = '燈控系統';
+      } else if (combinedText.indexOf('攝影') !== -1 || combinedText.indexOf('監視') !== -1 || combinedText.indexOf('監控') !== -1 || combinedText.indexOf('cctv') !== -1 || combinedText.indexOf('camera') !== -1) {
+        item.system_type = '攝影機';
+      } else if (combinedText.indexOf('鎖') !== -1 || combinedText.indexOf('陽極') !== -1 || combinedText.indexOf('磁力') !== -1 || combinedText.indexOf('陰極') !== -1 || combinedText.indexOf('lock') !== -1) {
+        item.system_type = '電子鎖';
+      } else if (combinedText.indexOf('對講') !== -1 || combinedText.indexOf('門口機') !== -1 || combinedText.indexOf('室內機') !== -1 || combinedText.indexOf('intercom') !== -1) {
         item.system_type = '對講機';
+      } else {
+        item.system_type = rawType || '對講機';
       }
       if (!item.device_name) item.device_name = '設備項目 ' + i;
       
