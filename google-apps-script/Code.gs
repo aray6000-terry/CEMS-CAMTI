@@ -896,33 +896,6 @@ function handleRegister(userData) {
   };
 }
 
-/**
- * 欄位名稱正規化對照表 (相容中文表頭與英文表頭)
- */
-function normalizeHeaderKey(rawHeader) {
-  if (!rawHeader) return '';
-  const h = String(rawHeader).trim().toLowerCase();
-  
-  if (h === 'id' || h === '設備id' || h === '編號' || h === '序號') return 'id';
-  if (h === 'company_name' || h === '所屬公司' || h === '公司名稱' || h === '公司') return 'company_name';
-  if (h === 'contract_id' || h === '合約編號' || h === '合約案號' || h === '合約號') return 'contract_id';
-  if (h === 'project_name' || h === '建案名稱' || h === '工程名稱' || h === '建案' || h === '案名' || h === '專案' || h === '專案名稱') return 'project_name';
-  if (h === 'sales_rep' || h === 'sales' || h.indexOf('業務') !== -1 || h === '業務人員' || h === '業務' || h === '業務專員' || h === '負責業務' || h === '業務員' || h === '專案業務') return 'sales_rep';
-  if (h === 'system_type' || h === '系統分類' || h === '系統別' || h === '系統類別' || h === '系統') return 'system_type';
-  if (h === 'brand' || h === '廠牌' || h === '廠牌分類' || h === '設備廠牌' || h === '品牌' || h === '廠牌名稱') return 'brand';
-  if (h === 'device_name' || h === '設備名稱' || h === '品名' || h === '項目名稱') return 'device_name';
-  if (h === 'model' || h === '品牌型號' || h === '型號' || h === '規格型號' || h === '規格') return 'model';
-  if (h === 'quantity' || h === '合約總數' || h === '總數量' || h === '合約數量' || h === '數量') return 'quantity';
-  if (h === 'delivered_qty' || h === '已交數量' || h === '已交貨數量' || h === '已交貨') return 'delivered_qty';
-  if (h === 'undelivered_qty' || h === '未交數量' || h === '未交貨數量' || h === '未交貨') return 'undelivered_qty';
-  if (h === 'unit' || h === '計量單位' || h === '單位') return 'unit';
-  if (h === 'delivery_status' || h === '交貨狀態' || h === '狀態') return 'delivery_status';
-  if (h === 'delivery_date' || h === '交貨日期' || h === '預計交貨日期' || h === '點交日期' || h === '日期') return 'delivery_date';
-  if (h === 'remarks' || h === '備註' || h === '備註說明' || h === '說明') return 'remarks';
-  if (h === 'updated_at' || h === '更新時間' || h === '異動日期') return 'updated_at';
-
-  return String(rawHeader).trim();
-}
 
 /**
  * 取得設備清單 (支援跨公司獨立分頁或單一 Equipment 工作表)
