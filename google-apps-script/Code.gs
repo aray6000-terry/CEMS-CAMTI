@@ -703,55 +703,92 @@ function initDatabaseIfEmpty(forceReset) {
 }
 
 /**
- * 處理登入驗證
+ * 處理登入驗證 (動態欄位解析，支援中英文表頭、去除空格、純數字相容與狀態寬鬆識別)
  */
 function handleLogin(username, password) {
+  if (!username || !password) {
+    return { success: false, error: '請輸入帳號與密碼！' };
+  }
+
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   let sheet = ss.getSheetByName(SYSTEM_SHEETS.USERS);
-  if (!sheet) return { success: false, error: '找不到使用者資料表' };
+  if (!sheet) return { success: false, error: '找不到使用者資料表 (Users)' };
   ensureUserSheetHeaders(sheet);
 
   const data = sheet.getDataRange().getValues();
+  if (data.length <= 1) return { success: false, error: '使用者資料表為空，請先建立帳號！' };
+
+  // 動態依照表頭名稱解析欄位索引 (完全不受中英文表頭或欄位順序影響)
+  const headers = data[0].map(normalizeUserHeaderKey);
+  const idxUsername = headers.indexOf('username') !== -1 ? headers.indexOf('username') : 0;
+  const idxPassword = headers.indexOf('password') !== -1 ? headers.indexOf('password') : 1;
+  const idxFullName = headers.indexOf('full_name') !== -1 ? headers.indexOf('full_name') : 2;
+  const idxRole = headers.indexOf('role') !== -1 ? headers.indexOf('role') : 3;
+  const idxAllowed = headers.indexOf('allowed_companies') !== -1 ? headers.indexOf('allowed_companies') : 4;
+  const idxStatus = headers.indexOf('status') !== -1 ? headers.indexOf('status') : 5;
+  const idxEmail = headers.indexOf('email') !== -1 ? headers.indexOf('email') : 6;
+  const idxPhone = headers.indexOf('phone') !== -1 ? headers.indexOf('phone') : 7;
+  const idxCreatedAt = headers.indexOf('created_at') !== -1 ? headers.indexOf('created_at') : 8;
+
+  const targetUser = String(username).trim().toLowerCase();
+  const targetPass = String(password).trim();
+
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
-    if (String(row[0]).trim().toLowerCase() === String(username).trim().toLowerCase()) {
-      if (String(row[1]) === String(password)) {
-        const status = String(row[5] || '待審核').trim();
-        if (row[0] !== 'admin' && status !== '啟用') {
-          return {
-            success: false,
-            error: '此帳號目前為【' + (status || '待審核') + '】狀態，尚未由超級管理者審核啟用，請聯繫管理員！'
-          };
+    const rowUser = String(row[idxUsername] !== undefined && row[idxUsername] !== null ? row[idxUsername] : '').trim().toLowerCase();
+    if (!rowUser) continue;
+
+    if (rowUser === targetUser) {
+      // 密碼比對 (雙向去除前後空格，並容錯純數字與字串轉換)
+      const rowPass = String(row[idxPassword] !== undefined && row[idxPassword] !== null ? row[idxPassword] : '').trim();
+      
+      if (rowPass === targetPass) {
+        const rawStatus = String(row[idxStatus] !== undefined && row[idxStatus] !== null ? row[idxStatus] : '').trim();
+        
+        // 狀態判斷
+        if (rowUser !== 'admin') {
+          if (rawStatus === '停用') {
+            return {
+              success: false,
+              error: '此帳號已被停用，請聯繫系統管理員！'
+            };
+          }
+          if (rawStatus === '待審核' || rawStatus === '審核中') {
+            return {
+              success: false,
+              error: '此帳號目前為【' + rawStatus + '】狀態，尚未由管理員審核啟用！'
+            };
+          }
         }
 
         let allowedCompanies = ['*'];
-        const rawCompanies = String(row[4] || '*').trim();
+        const rawCompanies = String(row[idxAllowed] || '*').trim();
         if (rawCompanies !== '*' && rawCompanies !== '') {
           allowedCompanies = rawCompanies.split(',').map(function(c) { return c.trim(); }).filter(Boolean);
         }
 
-        logAudit(username, 'LOGIN', '使用者登入成功');
+        logAudit(targetUser, 'LOGIN', '使用者登入成功');
 
         return {
           success: true,
           user: {
-            username: row[0],
-            fullName: row[2] || row[0],
-            role: row[3] || 'client',
-            status: status,
+            username: String(row[idxUsername]).trim(),
+            fullName: String(row[idxFullName] || row[idxUsername]).trim(),
+            role: String(row[idxRole] || 'client').trim(),
+            status: rawStatus || '啟用',
             allowedCompanies: allowedCompanies,
-            email: row[6] || '',
-            phone: row[7] || '',
-            createdAt: row[8] || ''
+            email: String(row[idxEmail] || '').trim(),
+            phone: String(row[idxPhone] || '').trim(),
+            createdAt: String(row[idxCreatedAt] || '').trim()
           }
         };
       } else {
-        return { success: false, error: '密碼錯誤' };
+        return { success: false, error: '密碼錯誤！請檢查大小寫或是否有輸入錯誤。' };
       }
     }
   }
 
-  return { success: false, error: '找不到該帳號' };
+  return { success: false, error: '找不到該帳號「' + username + '」，請確認帳號名稱是否正確！' };
 }
 
 /**
