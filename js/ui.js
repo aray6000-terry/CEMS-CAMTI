@@ -808,13 +808,13 @@ class UIManager {
 
     const map = {
       'all': accessible.length,
-      '對講系統': accessible.filter(e => store.normalizeSystemType(e.system_type) === '對講系統').length,
-      '對講機': accessible.filter(e => store.normalizeSystemType(e.system_type) === '對講系統').length,
-      '門禁系統': accessible.filter(e => store.normalizeSystemType(e.system_type) === '門禁系統').length,
-      '攝影機系統': accessible.filter(e => store.normalizeSystemType(e.system_type) === '攝影機系統').length,
-      '攝影機': accessible.filter(e => store.normalizeSystemType(e.system_type) === '攝影機系統').length,
-      '電子鎖': accessible.filter(e => store.normalizeSystemType(e.system_type) === '電子鎖').length,
-      '燈控系統': accessible.filter(e => store.normalizeSystemType(e.system_type) === '燈控系統').length,
+      '對講系統': accessible.filter(e => store.normalizeSystemType(e.system_type, e) === '對講系統').length,
+      '對講機': accessible.filter(e => store.normalizeSystemType(e.system_type, e) === '對講系統').length,
+      '門禁系統': accessible.filter(e => store.normalizeSystemType(e.system_type, e) === '門禁系統').length,
+      '攝影機系統': accessible.filter(e => store.normalizeSystemType(e.system_type, e) === '攝影機系統').length,
+      '攝影機': accessible.filter(e => store.normalizeSystemType(e.system_type, e) === '攝影機系統').length,
+      '電子鎖': accessible.filter(e => store.normalizeSystemType(e.system_type, e) === '電子鎖').length,
+      '燈控系統': accessible.filter(e => store.normalizeSystemType(e.system_type, e) === '燈控系統').length,
     };
 
     document.querySelectorAll('.sys-tab-btn').forEach(btn => {
@@ -966,7 +966,7 @@ class UIManager {
             <div class="empty-state">
               <i class="fas fa-search"></i>
               <h3>查無符合條件的合約設備</h3>
-              <p>請嘗試切換 4 大系統分頁、調整型號、年度區間或確認授權公司分頁。</p>
+              <p>當前選取之公司或篩選條件下無符合之設備。請嘗試切換至「全部系統總覽」或其他五大系統分頁、切換公司、或調整年度與交貨狀態篩選。</p>
             </div>
           </td>
         </tr>
