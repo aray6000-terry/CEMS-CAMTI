@@ -801,11 +801,11 @@ class UIManager {
 
     const map = {
       'all': accessible.length,
-      '對講機': accessible.filter(e => e.system_type === '對講機').length,
-      '攝影機': accessible.filter(e => e.system_type === '攝影機').length,
-      '門禁系統': accessible.filter(e => e.system_type === '門禁系統').length,
-      '電子鎖': accessible.filter(e => e.system_type === '電子鎖').length,
-      '燈控系統': accessible.filter(e => e.system_type === '燈控系統').length,
+      '對講機': accessible.filter(e => store.normalizeSystemType(e.system_type) === '對講機').length,
+      '攝影機': accessible.filter(e => store.normalizeSystemType(e.system_type) === '攝影機').length,
+      '門禁系統': accessible.filter(e => store.normalizeSystemType(e.system_type) === '門禁系統').length,
+      '電子鎖': accessible.filter(e => store.normalizeSystemType(e.system_type) === '電子鎖').length,
+      '燈控系統': accessible.filter(e => store.normalizeSystemType(e.system_type) === '燈控系統').length,
     };
 
     document.querySelectorAll('.sys-tab-btn').forEach(btn => {

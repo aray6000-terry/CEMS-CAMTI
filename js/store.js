@@ -355,6 +355,20 @@ class AppStore {
   }
 
   /**
+   * 系統別名稱容錯正規化 (相容「門禁」與「門禁系統」、「燈控」與「燈控系統」)
+   */
+  normalizeSystemType(sys) {
+    if (!sys) return '';
+    const s = String(sys).trim();
+    if (s.includes('門禁')) return '門禁系統';
+    if (s.includes('燈控') || s.includes('照明')) return '燈控系統';
+    if (s.includes('攝影') || s.includes('監視') || s.toLowerCase().includes('cctv')) return '攝影機';
+    if (s.includes('對講')) return '對講機';
+    if (s.includes('鎖')) return '電子鎖';
+    return s;
+  }
+
+  /**
    * 取得設備清單 (根據篩選條件、型號與年度區間精確過濾)
    */
   getFilteredEquipment() {
@@ -363,8 +377,12 @@ class AppStore {
       if (!window.authService.canAccessCompany(item.company_name)) return false;
       if (this.filters.company !== 'all' && item.company_name !== this.filters.company) return false;
 
-      // 2. 4大系統分頁篩選
-      if (this.activeSystem !== 'all' && item.system_type !== this.activeSystem) return false;
+      // 2. 5大系統分頁篩選 (支援門禁/門禁系統、燈控/燈控系統容錯比對)
+      if (this.activeSystem !== 'all') {
+        const itemSys = this.normalizeSystemType(item.system_type);
+        const activeSys = this.normalizeSystemType(this.activeSystem);
+        if (itemSys !== activeSys) return false;
+      }
 
       // 2.5 廠牌分類篩選 (新增)
       if (this.filters.brand !== 'all' && (item.brand || '').trim() !== this.filters.brand) return false;
@@ -486,11 +504,12 @@ class AppStore {
       totalDeliveredQty += dQty;
       totalUndeliveredQty += uQty;
 
-      if (item.system_type === '對講機') intercomQty += q;
-      if (item.system_type === '攝影機') cameraQty += q;
-      if (item.system_type === '門禁系統') accessQty += q;
-      if (item.system_type === '電子鎖') lockQty += q;
-      if (item.system_type === '燈控系統') lightQty += q;
+      const sType = this.normalizeSystemType(item.system_type);
+      if (sType === '對講機') intercomQty += q;
+      if (sType === '攝影機') cameraQty += q;
+      if (sType === '門禁系統') accessQty += q;
+      if (sType === '電子鎖') lockQty += q;
+      if (sType === '燈控系統') lightQty += q;
     });
 
     return {
