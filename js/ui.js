@@ -808,9 +808,11 @@ class UIManager {
 
     const map = {
       'all': accessible.length,
-      '對講機': accessible.filter(e => store.normalizeSystemType(e.system_type) === '對講機').length,
-      '攝影機': accessible.filter(e => store.normalizeSystemType(e.system_type) === '攝影機').length,
+      '對講系統': accessible.filter(e => store.normalizeSystemType(e.system_type) === '對講系統').length,
+      '對講機': accessible.filter(e => store.normalizeSystemType(e.system_type) === '對講系統').length,
       '門禁系統': accessible.filter(e => store.normalizeSystemType(e.system_type) === '門禁系統').length,
+      '攝影機系統': accessible.filter(e => store.normalizeSystemType(e.system_type) === '攝影機系統').length,
+      '攝影機': accessible.filter(e => store.normalizeSystemType(e.system_type) === '攝影機系統').length,
       '電子鎖': accessible.filter(e => store.normalizeSystemType(e.system_type) === '電子鎖').length,
       '燈控系統': accessible.filter(e => store.normalizeSystemType(e.system_type) === '燈控系統').length,
     };
@@ -983,10 +985,11 @@ class UIManager {
       // 系統類別圖示
       let sysIcon = 'fa-walkie-talkie';
       const normSys = store.normalizeSystemType(item.system_type);
-      if (normSys === '攝影機') sysIcon = 'fa-video';
-      else if (normSys === '門禁系統') sysIcon = 'fa-door-open';
+      if (normSys === '門禁系統') sysIcon = 'fa-door-open';
+      else if (normSys === '攝影機系統' || normSys === '攝影機') sysIcon = 'fa-video';
       else if (normSys === '電子鎖') sysIcon = 'fa-key';
       else if (normSys === '燈控系統') sysIcon = 'fa-lightbulb';
+      else if (normSys === '對講系統' || normSys === '對講機') sysIcon = 'fa-walkie-talkie';
 
       // 數量計算
       const totalQty = Number(item.quantity) || 1;
@@ -1395,7 +1398,7 @@ class UIManager {
       document.getElementById('eq-contract-id').value = item.contract_id || '';
       document.getElementById('eq-project-name').value = item.project_name || '';
       document.getElementById('eq-sales-rep').value = item.sales_rep || '';
-      document.getElementById('eq-system-type').value = item.system_type || '對講機';
+      document.getElementById('eq-system-type').value = window.appStore.normalizeSystemType(item.system_type) || '對講系統';
       document.getElementById('eq-brand').value = item.brand || '';
       document.getElementById('eq-device-name').value = item.device_name || '';
       document.getElementById('eq-model').value = item.model || '';

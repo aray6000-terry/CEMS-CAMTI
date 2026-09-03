@@ -30,7 +30,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZA-2025-01",
     "project_name": "宗亞南港總部旗艦大樓",
     "sales_rep": "陳業務專員",
-    "system_type": "對講機",
+    "system_type": "對講系統",
     "device_name": "IP觸控式門口對講主機",
     "model": "Panasonic VL-V900",
     "quantity": 12,
@@ -48,7 +48,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "A9120",
     "project_name": "美山林建設-中山北美",
     "sales_rep": "黃義宗",
-    "system_type": "對講機",
+    "system_type": "對講系統",
     "device_name": "彩色感應影像對講住戶門口機",
     "model": "NOBEL  NB-700D-IM",
     "quantity": 37,
@@ -66,7 +66,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "A9120",
     "project_name": "美山林建設-中山北美",
     "sales_rep": "黃義宗",
-    "system_type": "對講機",
+    "system_type": "對講系統",
     "device_name": "10\"社區IP網路型彩色影視感應門口機",
     "model": "NOBEL  NB-810G",
     "quantity": 1,
@@ -84,7 +84,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "A9120",
     "project_name": "美山林建設-中山北美",
     "sales_rep": "黃義宗",
-    "system_type": "對講機",
+    "system_type": "對講系統",
     "device_name": "IP網路型10\"保全對講管理總機",
     "model": "NOBEL  NB-620M",
     "quantity": 2,
@@ -102,7 +102,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "A9120",
     "project_name": "美山林建設-中山北美",
     "sales_rep": "黃義宗",
-    "system_type": "對講機",
+    "system_type": "對講系統",
     "device_name": "SIP+PUSH智慧雲端管理專用伺服主機",
     "model": "NOBEL  NB-8000+APP-800S",
     "quantity": 1,
@@ -120,7 +120,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "A9120",
     "project_name": "美山林建設-中山北美",
     "sales_rep": "黃義宗",
-    "system_type": "對講機",
+    "system_type": "對講系統",
     "device_name": "IP網路型公共免持式緊急對講機",
     "model": "NOBEL  NB-800E-IM",
     "quantity": 1,
@@ -138,7 +138,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "A9120",
     "project_name": "美山林建設-中山北美",
     "sales_rep": "黃義宗",
-    "system_type": "攝影機",
+    "system_type": "攝影機系統",
     "device_name": "2M IP網路型室內用彩色半球型紅外線攝影機",
     "model": "SAMPO  VK-TWCIP2240DW",
     "quantity": 11,
@@ -156,7 +156,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "A9120",
     "project_name": "美山林建設-中山北美",
     "sales_rep": "黃義宗",
-    "system_type": "攝影機",
+    "system_type": "攝影機系統",
     "device_name": "2M IP網路型室外用彩色紅外線攝影機",
     "model": "SAMPO  VK-TWCIP2141FWTZ",
     "quantity": 14,
@@ -174,7 +174,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "A9120",
     "project_name": "美山林建設-中山北美",
     "sales_rep": "黃義宗",
-    "system_type": "攝影機",
+    "system_type": "攝影機系統",
     "device_name": "2M IP網路型室內用彩色紅外線攝影機",
     "model": "SAMPO  VK-TWCIP2240FW",
     "quantity": 12,
@@ -192,7 +192,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "A9120",
     "project_name": "美山林建設-中山北美",
     "sales_rep": "黃義宗",
-    "system_type": "攝影機",
+    "system_type": "攝影機系統",
     "device_name": "監視系統專用錄音麥克風",
     "model": "SAMPO  HAP120",
     "quantity": 2,
@@ -210,7 +210,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "A9120",
     "project_name": "美山林建設-中山北美",
     "sales_rep": "黃義宗",
-    "system_type": "攝影機",
+    "system_type": "攝影機系統",
     "device_name": "500萬畫素IP網路型16路數位錄影主機",
     "model": "SAMPO  DR-TWC2626NV",
     "quantity": 3,
@@ -354,7 +354,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZY-2025-02",
     "project_name": "宗鈺內湖科技大樓",
     "sales_rep": "王業務副理",
-    "system_type": "對講機",
+    "system_type": "對講系統",
     "device_name": "SIP高階視訊管理總機",
     "model": "Akuvox R29C",
     "quantity": 8,
@@ -372,7 +372,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZY-2025-02",
     "project_name": "宗鈺內湖科技大���",
     "sales_rep": "王業務副理",
-    "system_type": "攝影機",
+    "system_type": "攝影機系統",
     "device_name": "全景360度魚眼全景攝影機",
     "model": "Dahua DH-IPC-EBW81242",
     "quantity": 24,
@@ -444,7 +444,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZT-2024-03",
     "project_name": "宗泰竹科研發廠房",
     "sales_rep": "張業務主任",
-    "system_type": "對講機",
+    "system_type": "對講系統",
     "device_name": "防爆型工業對講通訊分機",
     "model": "J&R JR101-FK",
     "quantity": 18,
@@ -462,7 +462,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZT-2024-03",
     "project_name": "宗泰竹科研發廠房",
     "sales_rep": "張業務主任",
-    "system_type": "攝影機",
+    "system_type": "攝影機系統",
     "device_name": "4K紅外線防暴半球型網路攝影機",
     "model": "Hikvision DS-2CD2186",
     "quantity": 70,
@@ -534,7 +534,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-IS-2024-04",
     "project_name": "資訊星雲端數據中心",
     "sales_rep": "李業務總監",
-    "system_type": "對講機",
+    "system_type": "對講系統",
     "device_name": "IP觸控式門口對講主機",
     "model": "Panasonic VL-V900",
     "quantity": 6,
@@ -552,7 +552,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-IS-2024-04",
     "project_name": "資訊星雲端數據中心",
     "sales_rep": "李業務總監",
-    "system_type": "攝影機",
+    "system_type": "攝影機系統",
     "device_name": "AI熱成像雙光譜周界球機",
     "model": "Hikvision DS-2TD4136",
     "quantity": 16,
@@ -624,7 +624,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZQ-2024-05",
     "project_name": "宗群七期豪華商辦大樓",
     "sales_rep": "王業務副理",
-    "system_type": "對講機",
+    "system_type": "對講系統",
     "device_name": "SIP彩色可視大門對講機",
     "model": "Akuvox E12W",
     "quantity": 10,
@@ -642,7 +642,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZQ-2024-05",
     "project_name": "宗群七期豪華商辦大樓",
     "sales_rep": "王業務副理",
-    "system_type": "攝影機",
+    "system_type": "攝影機系統",
     "device_name": "星光級紅外線槍型網路攝影機",
     "model": "Hikvision DS-2CD2T86",
     "quantity": 40,
@@ -714,7 +714,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZYU-2024-06",
     "project_name": "宗友亞灣軟體園區大樓",
     "sales_rep": "趙業務工程師",
-    "system_type": "對講機",
+    "system_type": "對講系統",
     "device_name": "多用戶數位式門口對講主機",
     "model": "Panasonic VL-SV74",
     "quantity": 14,
@@ -732,7 +732,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZYU-2024-06",
     "project_name": "宗友亞灣軟體園區大樓",
     "sales_rep": "趙業務工程師",
-    "system_type": "攝影機",
+    "system_type": "攝影機系統",
     "device_name": "4K室內廣角半球網路攝影機",
     "model": "Dahua DH-IPC-HDBW5842",
     "quantity": 32,
@@ -804,7 +804,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZS-2024-07",
     "project_name": "宗晟林口智慧園區辦公大樓",
     "sales_rep": "林專案經理",
-    "system_type": "對講機",
+    "system_type": "對講系統",
     "device_name": "緊急呼叫話筒與對講按鈕主機",
     "model": "Commax TP-12AM",
     "quantity": 20,
@@ -822,7 +822,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZS-2024-07",
     "project_name": "宗晟林口智慧園區辦公大樓",
     "sales_rep": "林專案經理",
-    "system_type": "攝影機",
+    "system_type": "攝影機系統",
     "device_name": "高倍率光學變焦戶外快速球機",
     "model": "Hikvision DS-2DF8836",
     "quantity": 10,
@@ -894,7 +894,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-HX-2024-08",
     "project_name": "和興南科精密工業廠區",
     "sales_rep": "黃業務副理",
-    "system_type": "對講機",
+    "system_type": "對講系統",
     "device_name": "防爆壁掛式對講電話分機",
     "model": "J&R JR101-FK",
     "quantity": 15,
@@ -912,7 +912,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-HX-2024-08",
     "project_name": "和興南科精密工業廠區",
     "sales_rep": "黃業務副理",
-    "system_type": "攝影機",
+    "system_type": "攝影機系統",
     "device_name": "AI熱成像雙光譜防爆攝影機",
     "model": "Hikvision DS-2TD2617",
     "quantity": 8,
@@ -984,7 +984,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZK-2024-09",
     "project_name": "宗科竹北生醫研發中心",
     "sales_rep": "蔡業務專員",
-    "system_type": "對講機",
+    "system_type": "對講系統",
     "device_name": "IP彩色多功能管理總機",
     "model": "Akuvox R29C",
     "quantity": 6,
@@ -1002,7 +1002,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZK-2024-09",
     "project_name": "宗科竹北生醫研發中心",
     "sales_rep": "蔡業務專員",
-    "system_type": "攝影機",
+    "system_type": "攝影機系統",
     "device_name": "醫療無塵室抗干擾專用攝影機",
     "model": "Panasonic WV-S2531LTN",
     "quantity": 25,
@@ -1074,7 +1074,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZS-2023-10",
     "project_name": "宗順新莊副都心商辦大樓",
     "sales_rep": "吳業務副理",
-    "system_type": "對講機",
+    "system_type": "對講系統",
     "device_name": "SIP彩色可視大門對講機",
     "model": "Panasonic VL-V900",
     "quantity": 8,
@@ -1092,7 +1092,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZS-2023-10",
     "project_name": "宗順新莊副都心商辦大樓",
     "sales_rep": "吳業務副理",
-    "system_type": "攝影機",
+    "system_type": "攝影機系統",
     "device_name": "4K星光級防護半球型攝影機",
     "model": "Hikvision DS-2CD2186",
     "quantity": 45,
@@ -1164,7 +1164,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZYI-2024-11",
     "project_name": "宗益彰濱工業物流倉儲區",
     "sales_rep": "張業務主任",
-    "system_type": "對講機",
+    "system_type": "對講系統",
     "device_name": "防水防塵壁掛對講分機",
     "model": "Commax CM-800",
     "quantity": 16,
@@ -1182,7 +1182,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZYI-2024-11",
     "project_name": "宗益彰濱工業物流倉儲區",
     "sales_rep": "張業務主任",
-    "system_type": "攝影機",
+    "system_type": "攝影機系統",
     "device_name": "超長距離紅外線車牌辨識攝影機",
     "model": "Hikvision iDS-2CD7A46",
     "quantity": 12,
@@ -1254,7 +1254,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-BC-2024-12",
     "project_name": "百成中壢工業區科技總部",
     "sales_rep": "李業務總監",
-    "system_type": "對講機",
+    "system_type": "對講系統",
     "device_name": "IP觸控式智慧門口對講機",
     "model": "Akuvox R29C",
     "quantity": 10,
@@ -1272,7 +1272,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-BC-2024-12",
     "project_name": "百成中壢工業區科技總部",
     "sales_rep": "李業務總監",
-    "system_type": "攝影機",
+    "system_type": "攝影機系統",
     "device_name": "4K全方位高清紅外線攝影機",
     "model": "Dahua DH-IPC-EBW81242",
     "quantity": 36,
@@ -1344,7 +1344,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZQ-2024-13",
     "project_name": "宗麒新店安坑智能住宅社區",
     "sales_rep": "陳業務專員",
-    "system_type": "對講機",
+    "system_type": "對講系統",
     "device_name": "7吋彩色室內緊急對講對講分機",
     "model": "Panasonic VL-SV74",
     "quantity": 50,
@@ -1362,7 +1362,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZQ-2024-13",
     "project_name": "宗麒新店安坑智能住宅社區",
     "sales_rep": "陳業務專員",
-    "system_type": "攝影機",
+    "system_type": "攝影機系統",
     "device_name": "戶外星光級防暴半球型攝影機",
     "model": "Hikvision DS-2CD2186",
     "quantity": 40,
@@ -1434,7 +1434,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-GS-2023-14",
     "project_name": "廣晟高雄路竹生技園區",
     "sales_rep": "趙業務工程師",
-    "system_type": "對講機",
+    "system_type": "對講系統",
     "device_name": "防腐蝕耐酸鹼工業對講分機",
     "model": "J&R JR101-FK",
     "quantity": 12,
@@ -1452,7 +1452,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-GS-2023-14",
     "project_name": "廣晟高雄路竹生技園區",
     "sales_rep": "趙業務工程師",
-    "system_type": "攝影機",
+    "system_type": "攝影機系統",
     "device_name": "4K紅外線防護網路攝影機",
     "model": "Hikvision DS-2CD2T86",
     "quantity": 30,
@@ -1524,7 +1524,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZR-2024-15",
     "project_name": "宗榮台南柳營生技製藥廠",
     "sales_rep": "黃業務副理",
-    "system_type": "對講機",
+    "system_type": "對講系統",
     "device_name": "SIP防水可視對講大門主機",
     "model": "Akuvox E12W",
     "quantity": 8,
@@ -1542,7 +1542,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZR-2024-15",
     "project_name": "宗榮台南柳營生技製藥廠",
     "sales_rep": "黃業務副理",
-    "system_type": "攝影機",
+    "system_type": "攝影機系統",
     "device_name": "全天候紅外線星光攝影機",
     "model": "Dahua DH-IPC-HDBW5842",
     "quantity": 28,
@@ -1614,7 +1614,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZL-2024-16",
     "project_name": "宗霖苗栗竹南高階半導體廠",
     "sales_rep": "張業務主任",
-    "system_type": "對講機",
+    "system_type": "對講系統",
     "device_name": "防爆抗干擾工業通訊對講主機",
     "model": "J&R JR101-FK",
     "quantity": 14,
@@ -1632,7 +1632,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "contract_id": "CT-ZL-2024-16",
     "project_name": "宗霖苗栗竹南高階半導體廠",
     "sales_rep": "張業務主任",
-    "system_type": "攝影機",
+    "system_type": "攝影機系統",
     "device_name": "4K室外超低照度紅外線攝影機",
     "model": "Hikvision DS-2CD2186",
     "quantity": 50,
@@ -1778,9 +1778,9 @@ const INITIAL_MOCK_EQUIPMENT = [
 
 class ApiService {
   constructor() {
-    this.API_URL_KEY = 'equip_mgmt_gas_api_url_v7';
-    this.DATA_STORAGE_KEY = 'equip_mgmt_local_equipment_v7';
-    this.COMPANIES_KEY = 'equip_mgmt_local_companies_v7';
+    this.API_URL_KEY = 'equip_mgmt_gas_api_url_v8';
+    this.DATA_STORAGE_KEY = 'equip_mgmt_local_equipment_v8';
+    this.COMPANIES_KEY = 'equip_mgmt_local_companies_v8';
     this.DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbwmyzhEWhd9ADvJ4LZe-GIwelQERa696zuRUsJMMZcQwc087z-AvW5AHkLIMjSBrXrL3A/exec';
     
     const stored = localStorage.getItem(this.API_URL_KEY);
@@ -1886,13 +1886,15 @@ class ApiService {
     let brand = (item.brand || item.廠牌 || item.廠牌分類 || item.品牌 || '').toString().trim();
     let rawSys = (item.system_type || item.系統分類 || item.系統別 || '').toString().trim();
     let combinedText = (rawSys + ' ' + (item.device_name || '') + ' ' + (item.model || '')).toLowerCase();
-    let sysType = '對講機';
+    let sysType = '對講系統';
     if (combinedText.indexOf('門禁') !== -1 || combinedText.indexOf('刷卡') !== -1 || combinedText.indexOf('讀卡') !== -1 || combinedText.indexOf('閘門') !== -1 || combinedText.indexOf('access') !== -1) sysType = '門禁系統';
     else if (combinedText.indexOf('燈控') !== -1 || combinedText.indexOf('照明') !== -1 || combinedText.indexOf('調光') !== -1 || combinedText.indexOf('燈光') !== -1 || combinedText.indexOf('light') !== -1) sysType = '燈控系統';
-    else if (combinedText.indexOf('攝影') !== -1 || combinedText.indexOf('監視') !== -1 || combinedText.indexOf('監控') !== -1 || combinedText.indexOf('cctv') !== -1 || combinedText.indexOf('camera') !== -1) sysType = '攝影機';
+    else if (combinedText.indexOf('攝影') !== -1 || combinedText.indexOf('監視') !== -1 || combinedText.indexOf('監控') !== -1 || combinedText.indexOf('cctv') !== -1 || combinedText.indexOf('camera') !== -1) sysType = '攝影機系統';
     else if (combinedText.indexOf('鎖') !== -1 || combinedText.indexOf('陽極') !== -1 || combinedText.indexOf('磁力') !== -1 || combinedText.indexOf('陰極') !== -1 || combinedText.indexOf('lock') !== -1) sysType = '電子鎖';
-    else if (combinedText.indexOf('對講') !== -1 || combinedText.indexOf('門口機') !== -1 || combinedText.indexOf('室內機') !== -1 || combinedText.indexOf('intercom') !== -1) sysType = '對講機';
-    else sysType = rawSys || '對講機';
+    else if (combinedText.indexOf('對講') !== -1 || combinedText.indexOf('門口機') !== -1 || combinedText.indexOf('室內機') !== -1 || combinedText.indexOf('intercom') !== -1) sysType = '對講系統';
+    else if (rawSys === '對講機') sysType = '對講系統';
+    else if (rawSys === '攝影機') sysType = '攝影機系統';
+    else sysType = rawSys || '對講系統';
 
     if (!brand) {
       brand = this.extractBrand(item.model, item.device_name, sysType);
@@ -1941,8 +1943,8 @@ class ApiService {
     }
 
     // 依系統分類提供合理預設
-    if (systemType === '對講機') return 'Panasonic';
-    if (systemType === '攝影機') return 'Hikvision';
+    if (systemType === '對講系統' || systemType === '對講機') return 'Panasonic';
+    if (systemType === '攝影機系統' || systemType === '攝影機') return 'Hikvision';
     if (systemType === '門禁系統') return 'Soyal';
     if (systemType === '電子鎖') return 'Yale';
     if (systemType === '燈控系統') return 'Lutron';

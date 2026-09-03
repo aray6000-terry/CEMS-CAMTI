@@ -340,9 +340,9 @@
 
 /* Tab Theme Highlights */
 .sys-tab-btn[data-sys="all"].active { --tab-active-bg: rgba(59, 130, 246, 0.25); --tab-active-border: #3b82f6; --tab-active-glow: rgba(59, 130, 246, 0.25); }
-.sys-tab-btn[data-sys="對講機"].active { --tab-active-bg: rgba(14, 165, 233, 0.25); --tab-active-border: #0ea5e9; --tab-active-glow: rgba(14, 165, 233, 0.25); }
-.sys-tab-btn[data-sys="攝影機"].active { --tab-active-bg: rgba(139, 92, 246, 0.25); --tab-active-border: #8b5cf6; --tab-active-glow: rgba(139, 92, 246, 0.25); }
+.sys-tab-btn[data-sys="對講系統"].active, .sys-tab-btn[data-sys="對講機"].active { --tab-active-bg: rgba(14, 165, 233, 0.25); --tab-active-border: #0ea5e9; --tab-active-glow: rgba(14, 165, 233, 0.25); }
 .sys-tab-btn[data-sys="門禁系統"].active, .sys-tab-btn[data-sys="門禁"].active { --tab-active-bg: rgba(16, 185, 129, 0.25); --tab-active-border: #10b981; --tab-active-glow: rgba(16, 185, 129, 0.25); }
+.sys-tab-btn[data-sys="攝影機系統"].active, .sys-tab-btn[data-sys="攝影機"].active { --tab-active-bg: rgba(139, 92, 246, 0.25); --tab-active-border: #8b5cf6; --tab-active-glow: rgba(139, 92, 246, 0.25); }
 .sys-tab-btn[data-sys="電子鎖"].active { --tab-active-bg: rgba(245, 158, 11, 0.25); --tab-active-border: #f59e0b; --tab-active-glow: rgba(245, 158, 11, 0.25); }
 .sys-tab-btn[data-sys="燈控系統"].active, .sys-tab-btn[data-sys="燈控"].active { --tab-active-bg: rgba(244, 63, 94, 0.25); --tab-active-border: #f43f5e; --tab-active-glow: rgba(244, 63, 94, 0.25); }
 
@@ -610,8 +610,8 @@ select.form-control {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--border-color);
 }
-.badge-system[data-sys="對講機"] { background: rgba(14, 165, 233, 0.15); color: #38bdf8; border-color: rgba(14, 165, 233, 0.3); }
-.badge-system[data-sys="攝影機"] { background: rgba(139, 92, 246, 0.15); color: #c084fc; border-color: rgba(139, 92, 246, 0.3); }
+.badge-system[data-sys="對講系統"], .badge-system[data-sys="對講機"] { background: rgba(14, 165, 233, 0.15); color: #38bdf8; border-color: rgba(14, 165, 233, 0.3); }
+.badge-system[data-sys="攝影機系統"], .badge-system[data-sys="攝影機"] { background: rgba(139, 92, 246, 0.15); color: #c084fc; border-color: rgba(139, 92, 246, 0.3); }
 .badge-system[data-sys="門禁系統"] { background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
 .badge-system[data-sys="電子鎖"] { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); }
 .badge-system[data-sys="燈控系統"] { background: rgba(244, 63, 94, 0.15); color: #fb7185; border-color: rgba(244, 63, 94, 0.3); }

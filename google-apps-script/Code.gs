@@ -993,13 +993,17 @@ function getEquipmentList(userCompanies) {
       } else if (combinedText.indexOf('燈控') !== -1 || combinedText.indexOf('照明') !== -1 || combinedText.indexOf('調光') !== -1 || combinedText.indexOf('燈光') !== -1 || combinedText.indexOf('light') !== -1) {
         item.system_type = '燈控系統';
       } else if (combinedText.indexOf('攝影') !== -1 || combinedText.indexOf('監視') !== -1 || combinedText.indexOf('監控') !== -1 || combinedText.indexOf('cctv') !== -1 || combinedText.indexOf('camera') !== -1) {
-        item.system_type = '攝影機';
+        item.system_type = '攝影機系統';
       } else if (combinedText.indexOf('鎖') !== -1 || combinedText.indexOf('陽極') !== -1 || combinedText.indexOf('磁力') !== -1 || combinedText.indexOf('陰極') !== -1 || combinedText.indexOf('lock') !== -1) {
         item.system_type = '電子鎖';
       } else if (combinedText.indexOf('對講') !== -1 || combinedText.indexOf('門口機') !== -1 || combinedText.indexOf('室內機') !== -1 || combinedText.indexOf('intercom') !== -1) {
-        item.system_type = '對講機';
+        item.system_type = '對講系統';
+      } else if (rawType === '對講機') {
+        item.system_type = '對講系統';
+      } else if (rawType === '攝影機') {
+        item.system_type = '攝影機系統';
       } else {
-        item.system_type = rawType || '對講機';
+        item.system_type = rawType || '對講系統';
       }
       if (!item.device_name) item.device_name = '設備項目 ' + i;
       
