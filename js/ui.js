@@ -109,13 +109,17 @@ class UIManager {
       });
     }
 
-    // 1. 5大系統分頁點擊
+    // 1. 5大系統分頁點擊 (頂部按鈕即時連動下方選單與表格)
     document.querySelectorAll('.sys-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const sys = btn.getAttribute('data-sys');
         document.querySelectorAll('.sys-tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         
+        // 連動更新下方篩選橫條的 filter-system 下拉選單
+        const filterSysSel = document.getElementById('filter-system');
+        if (filterSysSel) filterSysSel.value = sys;
+
         window.appStore.setSystemFilter(sys);
       });
     });
@@ -128,6 +132,21 @@ class UIManager {
       });
     }
 
+    // 2.2 清單頁 - 系統分類篩選下拉選單 (雙向連動頂部分頁按鈕)
+    const filterSysSelect = document.getElementById('filter-system');
+    if (filterSysSelect) {
+      filterSysSelect.addEventListener('change', (e) => {
+        const sys = e.target.value;
+        document.querySelectorAll('.sys-tab-btn').forEach(b => {
+          if (b.getAttribute('data-sys') === sys) {
+            b.classList.add('active');
+          } else {
+            b.classList.remove('active');
+          }
+        });
+        window.appStore.setSystemFilter(sys);
+      });
+    }
 
     // 3. 清單頁 - 設備型號篩選下拉選單
     const listModelSelect = document.getElementById('filter-model');
@@ -391,6 +410,13 @@ class UIManager {
     this.renderCompanyTabs(store);
     this.renderKPIs(store);
     this.renderSystemTabCounts(store);
+    
+    // 同步更新下方篩選列的 filter-system 下拉選單值
+    const filterSysSel = document.getElementById('filter-system');
+    if (filterSysSel && filterSysSel.value !== store.activeSystem) {
+      filterSysSel.value = store.activeSystem;
+    }
+
     this.renderCompanyDropdown(store);
     this.renderListModelDropdown(store);
     this.renderTabStatsBar(store);

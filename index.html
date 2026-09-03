@@ -17,8 +17,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <!-- Custom Stylesheets -->
-  <link rel="stylesheet" href="css/main.css?v=20260903L">
-  <link rel="stylesheet" href="css/components.css?v=20260903L">
+  <link rel="stylesheet" href="css/main.css?v=20260903M">
+  <link rel="stylesheet" href="css/components.css?v=20260903M">
 </head>
 
 <body>
@@ -290,8 +290,18 @@
               </select>
             </div>
 
-
-            <!-- 設備型號篩選 -->
+            <!-- 系統分類篩選 (與頂部分頁即時雙向連動) -->
+            <div class="input-group">
+              <i class="fas fa-layer-group"></i>
+              <select id="filter-system" class="form-control">
+                <option value="all">⚙️ 全部系統總覽</option>
+                <option value="對講系統">📞 1. 對講系統</option>
+                <option value="門禁系統">🚪 2. 門禁系統</option>
+                <option value="攝影機系統">📹 3. 攝影機系統</option>
+                <option value="電子鎖">🔐 4. 電子鎖</option>
+                <option value="燈控系統">💡 5. 燈控系統</option>
+              </select>
+            </div>
             <div class="input-group">
               <i class="fas fa-tag"></i>
               <select id="filter-model" class="form-control">
@@ -901,11 +911,11 @@
   <div id="toast-container"></div>
 
   <!-- Scripts (Cache Buster 防止瀏覽器載入舊代碼) -->
-  <script src="js/auth.js?v=20260903L"></script>
-  <script src="js/api.js?v=20260903L"></script>
-  <script src="js/store.js?v=20260903L"></script>
-  <script src="js/ui.js?v=20260903L"></script>
-  <script src="js/app.js?v=20260903L"></script>
+  <script src="js/auth.js?v=20260903M"></script>
+  <script src="js/api.js?v=20260903M"></script>
+  <script src="js/store.js?v=20260903M"></script>
+  <script src="js/ui.js?v=20260903M"></script>
+  <script src="js/app.js?v=20260903M"></script>
 </body>
 
 </html>
