@@ -342,9 +342,9 @@
 .sys-tab-btn[data-sys="all"].active { --tab-active-bg: rgba(59, 130, 246, 0.25); --tab-active-border: #3b82f6; --tab-active-glow: rgba(59, 130, 246, 0.25); }
 .sys-tab-btn[data-sys="對講機"].active { --tab-active-bg: rgba(14, 165, 233, 0.25); --tab-active-border: #0ea5e9; --tab-active-glow: rgba(14, 165, 233, 0.25); }
 .sys-tab-btn[data-sys="攝影機"].active { --tab-active-bg: rgba(139, 92, 246, 0.25); --tab-active-border: #8b5cf6; --tab-active-glow: rgba(139, 92, 246, 0.25); }
-.sys-tab-btn[data-sys="門禁系統"].active { --tab-active-bg: rgba(16, 185, 129, 0.25); --tab-active-border: #10b981; --tab-active-glow: rgba(16, 185, 129, 0.25); }
+.sys-tab-btn[data-sys="門禁系統"].active, .sys-tab-btn[data-sys="門禁"].active { --tab-active-bg: rgba(16, 185, 129, 0.25); --tab-active-border: #10b981; --tab-active-glow: rgba(16, 185, 129, 0.25); }
 .sys-tab-btn[data-sys="電子鎖"].active { --tab-active-bg: rgba(245, 158, 11, 0.25); --tab-active-border: #f59e0b; --tab-active-glow: rgba(245, 158, 11, 0.25); }
-.sys-tab-btn[data-sys="燈控系統"].active { --tab-active-bg: rgba(244, 63, 94, 0.25); --tab-active-border: #f43f5e; --tab-active-glow: rgba(244, 63, 94, 0.25); }
+.sys-tab-btn[data-sys="燈控系統"].active, .sys-tab-btn[data-sys="燈控"].active { --tab-active-bg: rgba(244, 63, 94, 0.25); --tab-active-border: #f43f5e; --tab-active-glow: rgba(244, 63, 94, 0.25); }
 
 /* ==========================================================================
    Brand Subtabs / Category Filter Chips (系統分類下之廠牌分類)

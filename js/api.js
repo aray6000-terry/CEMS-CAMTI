@@ -969,13 +969,14 @@ class ApiService {
 
     // 廠牌正規化 (若未填寫或舊資料，自動智慧推導)
     let brand = (item.brand || item.廠牌 || item.廠牌分類 || item.品牌 || '').toString().trim();
-    // 系統別名稱容錯正規化 (門禁 -> 門禁系統、燈控 -> 燈控系統)
-    let sysType = (item.system_type || item.系統分類 || item.系統別 || '對講機').toString().trim();
-    if (sysType.includes('門禁')) sysType = '門禁系統';
-    else if (sysType.includes('燈控') || sysType.includes('照明')) sysType = '燈控系統';
-    else if (sysType.includes('攝影') || sysType.includes('監視') || sysType.toLowerCase().includes('cctv')) sysType = '攝影機';
-    else if (sysType.includes('對講')) sysType = '對講機';
-    else if (sysType.includes('鎖')) sysType = '電子鎖';
+    let rawSys = (item.system_type || item.系統分類 || item.系統別 || '對講機').toString().trim().toLowerCase();
+    let sysType = '對講機';
+    if (rawSys.indexOf('門禁') !== -1 || rawSys.indexOf('刷卡') !== -1 || rawSys.indexOf('讀卡') !== -1 || rawSys.indexOf('閘門') !== -1 || rawSys.indexOf('access') !== -1) sysType = '門禁系統';
+    else if (rawSys.indexOf('燈控') !== -1 || rawSys.indexOf('照明') !== -1 || rawSys.indexOf('調光') !== -1 || rawSys.indexOf('燈光') !== -1 || rawSys.indexOf('light') !== -1) sysType = '燈控系統';
+    else if (rawSys.indexOf('攝影') !== -1 || rawSys.indexOf('監視') !== -1 || rawSys.indexOf('監控') !== -1 || rawSys.indexOf('cctv') !== -1 || rawSys.indexOf('camera') !== -1) sysType = '攝影機';
+    else if (rawSys.indexOf('對講') !== -1 || rawSys.indexOf('門口機') !== -1 || rawSys.indexOf('室內機') !== -1 || rawSys.indexOf('intercom') !== -1) sysType = '對講機';
+    else if (rawSys.indexOf('鎖') !== -1 || rawSys.indexOf('陽極') !== -1 || rawSys.indexOf('磁力') !== -1 || rawSys.indexOf('陰極') !== -1 || rawSys.indexOf('lock') !== -1) sysType = '電子鎖';
+    else sysType = (item.system_type || '對講機').toString().trim();
 
     if (!brand) {
       brand = this.extractBrand(item.model, item.device_name, sysType);

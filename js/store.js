@@ -270,7 +270,7 @@ class AppStore {
     const accessible = this.equipment.filter(item => {
       if (!window.authService.canAccessCompany(item.company_name)) return false;
       if (this.reportFilters.company !== 'all' && item.company_name !== this.reportFilters.company) return false;
-      if (this.reportFilters.system !== 'all' && item.system_type !== this.reportFilters.system) return false;
+      if (this.reportFilters.system !== 'all' && this.normalizeSystemType(item.system_type) !== this.normalizeSystemType(this.reportFilters.system)) return false;
       return true;
     });
 
@@ -290,7 +290,7 @@ class AppStore {
     const accessible = this.equipment.filter(item => {
       if (!window.authService.canAccessCompany(item.company_name)) return false;
       if (this.reportFilters.company !== 'all' && item.company_name !== this.reportFilters.company) return false;
-      if (this.reportFilters.system !== 'all' && item.system_type !== this.reportFilters.system) return false;
+      if (this.reportFilters.system !== 'all' && this.normalizeSystemType(item.system_type) !== this.normalizeSystemType(this.reportFilters.system)) return false;
       if (this.reportFilters.brand !== 'all' && (item.brand || '').trim() !== this.reportFilters.brand) return false;
       return true;
     });
@@ -359,13 +359,13 @@ class AppStore {
    */
   normalizeSystemType(sys) {
     if (!sys) return '';
-    const s = String(sys).trim();
-    if (s.includes('門禁')) return '門禁系統';
-    if (s.includes('燈控') || s.includes('照明')) return '燈控系統';
-    if (s.includes('攝影') || s.includes('監視') || s.toLowerCase().includes('cctv')) return '攝影機';
-    if (s.includes('對講')) return '對講機';
-    if (s.includes('鎖')) return '電子鎖';
-    return s;
+    const s = String(sys).trim().toLowerCase();
+    if (s.indexOf('門禁') !== -1 || s.indexOf('刷卡') !== -1 || s.indexOf('讀卡') !== -1 || s.indexOf('閘門') !== -1 || s.indexOf('access') !== -1) return '門禁系統';
+    if (s.indexOf('燈控') !== -1 || s.indexOf('照明') !== -1 || s.indexOf('調光') !== -1 || s.indexOf('燈光') !== -1 || s.indexOf('light') !== -1) return '燈控系統';
+    if (s.indexOf('攝影') !== -1 || s.indexOf('監視') !== -1 || s.indexOf('監控') !== -1 || s.indexOf('cctv') !== -1 || s.indexOf('camera') !== -1) return '攝影機';
+    if (s.indexOf('對講') !== -1 || s.indexOf('門口機') !== -1 || s.indexOf('室內機') !== -1 || s.indexOf('intercom') !== -1) return '對講機';
+    if (s.indexOf('鎖') !== -1 || s.indexOf('陽極') !== -1 || s.indexOf('磁力') !== -1 || s.indexOf('陰極') !== -1 || s.indexOf('lock') !== -1) return '電子鎖';
+    return String(sys).trim();
   }
 
   /**
@@ -551,7 +551,7 @@ class AppStore {
     const accessibleEquipment = this.equipment.filter(item => {
       if (!window.authService.canAccessCompany(item.company_name)) return false;
       if (this.reportFilters.company !== 'all' && item.company_name !== this.reportFilters.company) return false;
-      if (this.reportFilters.system !== 'all' && item.system_type !== this.reportFilters.system) return false;
+      if (this.reportFilters.system !== 'all' && this.normalizeSystemType(item.system_type) !== this.normalizeSystemType(this.reportFilters.system)) return false;
       if (this.reportFilters.brand !== 'all' && (item.brand || '').trim() !== this.reportFilters.brand) return false;
       if (this.reportFilters.model !== 'all' && item.model !== this.reportFilters.model) return false;
       
@@ -602,7 +602,7 @@ class AppStore {
       const year = item.delivery_date ? parseInt(item.delivery_date.substring(0, 4), 10) : 2024;
       const targetYear = allYearsList.includes(year) ? year : 2024;
 
-      const sys = item.system_type;
+      const sys = this.normalizeSystemType(item.system_type);
       if (annualTotals[targetYear]) {
         let addQty = q;
         if (this.reportFilters.deliveryStatus === '已交貨' || this.reportFilters.metric === 'delivered') {

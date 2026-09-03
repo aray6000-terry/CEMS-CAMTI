@@ -975,10 +975,11 @@ class UIManager {
 
       // 系統類別圖示
       let sysIcon = 'fa-walkie-talkie';
-      if (item.system_type === '攝影機') sysIcon = 'fa-video';
-      if (item.system_type === '門禁系統') sysIcon = 'fa-door-open';
-      if (item.system_type === '電子鎖') sysIcon = 'fa-key';
-      if (item.system_type === '燈控系統') sysIcon = 'fa-lightbulb';
+      const normSys = store.normalizeSystemType(item.system_type);
+      if (normSys === '攝影機') sysIcon = 'fa-video';
+      else if (normSys === '門禁系統') sysIcon = 'fa-door-open';
+      else if (normSys === '電子鎖') sysIcon = 'fa-key';
+      else if (normSys === '燈控系統') sysIcon = 'fa-lightbulb';
 
       // 數量計算
       const totalQty = Number(item.quantity) || 1;

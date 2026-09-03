@@ -949,12 +949,12 @@ function getEquipmentList(userCompanies) {
       // 補齊預設值與系統別名稱正規化容錯
       if (!item.id) item.id = 'EQ-' + sheetName + '-' + i;
       if (item.system_type) {
-        var st = String(item.system_type).trim();
-        if (st.indexOf('門禁') !== -1) item.system_type = '門禁系統';
-        else if (st.indexOf('燈控') !== -1 || st.indexOf('照明') !== -1) item.system_type = '燈控系統';
-        else if (st.indexOf('攝影') !== -1 || st.indexOf('監視') !== -1 || st.toLowerCase().indexOf('cctv') !== -1) item.system_type = '攝影機';
-        else if (st.indexOf('對講') !== -1) item.system_type = '對講機';
-        else if (st.indexOf('鎖') !== -1) item.system_type = '電子鎖';
+        var st = String(item.system_type).trim().toLowerCase();
+        if (st.indexOf('門禁') !== -1 || st.indexOf('刷卡') !== -1 || st.indexOf('讀卡') !== -1 || st.indexOf('閘門') !== -1 || st.indexOf('access') !== -1) item.system_type = '門禁系統';
+        else if (st.indexOf('燈控') !== -1 || st.indexOf('照明') !== -1 || st.indexOf('調光') !== -1 || st.indexOf('燈光') !== -1 || st.indexOf('light') !== -1) item.system_type = '燈控系統';
+        else if (st.indexOf('攝影') !== -1 || st.indexOf('監視') !== -1 || st.indexOf('監控') !== -1 || st.indexOf('cctv') !== -1 || st.indexOf('camera') !== -1) item.system_type = '攝影機';
+        else if (st.indexOf('對講') !== -1 || st.indexOf('門口機') !== -1 || st.indexOf('室內機') !== -1 || st.indexOf('intercom') !== -1) item.system_type = '對講機';
+        else if (st.indexOf('鎖') !== -1 || st.indexOf('陽極') !== -1 || st.indexOf('磁力') !== -1 || st.indexOf('陰極') !== -1 || st.indexOf('lock') !== -1) item.system_type = '電子鎖';
       } else {
         item.system_type = '對講機';
       }
