@@ -142,13 +142,30 @@ class UIManager {
       });
     }
 
-    // 2.6 清單頁頂部 - 廠牌分類快速下拉選單
-    const topBrandSelect = document.getElementById('select-brand-category');
-    if (topBrandSelect) {
-      topBrandSelect.addEventListener('change', (e) => {
-        window.appStore.setBrandFilter(e.target.value);
-      });
-    }
+    // 2.6 清單頁頂部 - 廠牌分類下拉選單 (全域事件委託確保 100% 響應)
+    document.addEventListener('change', (e) => {
+      if (e.target && (e.target.id === 'select-brand-category' || e.target.id === 'filter-brand')) {
+        const val = e.target.value;
+        const topBrandSel = document.getElementById('select-brand-category');
+        if (topBrandSel && topBrandSel.value !== val) topBrandSel.value = val;
+        const filterBrandSel = document.getElementById('filter-brand');
+        if (filterBrandSel && filterBrandSel.value !== val) filterBrandSel.value = val;
+        window.appStore.setBrandFilter(val);
+      }
+    });
+
+    // 2.7 廠牌按鈕 (舊版按鈕相容點擊事件委託)
+    document.addEventListener('click', (e) => {
+      const chip = e.target.closest('.brand-chip');
+      if (chip) {
+        const b = chip.getAttribute('data-brand') || 'all';
+        const topBrandSel = document.getElementById('select-brand-category');
+        if (topBrandSel) topBrandSel.value = b;
+        const filterBrandSel = document.getElementById('filter-brand');
+        if (filterBrandSel) filterBrandSel.value = b;
+        window.appStore.setBrandFilter(b);
+      }
+    });
 
     // 3. 清單頁 - 設備型號篩選下拉選單
     const listModelSelect = document.getElementById('filter-model');
@@ -870,21 +887,62 @@ class UIManager {
    * 渲染五大系統分頁下之「廠牌分類下拉式選單 (Brand Category Dropdown)」
    */
   renderBrandSubtabs(store) {
-    const select = document.getElementById('select-brand-category');
-    if (!select) return;
+    let select = document.getElementById('select-brand-category');
+    const oldContainer = document.getElementById('brand-chips-list');
+
+    // 若頁面殘留舊版按鈕容器，就地動態替換為標準下拉式選單
+    if (oldContainer && !select) {
+      const parent = oldContainer.parentElement;
+      if (parent) {
+        parent.innerHTML = `
+          <div class="brand-subtabs-label" style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: #94a3b8; font-size: 0.85rem; white-space: nowrap;">
+            <i class="fas fa-industry text-primary"></i>
+            <span>廠牌分類：</span>
+          </div>
+          <div style="flex: 1; max-width: 320px;">
+            <select id="select-brand-category" class="brand-category-select">
+              <option value="all">🏭 全部廠牌</option>
+            </select>
+          </div>
+        `;
+        select = document.getElementById('select-brand-category');
+      }
+    }
 
     const brandItems = store.getListAvailableBrandsWithCounts();
     const currentBrand = store.filters.brand || 'all';
     const totalCount = brandItems.reduce((acc, cur) => acc + cur.count, 0);
 
-    let html = `<option value="all" ${currentBrand === 'all' ? 'selected' : ''}>🏭 全部廠牌 (共 ${totalCount} 筆)</option>`;
+    if (select) {
+      let html = `<option value="all" ${currentBrand === 'all' ? 'selected' : ''}>🏭 全部廠牌 (共 ${totalCount} 筆)</option>`;
+      brandItems.forEach(item => {
+        const selected = (currentBrand === item.brand) ? 'selected' : '';
+        html += `<option value="${item.brand}" ${selected}>🏷️ ${item.brand} (${item.count} 筆)</option>`;
+      });
+      select.innerHTML = html;
+    }
 
-    brandItems.forEach(item => {
-      const selected = (currentBrand === item.brand) ? 'selected' : '';
-      html += `<option value="${item.brand}" ${selected}>🏷️ ${item.brand} (${item.count} 筆)</option>`;
-    });
-
-    select.innerHTML = html;
+    // 若依然存在按鈕容器 (雙向相容)，同步更新按鈕與數量
+    const existingOldContainer = document.getElementById('brand-chips-list');
+    if (existingOldContainer) {
+      let btnHtml = `
+        <button type="button" class="brand-chip ${currentBrand === 'all' ? 'active' : ''}" data-brand="all" title="查看全部廠牌">
+          <span>全部廠牌</span>
+          <span class="brand-chip-count">${totalCount}</span>
+        </button>
+      `;
+      brandItems.forEach(item => {
+        const isActive = (currentBrand === item.brand);
+        btnHtml += `
+          <button type="button" class="brand-chip ${isActive ? 'active' : ''}" data-brand="${item.brand}">
+            <i class="fas fa-industry" style="font-size:0.65rem; opacity:0.8;"></i>
+            <span>${item.brand}</span>
+            <span class="brand-chip-count">${item.count}</span>
+          </button>
+        `;
+      });
+      existingOldContainer.innerHTML = btnHtml;
+    }
 
     // 同步更新下方篩選橫條的 filter-brand 下拉選單值
     const filterBrandSel = document.getElementById('filter-brand');
