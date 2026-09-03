@@ -109,12 +109,19 @@ class UIManager {
       });
     }
 
-    // 1. 4大系統分頁點擊
+    // 1. 5大系統分頁點擊
     document.querySelectorAll('.sys-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const sys = btn.getAttribute('data-sys');
         document.querySelectorAll('.sys-tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+        
+        // 切換系統分頁時，廠牌下拉選單重設為全部廠牌
+        const topBrandSel = document.getElementById('select-brand-category');
+        if (topBrandSel) topBrandSel.value = 'all';
+        const filterBrandSel = document.getElementById('filter-brand');
+        if (filterBrandSel) filterBrandSel.value = 'all';
+        
         window.appStore.setSystemFilter(sys);
       });
     });
@@ -127,10 +134,18 @@ class UIManager {
       });
     }
 
-    // 2.5 清單頁 - 廠牌分類篩選下拉選單 (新增)
+    // 2.5 清單頁 - 廠牌分類篩選下拉選單 (篩選橫條)
     const brandSelect = document.getElementById('filter-brand');
     if (brandSelect) {
       brandSelect.addEventListener('change', (e) => {
+        window.appStore.setBrandFilter(e.target.value);
+      });
+    }
+
+    // 2.6 清單頁頂部 - 廠牌分類快速下拉選單
+    const topBrandSelect = document.getElementById('select-brand-category');
+    if (topBrandSelect) {
+      topBrandSelect.addEventListener('change', (e) => {
         window.appStore.setBrandFilter(e.target.value);
       });
     }
@@ -852,45 +867,30 @@ class UIManager {
   }
 
   /**
-   * 渲染 4大系統分頁下之「廠牌分類次標籤 (Brand Subtabs)」
+   * 渲染五大系統分頁下之「廠牌分類下拉式選單 (Brand Category Dropdown)」
    */
   renderBrandSubtabs(store) {
-    const container = document.getElementById('brand-chips-list');
-    if (!container) return;
+    const select = document.getElementById('select-brand-category');
+    if (!select) return;
 
     const brandItems = store.getListAvailableBrandsWithCounts();
-    const currentBrand = store.filters.brand;
+    const currentBrand = store.filters.brand || 'all';
     const totalCount = brandItems.reduce((acc, cur) => acc + cur.count, 0);
 
-    let html = `
-      <button type="button" class="brand-chip ${currentBrand === 'all' ? 'active' : ''}" data-brand="all" title="查看當前系統下全部廠牌">
-        <span>全部廠牌</span>
-        <span class="brand-chip-count">${totalCount}</span>
-      </button>
-    `;
+    let html = `<option value="all" ${currentBrand === 'all' ? 'selected' : ''}>🏭 全部廠牌 (共 ${totalCount} 筆)</option>`;
 
     brandItems.forEach(item => {
-      const isActive = (currentBrand === item.brand);
-      html += `
-        <button type="button" class="brand-chip ${isActive ? 'active' : ''}" data-brand="${item.brand}" title="僅顯示 ${item.brand} 廠牌設備">
-          <i class="fas fa-industry" style="font-size:0.65rem; opacity:0.8;"></i>
-          <span>${item.brand}</span>
-          <span class="brand-chip-count">${item.count}</span>
-        </button>
-      `;
+      const selected = (currentBrand === item.brand) ? 'selected' : '';
+      html += `<option value="${item.brand}" ${selected}>🏷️ ${item.brand} (${item.count} 筆)</option>`;
     });
 
-    container.innerHTML = html;
+    select.innerHTML = html;
 
-    // 點擊廠牌 Chips 即時篩選
-    container.querySelectorAll('.brand-chip').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const b = btn.getAttribute('data-brand');
-        store.setBrandFilter(b);
-        const filterBrandSel = document.getElementById('filter-brand');
-        if (filterBrandSel) filterBrandSel.value = b;
-      });
-    });
+    // 同步更新下方篩選橫條的 filter-brand 下拉選單值
+    const filterBrandSel = document.getElementById('filter-brand');
+    if (filterBrandSel && filterBrandSel.value !== currentBrand) {
+      filterBrandSel.value = currentBrand;
+    }
   }
 
   /**

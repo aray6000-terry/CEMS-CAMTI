@@ -40,7 +40,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2024-01-15",
     "remarks": "大門門廳與訪客中心已全數完成點交",
-    "updated_at": "2026-09-03"
+    "updated_at": "2026-09-03",
+    "brand": "Panasonic"
   },
   {
     "id": "EQ-0102",
@@ -58,7 +59,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2025-03-20",
     "remarks": "高樓層12台待二期工程驗收交貨",
-    "updated_at": "2025-02-01"
+    "updated_at": "2025-02-01",
+    "brand": "NOBEL"
   },
   {
     "id": "EQ-0103",
@@ -76,7 +78,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-02-01",
     "remarks": "全區走廊與公共空間已安裝完畢",
-    "updated_at": "2025-02-01"
+    "updated_at": "2025-02-01",
+    "brand": "NOBEL"
   },
   {
     "id": "EQ-0104",
@@ -94,7 +97,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-03-10",
     "remarks": "主要管制門扇已全數啟用",
-    "updated_at": "2025-02-01"
+    "updated_at": "2025-02-01",
+    "brand": "NOBEL"
   },
   {
     "id": "EQ-0105",
@@ -112,7 +116,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2026-04-10",
     "remarks": "第二批20組預計2026年到貨交貨",
-    "updated_at": "2026-08-31"
+    "updated_at": "2026-08-31",
+    "brand": "NOBEL"
   },
   {
     "id": "EQ-0106",
@@ -130,7 +135,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2026-04-10",
     "remarks": "第二批20組預計2026年到貨交貨",
-    "updated_at": "2026-08-31"
+    "updated_at": "2026-08-31",
+    "brand": "NOBEL"
   },
   {
     "id": "EQ-0107",
@@ -148,7 +154,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2026-04-10",
     "remarks": "第二批20組預計2026年到貨交貨",
-    "updated_at": "2026-08-31"
+    "updated_at": "2026-08-31",
+    "brand": "SAMPO"
   },
   {
     "id": "EQ-0108",
@@ -166,7 +173,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2026-04-10",
     "remarks": "第二批20組預計2026年到貨交貨",
-    "updated_at": "2026-08-31"
+    "updated_at": "2026-08-31",
+    "brand": "SAMPO"
   },
   {
     "id": "EQ-0109",
@@ -184,7 +192,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2026-04-10",
     "remarks": "第二批20組預計2026年到貨交貨",
-    "updated_at": "2026-08-31"
+    "updated_at": "2026-08-31",
+    "brand": "SAMPO"
   },
   {
     "id": "EQ-0110",
@@ -202,7 +211,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2026-04-10",
     "remarks": "第二批20組預計2026年到貨交貨",
-    "updated_at": "2026-08-31"
+    "updated_at": "2026-08-31",
+    "brand": "SAMPO"
   },
   {
     "id": "EQ-0111",
@@ -220,7 +230,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2026-04-10",
     "remarks": "第二批20組預計2026年到貨交貨",
-    "updated_at": "2026-08-31"
+    "updated_at": "2026-08-31",
+    "brand": "SAMPO"
   },
   {
     "id": "EQ-0112",
@@ -238,7 +249,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2026-04-10",
     "remarks": "第二批20組預計2026年到貨交貨",
-    "updated_at": "2026-08-31"
+    "updated_at": "2026-08-31",
+    "brand": "TSM"
   },
   {
     "id": "EQ-0113",
@@ -256,7 +268,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2026-04-10",
     "remarks": "第二批20組預計2026年到貨交貨",
-    "updated_at": "2026-08-31"
+    "updated_at": "2026-08-31",
+    "brand": "TSM"
   },
   {
     "id": "EQ-0114",
@@ -274,7 +287,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2026-04-10",
     "remarks": "第二批20組預計2026年到貨交貨",
-    "updated_at": "2026-08-31"
+    "updated_at": "2026-08-31",
+    "brand": "TSM"
   },
   {
     "id": "EQ-0115",
@@ -292,7 +306,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2026-04-10",
     "remarks": "第二批20組預計2026年到貨交貨",
-    "updated_at": "2026-08-31"
+    "updated_at": "2026-08-31",
+    "brand": "TSM"
   },
   {
     "id": "EQ-0116",
@@ -310,7 +325,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2026-04-10",
     "remarks": "第二批20組預計2026年到貨交貨",
-    "updated_at": "2026-08-31"
+    "updated_at": "2026-08-31",
+    "brand": "TSM"
   },
   {
     "id": "EQ-0117",
@@ -328,7 +344,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2026-04-10",
     "remarks": "第二批20組預計2026年到貨交貨",
-    "updated_at": "2026-08-31"
+    "updated_at": "2026-08-31",
+    "brand": "TSM"
   },
   {
     "id": "EQ-0106",
@@ -346,7 +363,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-08-20",
     "remarks": "一期10組已啟用，5組待二期交貨",
-    "updated_at": "2025-02-01"
+    "updated_at": "2025-02-01",
+    "brand": "Lutron"
   },
   {
     "id": "EQ-0201",
@@ -364,7 +382,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2023-11-01",
     "remarks": "警衛中控室已點交",
-    "updated_at": "2026-09-02"
+    "updated_at": "2026-09-02",
+    "brand": "Akuvox"
   },
   {
     "id": "EQ-0202",
@@ -382,7 +401,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-08-15",
     "remarks": "地下停車場8支待二期施作",
-    "updated_at": "2026-09-02"
+    "updated_at": "2026-09-02",
+    "brand": "Dahua"
   },
   {
     "id": "EQ-0203",
@@ -400,7 +420,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-05-10",
     "remarks": "研發機房全數安裝",
-    "updated_at": "2026-09-02"
+    "updated_at": "2026-09-02",
+    "brand": "Fujitsu"
   },
   {
     "id": "EQ-0204",
@@ -418,7 +439,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2026-02-15",
     "remarks": "主管辦公室換裝批次交貨",
-    "updated_at": "2026-09-02"
+    "updated_at": "2026-09-02",
+    "brand": "Yale"
   },
   {
     "id": "EQ-0205",
@@ -436,7 +458,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-06-15",
     "remarks": "全大樓照明迴路調光點交完成",
-    "updated_at": "2025-01-20"
+    "updated_at": "2025-01-20",
+    "brand": "Schneider"
   },
   {
     "id": "EQ-0301",
@@ -454,7 +477,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-05-20",
     "remarks": "無塵室與產線區點交完成",
-    "updated_at": "2026-09-02"
+    "updated_at": "2026-09-02",
+    "brand": "J&R"
   },
   {
     "id": "EQ-0302",
@@ -472,7 +496,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-11-30",
     "remarks": "外圍周界25支預計年底交貨",
-    "updated_at": "2026-09-02"
+    "updated_at": "2026-09-02",
+    "brand": "Hikvision"
   },
   {
     "id": "EQ-0303",
@@ -490,7 +515,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2026-03-15",
     "remarks": "東側員工閘門待交貨",
-    "updated_at": "2026-09-02"
+    "updated_at": "2026-09-02",
+    "brand": "Kaba"
   },
   {
     "id": "EQ-0304",
@@ -508,7 +534,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-06-01",
     "remarks": "行政辦公室鋁門全數點交",
-    "updated_at": "2026-09-02"
+    "updated_at": "2026-09-02",
+    "brand": "Gianni"
   },
   {
     "id": "EQ-0305",
@@ -526,7 +553,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-10-15",
     "remarks": "產線排程主機點交",
-    "updated_at": "2025-01-15"
+    "updated_at": "2025-01-15",
+    "brand": "Lite-Puter"
   },
   {
     "id": "EQ-0401",
@@ -544,7 +572,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-08-10",
     "remarks": "IDC機房大門已啟用",
-    "updated_at": "2026-09-02"
+    "updated_at": "2026-09-02",
+    "brand": "Panasonic"
   },
   {
     "id": "EQ-0402",
@@ -562,7 +591,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2026-01-10",
     "remarks": "第二批8支預計2026交貨",
-    "updated_at": "2026-09-02"
+    "updated_at": "2026-09-02",
+    "brand": "Hikvision"
   },
   {
     "id": "EQ-0403",
@@ -580,7 +610,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-09-01",
     "remarks": "IDC各機櫃通道已全數上線",
-    "updated_at": "2026-09-02"
+    "updated_at": "2026-09-02",
+    "brand": "Fujitsu"
   },
   {
     "id": "EQ-0404",
@@ -598,7 +629,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2026-03-01",
     "remarks": "第二批機櫃鎖預計2026交貨",
-    "updated_at": "2026-09-02"
+    "updated_at": "2026-09-02",
+    "brand": "Southco"
   },
   {
     "id": "EQ-0405",
@@ -616,7 +648,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-11-20",
     "remarks": "數據中心節能開關全數啟用",
-    "updated_at": "2025-02-05"
+    "updated_at": "2025-02-05",
+    "brand": "Lutron"
   },
   {
     "id": "EQ-0501",
@@ -634,7 +667,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-03-15",
     "remarks": "迎賓大廳設備啟用",
-    "updated_at": "2025-01-10"
+    "updated_at": "2025-01-10",
+    "brand": "Akuvox"
   },
   {
     "id": "EQ-0502",
@@ -652,7 +686,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-09-30",
     "remarks": "地下停車場待交貨",
-    "updated_at": "2025-01-10"
+    "updated_at": "2025-01-10",
+    "brand": "Hikvision"
   },
   {
     "id": "EQ-0503",
@@ -670,7 +705,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-04-10",
     "remarks": "門禁全數點交完畢",
-    "updated_at": "2025-01-10"
+    "updated_at": "2025-01-10",
+    "brand": "Soyal"
   },
   {
     "id": "EQ-0504",
@@ -688,7 +724,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2026-01-15",
     "remarks": "二期辦公室交貨",
-    "updated_at": "2025-01-10"
+    "updated_at": "2025-01-10",
+    "brand": "Yale"
   },
   {
     "id": "EQ-0505",
@@ -706,7 +743,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-05-15",
     "remarks": "迎賓挑高大廳燈控點交完成",
-    "updated_at": "2025-01-10"
+    "updated_at": "2025-01-10",
+    "brand": "Lutron"
   },
   {
     "id": "EQ-0601",
@@ -724,7 +762,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2023-10-25",
     "remarks": "各棟大廳已點交",
-    "updated_at": "2025-01-08"
+    "updated_at": "2025-01-08",
+    "brand": "Panasonic"
   },
   {
     "id": "EQ-0602",
@@ -742,7 +781,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-07-20",
     "remarks": "公設交誼廳待交貨",
-    "updated_at": "2025-01-08"
+    "updated_at": "2025-01-08",
+    "brand": "Dahua"
   },
   {
     "id": "EQ-0603",
@@ -760,7 +800,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-02-18",
     "remarks": "全區連線運作正常",
-    "updated_at": "2025-01-08"
+    "updated_at": "2025-01-08",
+    "brand": "Soyal"
   },
   {
     "id": "EQ-0604",
@@ -778,7 +819,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-12-10",
     "remarks": "第二批預計年底交貨",
-    "updated_at": "2025-01-08"
+    "updated_at": "2025-01-08",
+    "brand": "Gianni"
   },
   {
     "id": "EQ-0605",
@@ -796,7 +838,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-11-15",
     "remarks": "一期6組已啟用",
-    "updated_at": "2025-01-08"
+    "updated_at": "2025-01-08",
+    "brand": "Schneider"
   },
   {
     "id": "EQ-0701",
@@ -814,7 +857,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-06-12",
     "remarks": "廠區各通訊點完成測試",
-    "updated_at": "2025-01-12"
+    "updated_at": "2025-01-12",
+    "brand": "Commax"
   },
   {
     "id": "EQ-0702",
@@ -832,7 +876,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-10-25",
     "remarks": "周界監控5支待交貨",
-    "updated_at": "2025-01-12"
+    "updated_at": "2025-01-12",
+    "brand": "Hikvision"
   },
   {
     "id": "EQ-0703",
@@ -850,7 +895,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-07-20",
     "remarks": "各管制門驗收點交完成",
-    "updated_at": "2025-01-12"
+    "updated_at": "2025-01-12",
+    "brand": "Soyal"
   },
   {
     "id": "EQ-0704",
@@ -868,7 +914,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-08-05",
     "remarks": "機房區全數點交",
-    "updated_at": "2025-01-12"
+    "updated_at": "2025-01-12",
+    "brand": "Gianni"
   },
   {
     "id": "EQ-0705",
@@ -886,7 +933,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2026-02-20",
     "remarks": "二期擴建7組待交貨",
-    "updated_at": "2025-01-12"
+    "updated_at": "2025-01-12",
+    "brand": "Lutron"
   },
   {
     "id": "EQ-0801",
@@ -904,7 +952,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-02-20",
     "remarks": "生產線全數點交啟用",
-    "updated_at": "2025-01-05"
+    "updated_at": "2025-01-05",
+    "brand": "J&R"
   },
   {
     "id": "EQ-0802",
@@ -922,7 +971,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-08-30",
     "remarks": "化學品倉庫待交貨",
-    "updated_at": "2025-01-05"
+    "updated_at": "2025-01-05",
+    "brand": "Hikvision"
   },
   {
     "id": "EQ-0803",
@@ -940,7 +990,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-03-15",
     "remarks": "主大門員工通道啟用",
-    "updated_at": "2025-01-05"
+    "updated_at": "2025-01-05",
+    "brand": "Kaba"
   },
   {
     "id": "EQ-0804",
@@ -958,7 +1009,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-11-20",
     "remarks": "二期倉儲區待交貨",
-    "updated_at": "2025-01-05"
+    "updated_at": "2025-01-05",
+    "brand": "Gianni"
   },
   {
     "id": "EQ-0805",
@@ -976,7 +1028,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-05-30",
     "remarks": "一期廠房燈控全部點交",
-    "updated_at": "2025-01-05"
+    "updated_at": "2025-01-05",
+    "brand": "Lite-Puter"
   },
   {
     "id": "EQ-0901",
@@ -994,7 +1047,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-04-18",
     "remarks": "中控管理室已啟用",
-    "updated_at": "2025-01-18"
+    "updated_at": "2025-01-18",
+    "brand": "Akuvox"
   },
   {
     "id": "EQ-0902",
@@ -1012,7 +1066,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-09-15",
     "remarks": "二期實驗室交貨",
-    "updated_at": "2025-01-18"
+    "updated_at": "2025-01-18",
+    "brand": "Panasonic"
   },
   {
     "id": "EQ-0903",
@@ -1030,7 +1085,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-06-05",
     "remarks": "實驗室全面安裝完畢",
-    "updated_at": "2025-01-18"
+    "updated_at": "2025-01-18",
+    "brand": "Soyal"
   },
   {
     "id": "EQ-0904",
@@ -1048,7 +1104,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2026-03-20",
     "remarks": "二期無塵室電鎖待交貨",
-    "updated_at": "2025-01-18"
+    "updated_at": "2025-01-18",
+    "brand": "Gianni"
   },
   {
     "id": "EQ-0905",
@@ -1066,7 +1123,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-07-10",
     "remarks": "生醫實驗室全光譜照明驗收",
-    "updated_at": "2025-01-18"
+    "updated_at": "2025-01-18",
+    "brand": "Lutron"
   },
   {
     "id": "EQ-1001",
@@ -1084,7 +1142,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2023-12-15",
     "remarks": "迎賓大廳設備啟用",
-    "updated_at": "2025-01-15"
+    "updated_at": "2025-01-15",
+    "brand": "Panasonic"
   },
   {
     "id": "EQ-1002",
@@ -1102,7 +1161,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-07-30",
     "remarks": "二期商辦樓層待交貨",
-    "updated_at": "2025-01-15"
+    "updated_at": "2025-01-15",
+    "brand": "Hikvision"
   },
   {
     "id": "EQ-1003",
@@ -1120,7 +1180,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-01-20",
     "remarks": "各樓層門禁正常啟用",
-    "updated_at": "2025-01-15"
+    "updated_at": "2025-01-15",
+    "brand": "Soyal"
   },
   {
     "id": "EQ-1004",
@@ -1138,7 +1199,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-10-15",
     "remarks": "二期租戶門扇更換",
-    "updated_at": "2025-01-15"
+    "updated_at": "2025-01-15",
+    "brand": "Yale"
   },
   {
     "id": "EQ-1005",
@@ -1156,7 +1218,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-11-10",
     "remarks": "公設照明控制器分批點交",
-    "updated_at": "2025-01-15"
+    "updated_at": "2025-01-15",
+    "brand": "Schneider"
   },
   {
     "id": "EQ-1101",
@@ -1174,7 +1237,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-07-25",
     "remarks": "物流月台通訊完工",
-    "updated_at": "2025-01-22"
+    "updated_at": "2025-01-22",
+    "brand": "Commax"
   },
   {
     "id": "EQ-1102",
@@ -1192,7 +1256,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-08-20",
     "remarks": "貨車進出卡口二期交貨",
-    "updated_at": "2025-01-22"
+    "updated_at": "2025-01-22",
+    "brand": "Hikvision"
   },
   {
     "id": "EQ-1103",
@@ -1210,7 +1275,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-08-30",
     "remarks": "車輛通行閘門全數點交",
-    "updated_at": "2025-01-22"
+    "updated_at": "2025-01-22",
+    "brand": "Kaba"
   },
   {
     "id": "EQ-1104",
@@ -1228,7 +1294,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2026-02-15",
     "remarks": "南區倉儲門鎖預計明年交貨",
-    "updated_at": "2025-01-22"
+    "updated_at": "2025-01-22",
+    "brand": "Gianni"
   },
   {
     "id": "EQ-1105",
@@ -1246,7 +1313,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-09-15",
     "remarks": "倉儲貨架自動感應燈控啟用",
-    "updated_at": "2025-01-22"
+    "updated_at": "2025-01-22",
+    "brand": "Lite-Puter"
   },
   {
     "id": "EQ-1201",
@@ -1264,7 +1332,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-01-30",
     "remarks": "科技總部各入口點交",
-    "updated_at": "2025-01-14"
+    "updated_at": "2025-01-14",
+    "brand": "Akuvox"
   },
   {
     "id": "EQ-1202",
@@ -1282,7 +1351,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-09-10",
     "remarks": "周邊綠帶圍籬監視交貨",
-    "updated_at": "2025-01-14"
+    "updated_at": "2025-01-14",
+    "brand": "Dahua"
   },
   {
     "id": "EQ-1203",
@@ -1300,7 +1370,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-03-20",
     "remarks": "全廠區門禁正式上線",
-    "updated_at": "2025-01-14"
+    "updated_at": "2025-01-14",
+    "brand": "Soyal"
   },
   {
     "id": "EQ-1204",
@@ -1318,7 +1389,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-12-20",
     "remarks": "二期行政大樓待交貨",
-    "updated_at": "2025-01-14"
+    "updated_at": "2025-01-14",
+    "brand": "Gianni"
   },
   {
     "id": "EQ-1205",
@@ -1336,7 +1408,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-04-20",
     "remarks": "總部行政區調光系統���用",
-    "updated_at": "2025-01-14"
+    "updated_at": "2025-01-14",
+    "brand": "Lutron"
   },
   {
     "id": "EQ-1301",
@@ -1354,7 +1427,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-09-15",
     "remarks": "A棟住宅已全數點交完畢",
-    "updated_at": "2025-01-20"
+    "updated_at": "2025-01-20",
+    "brand": "Panasonic"
   },
   {
     "id": "EQ-1302",
@@ -1372,7 +1446,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-08-15",
     "remarks": "B棟中庭花園監視待交貨",
-    "updated_at": "2025-01-20"
+    "updated_at": "2025-01-20",
+    "brand": "Hikvision"
   },
   {
     "id": "EQ-1303",
@@ -1390,7 +1465,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-10-10",
     "remarks": "門禁刷卡系統���作正常",
-    "updated_at": "2025-01-20"
+    "updated_at": "2025-01-20",
+    "brand": "Soyal"
   },
   {
     "id": "EQ-1304",
@@ -1408,7 +1484,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2026-01-10",
     "remarks": "B棟住宅防盜門鎖待交貨",
-    "updated_at": "2025-01-20"
+    "updated_at": "2025-01-20",
+    "brand": "Yale"
   },
   {
     "id": "EQ-1305",
@@ -1426,7 +1503,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-11-15",
     "remarks": "中庭景觀與步道燈控啟用",
-    "updated_at": "2025-01-20"
+    "updated_at": "2025-01-20",
+    "brand": "Schneider"
   },
   {
     "id": "EQ-1401",
@@ -1444,7 +1522,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2023-09-28",
     "remarks": "化學實驗室通訊完工",
-    "updated_at": "2025-01-16"
+    "updated_at": "2025-01-16",
+    "brand": "J&R"
   },
   {
     "id": "EQ-1402",
@@ -1462,7 +1541,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-07-20",
     "remarks": "二期發酵槽區交貨",
-    "updated_at": "2025-01-16"
+    "updated_at": "2025-01-16",
+    "brand": "Hikvision"
   },
   {
     "id": "EQ-1403",
@@ -1480,7 +1560,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2023-11-20",
     "remarks": "氣閘室門禁連鎖驗收完成",
-    "updated_at": "2025-01-16"
+    "updated_at": "2025-01-16",
+    "brand": "Soyal"
   },
   {
     "id": "EQ-1404",
@@ -1498,7 +1579,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-10-30",
     "remarks": "二期無塵室待交貨",
-    "updated_at": "2025-01-16"
+    "updated_at": "2025-01-16",
+    "brand": "Gianni"
   },
   {
     "id": "EQ-1405",
@@ -1516,7 +1598,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-01-15",
     "remarks": "實驗室紫外滅菌照明控制點交",
-    "updated_at": "2025-01-16"
+    "updated_at": "2025-01-16",
+    "brand": "Lite-Puter"
   },
   {
     "id": "EQ-1501",
@@ -1534,7 +1617,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-03-25",
     "remarks": "廠區各哨口通訊正常",
-    "updated_at": "2025-01-19"
+    "updated_at": "2025-01-19",
+    "brand": "Akuvox"
   },
   {
     "id": "EQ-1502",
@@ -1552,7 +1636,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-09-25",
     "remarks": "二期倉儲區待交貨",
-    "updated_at": "2025-01-19"
+    "updated_at": "2025-01-19",
+    "brand": "Dahua"
   },
   {
     "id": "EQ-1503",
@@ -1570,7 +1655,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-05-15",
     "remarks": "主要管制區門禁啟用",
-    "updated_at": "2025-01-19"
+    "updated_at": "2025-01-19",
+    "brand": "Soyal"
   },
   {
     "id": "EQ-1504",
@@ -1588,7 +1674,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2026-01-20",
     "remarks": "二期廠房預計交貨",
-    "updated_at": "2025-01-19"
+    "updated_at": "2025-01-19",
+    "brand": "Gianni"
   },
   {
     "id": "EQ-1505",
@@ -1606,7 +1693,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-06-20",
     "remarks": "一期廠區節能照明全數驗收",
-    "updated_at": "2025-01-19"
+    "updated_at": "2025-01-19",
+    "brand": "Schneider"
   },
   {
     "id": "EQ-1601",
@@ -1624,7 +1712,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-05-28",
     "remarks": "無塵生產線通訊啟用",
-    "updated_at": "2025-01-25"
+    "updated_at": "2025-01-25",
+    "brand": "J&R"
   },
   {
     "id": "EQ-1602",
@@ -1642,7 +1731,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-10-30",
     "remarks": "廠外圍界監視待交貨",
-    "updated_at": "2025-01-25"
+    "updated_at": "2025-01-25",
+    "brand": "Hikvision"
   },
   {
     "id": "EQ-1603",
@@ -1660,7 +1750,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "已交貨",
     "delivery_date": "2024-07-15",
     "remarks": "無塵室入口考勤門禁啟用",
-    "updated_at": "2025-01-25"
+    "updated_at": "2025-01-25",
+    "brand": "Kaba"
   },
   {
     "id": "EQ-1604",
@@ -1678,7 +1769,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2026-03-10",
     "remarks": "二期配電盤機櫃鎖交貨",
-    "updated_at": "2025-01-25"
+    "updated_at": "2025-01-25",
+    "brand": "Southco"
   },
   {
     "id": "EQ-1605",
@@ -1696,7 +1788,8 @@ const INITIAL_MOCK_EQUIPMENT = [
     "delivery_status": "未交貨",
     "delivery_date": "2025-11-20",
     "remarks": "一期12組已啟用",
-    "updated_at": "2025-01-25"
+    "updated_at": "2025-01-25",
+    "brand": "Lutron"
   },
   {
     "id": "EQ-1701",
@@ -1705,7 +1798,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "project_name": "優德美智慧綠能研發中心",
     "sales_rep": "陳專案經理",
     "system_type": "燈控系統",
-    "brand": "數位智能調光多迴路模組主機",
+    "brand": "Lutron",
     "device_name": "Lutron QSGR-3P",
     "model": 20,
     "quantity": 20,
@@ -1724,7 +1817,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "project_name": "優德美智慧綠能研發中心",
     "sales_rep": "陳專案經理",
     "system_type": "燈控系統",
-    "brand": "8迴路繼電器開關模組箱",
+    "brand": "Lite-Puter",
     "device_name": "Lite-Puter PL-S0805",
     "model": 35,
     "quantity": 20,
@@ -1743,7 +1836,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "project_name": "富鈺低碳節能展示總部",
     "sales_rep": "林技術主管",
     "system_type": "燈控系統",
-    "brand": "DALI-2 智慧照明閘道器控制模組",
+    "brand": "Schneider",
     "device_name": "Schneider MTN6725-0001",
     "model": 16,
     "quantity": 16,
@@ -1762,7 +1855,7 @@ const INITIAL_MOCK_EQUIPMENT = [
     "project_name": "富鈺低碳節能展示總部",
     "sales_rep": "林技術主管",
     "system_type": "門禁系統",
-    "brand": "多頻雙模人臉/RFID門禁考勤主機",
+    "brand": "Soyal",
     "device_name": "Soyal AR-837-EA",
     "model": 12,
     "quantity": 6,
@@ -1770,17 +1863,17 @@ const INITIAL_MOCK_EQUIPMENT = [
     "undelivered_qty": null,
     "unit": "未交貨",
     "delivery_status": "已交貨",
-    "delivery_date": "二期展示區域6組待工程進場後點交",
     "remarks": "2025-02-10",
-    "updated_at": ""
+    "updated_at": "",
+    "brand": "Schneider"
   }
 ];
 
 class ApiService {
   constructor() {
-    this.API_URL_KEY = 'equip_mgmt_gas_api_url_v8';
-    this.DATA_STORAGE_KEY = 'equip_mgmt_local_equipment_v8';
-    this.COMPANIES_KEY = 'equip_mgmt_local_companies_v8';
+    this.API_URL_KEY = 'equip_mgmt_gas_api_url_v9';
+    this.DATA_STORAGE_KEY = 'equip_mgmt_local_equipment_v9';
+    this.COMPANIES_KEY = 'equip_mgmt_local_companies_v9';
     this.DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbwmyzhEWhd9ADvJ4LZe-GIwelQERa696zuRUsJMMZcQwc087z-AvW5AHkLIMjSBrXrL3A/exec';
     
     const stored = localStorage.getItem(this.API_URL_KEY);
@@ -1923,6 +2016,7 @@ class ApiService {
     if (!text) return '其他廠牌';
 
     const knownBrands = [
+      'TSM', 'Lutron', 'NOBEL', 'SAMPO', 'Schneider', 'Lite-Puter',
       'Panasonic', 'Commax', 'Hikvision', 'Soyal', 'Gianni', 'Akuvox', 'Dahua',
       'Fujitsu', 'Yale', 'Dormakaba', 'Avigilon', 'Axis', 'Honeywell', 'Sony',
       'HID', 'Amroad', 'Aiphone', 'Samsung', 'Gateman', 'Bosch', 'Fermax',

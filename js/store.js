@@ -57,6 +57,13 @@ class AppStore {
     if (!this.equipment || this.equipment.length === 0) {
       this.equipment = window.apiService.getLocalEquipment(allowed);
     }
+    if (this.equipment && this.equipment.length > 0) {
+      this.equipment.forEach(item => {
+        if (!item.brand || item.brand === '其他廠牌' || item.brand === '標準廠牌') {
+          item.brand = window.apiService.extractBrand(item.model, item.device_name, item.system_type);
+        }
+      });
+    }
     this.notify();
 
     // 2. 若有設定 Google Apps Script Web App 雲端連線，非同步在背景讀取雲端並更新
@@ -75,6 +82,11 @@ class AppStore {
         }
         if (Array.isArray(equipment) && equipment.length > 0) {
           this.equipment = equipment;
+          this.equipment.forEach(item => {
+            if (!item.brand || item.brand === '其他廠牌' || item.brand === '標準廠牌') {
+              item.brand = window.apiService.extractBrand(item.model, item.device_name, item.system_type);
+            }
+          });
         }
 
         // 如果當前過濾的公司不在使用者授權清單內，重設為 'all'
