@@ -674,10 +674,10 @@ class UIManager {
     const roleSelect = document.getElementById('perm-select-role');
     if (roleSelect) roleSelect.value = user.role || 'client';
 
-    // 產生 16 家公司 Checkbox 網格
+    // 產生 18 家公司 Checkbox 網格
     const allCompanies = (window.appStore && window.appStore.companies.length > 0)
       ? window.appStore.companies.map(c => c.company_name)
-      : ['宗亞', '宗鈺', '宗泰', '資訊星', '宗群', '宗友', '宗晟', '和興', '宗科', '宗順', '宗益', '百成', '宗麒', '廣晟', '宗榮', '宗霖'];
+      : ['宗亞', '宗鈺', '宗泰', '資訊星', '宗群', '宗友', '宗晟', '和興', '宗科', '宗順', '宗益', '百成', '宗麒', '廣晟', '宗榮', '宗霖', '優德美科技', '富鈺節能科技'];
 
     const rawAllowed = user.allowedCompanies || user.allowed_companies || '*';
     const isAll = (rawAllowed === '*' || (Array.isArray(rawAllowed) && rawAllowed.includes('*')));
@@ -775,6 +775,7 @@ class UIManager {
     const elCamera = document.getElementById('kpi-camera-qty');
     const elAccess = document.getElementById('kpi-access-qty');
     const elLock = document.getElementById('kpi-lock-qty');
+    const elLight = document.getElementById('kpi-light-qty');
 
     if (elTotal) elTotal.textContent = stats.totalQuantity.toLocaleString();
     if (elDelivered) elDelivered.textContent = stats.totalDeliveredQty.toLocaleString();
@@ -785,10 +786,11 @@ class UIManager {
     if (elCamera) elCamera.textContent = stats.cameraQty.toLocaleString();
     if (elAccess) elAccess.textContent = stats.accessQty.toLocaleString();
     if (elLock) elLock.textContent = stats.lockQty.toLocaleString();
+    if (elLight && stats.lightQty !== undefined) elLight.textContent = stats.lightQty.toLocaleString();
   }
 
   /**
-   * 渲染 4大系統分頁按鈕上的即時數量 Badge (依使用者授權公司過濾)
+   * 渲染各大系統分頁按鈕上的即時數量 Badge (依使用者授權公司過濾)
    */
   renderSystemTabCounts(store) {
     const accessible = store.equipment.filter(e => {
@@ -803,6 +805,7 @@ class UIManager {
       '攝影機': accessible.filter(e => e.system_type === '攝影機').length,
       '門禁系統': accessible.filter(e => e.system_type === '門禁系統').length,
       '電子鎖': accessible.filter(e => e.system_type === '電子鎖').length,
+      '燈控系統': accessible.filter(e => e.system_type === '燈控系統').length,
     };
 
     document.querySelectorAll('.sys-tab-btn').forEach(btn => {
@@ -975,6 +978,7 @@ class UIManager {
       if (item.system_type === '攝影機') sysIcon = 'fa-video';
       if (item.system_type === '門禁系統') sysIcon = 'fa-door-open';
       if (item.system_type === '電子鎖') sysIcon = 'fa-key';
+      if (item.system_type === '燈控系統') sysIcon = 'fa-lightbulb';
 
       // 數量計算
       const totalQty = Number(item.quantity) || 1;
@@ -1288,12 +1292,12 @@ class UIManager {
     const chartWidth = svgWidth - padding.left - padding.right;
     const chartHeight = svgHeight - padding.top - padding.bottom;
 
-    const maxVal = Math.max(...data.map(d => Math.max(d.intercom, d.camera, d.access, d.lock, d.total / 2)), 10);
+    const maxVal = Math.max(...data.map(d => Math.max(d.intercom, d.camera, d.access, d.lock, d.light || 0, d.total / 2)), 10);
     const yMax = Math.ceil(maxVal * 1.25);
 
     const numYears = data.length;
     const groupWidth = chartWidth / numYears;
-    const barWidth = Math.max(6, Math.min(18, (groupWidth - 24) / 4));
+    const barWidth = Math.max(5, Math.min(16, (groupWidth - 28) / 5));
 
     let svgHtml = `
       <svg width="100%" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}" preserveAspectRatio="none" style="overflow: visible;">
@@ -1302,6 +1306,7 @@ class UIManager {
           <linearGradient id="grad-camera" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient>
           <linearGradient id="grad-access" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#059669"/></linearGradient>
           <linearGradient id="grad-lock" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#d97706"/></linearGradient>
+          <linearGradient id="grad-light" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fb7185"/><stop offset="100%" stop-color="#e11d48"/></linearGradient>
         </defs>
     `;
 
@@ -1320,13 +1325,14 @@ class UIManager {
     // 2. 繪製各年份分組柱狀
     data.forEach((d, idx) => {
       const groupCenterX = padding.left + (idx * groupWidth) + (groupWidth / 2);
-      const startX = groupCenterX - (barWidth * 2) - 3;
+      const startX = groupCenterX - (barWidth * 2.5) - 4;
 
       const bars = [
         { key: 'intercom', val: d.intercom, grad: 'url(#grad-intercom)', label: '對講機' },
         { key: 'camera', val: d.camera, grad: 'url(#grad-camera)', label: '攝影機' },
         { key: 'access', val: d.access, grad: 'url(#grad-access)', label: '門禁' },
-        { key: 'lock', val: d.lock, grad: 'url(#grad-lock)', label: '電子鎖' }
+        { key: 'lock', val: d.lock, grad: 'url(#grad-lock)', label: '電子鎖' },
+        { key: 'light', val: d.light || 0, grad: 'url(#grad-light)', label: '燈控' }
       ];
 
       bars.forEach((b, bIdx) => {

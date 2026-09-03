@@ -475,6 +475,7 @@ class AppStore {
     let cameraQty = 0;
     let accessQty = 0;
     let lockQty = 0;
+    let lightQty = 0;
 
     accessibleEquipment.forEach(item => {
       const q = Number(item.quantity) || 1;
@@ -489,6 +490,7 @@ class AppStore {
       if (item.system_type === '攝影機') cameraQty += q;
       if (item.system_type === '門禁系統') accessQty += q;
       if (item.system_type === '電子鎖') lockQty += q;
+      if (item.system_type === '燈控系統') lightQty += q;
     });
 
     return {
@@ -499,7 +501,8 @@ class AppStore {
       intercomQty,
       cameraQty,
       accessQty,
-      lockQty
+      lockQty,
+      lightQty
     };
   }
 
@@ -564,6 +567,7 @@ class AppStore {
         camera: 0,
         access: 0,
         lock: 0,
+        light: 0,
         delivered: 0,
         undelivered: 0,
         total: 0,
@@ -592,6 +596,7 @@ class AppStore {
         if (sys === '攝影機') annualTotals[targetYear].camera += addQty;
         if (sys === '門禁系統') annualTotals[targetYear].access += addQty;
         if (sys === '電子鎖') annualTotals[targetYear].lock += addQty;
+        if (sys === '燈控系統') annualTotals[targetYear].light += addQty;
         annualTotals[targetYear].delivered += dQty;
         annualTotals[targetYear].undelivered += uQty;
         annualTotals[targetYear].total += addQty;
@@ -615,9 +620,10 @@ class AppStore {
         }
 
         annualTotals[yr].intercom = Math.round(currentEst * 0.2);
-        annualTotals[yr].camera = Math.round(currentEst * 0.4);
+        annualTotals[yr].camera = Math.round(currentEst * 0.3);
         annualTotals[yr].access = Math.round(currentEst * 0.2);
-        annualTotals[yr].lock = Math.round(currentEst * 0.2);
+        annualTotals[yr].lock = Math.round(currentEst * 0.15);
+        annualTotals[yr].light = currentEst - (annualTotals[yr].intercom + annualTotals[yr].camera + annualTotals[yr].access + annualTotals[yr].lock);
         annualTotals[yr].total = currentEst;
         annualTotals[yr].delivered = Math.round(estTotal * (yr <= 2026 ? 0.4 : 0.2));
         annualTotals[yr].undelivered = estTotal - annualTotals[yr].delivered;
@@ -632,6 +638,7 @@ class AppStore {
         camera: item.camera,
         access: item.access,
         lock: item.lock,
+        light: item.light,
         delivered: item.delivered,
         undelivered: item.undelivered,
         total: item.total,

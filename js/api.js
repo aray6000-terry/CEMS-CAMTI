@@ -18,7 +18,9 @@ const INITIAL_MOCK_COMPANIES = [
   { company_id: 'CP-013', company_name: '宗麒', contact_name: '楊管理員', contact_phone: '02-8667-1133 #311', contract_start: '2024-09-01', contract_end: '2027-08-31', status: '合約履約中' },
   { company_id: 'CP-014', company_name: '廣晟', contact_name: '曾設施長', contact_phone: '07-611-2244 #411', contract_start: '2023-09-01', contract_end: '2026-08-31', status: '合約履約中' },
   { company_id: 'CP-015', company_name: '宗榮', contact_name: '洪經理', contact_phone: '06-505-8899 #511', contract_start: '2024-03-15', contract_end: '2027-03-14', status: '合約履約中' },
-  { company_id: 'CP-016', company_name: '宗霖', contact_name: '邱組長', contact_phone: '03-598-6677 #611', contract_start: '2024-05-15', contract_end: '2027-05-14', status: '合約履約中' }
+  { company_id: 'CP-016', company_name: '宗霖', contact_name: '邱組長', contact_phone: '03-598-6677 #611', contract_start: '2024-05-15', contract_end: '2027-05-14', status: '合約履約中' },
+  { company_id: 'CP-017', company_name: '優德美科技', contact_name: '陳專案經理', contact_phone: '02-2799-8801 #101', contract_start: '2024-01-01', contract_end: '2027-12-31', status: '合約履約中' },
+  { company_id: 'CP-018', company_name: '富鈺節能科技', contact_name: '林技術主管', contact_phone: '02-2799-8802 #201', contract_start: '2024-01-01', contract_end: '2027-12-31', status: '合約履約中' }
 ];
 
 const INITIAL_MOCK_EQUIPMENT = [
@@ -681,6 +683,105 @@ const INITIAL_MOCK_EQUIPMENT = [
     delivery_date: '2025-10-10',
     remarks: '二期廠房5組待交貨',
     updated_at: '2025-01-28'
+  },
+
+  // 17. 優德美科技
+  {
+    id: 'EQ-1701',
+    company_name: '優德美科技',
+    contract_id: 'CT-UDM-2025-01',
+    project_name: '優德美智慧綠能研發中心',
+    sales_rep: '陳專案經理',
+    system_type: '燈控系統',
+    brand: 'Lutron',
+    device_name: '數位智能調光多迴路模組主機',
+    model: 'Lutron QSGR-3P',
+    quantity: 20,
+    delivered_qty: 20,
+    undelivered_qty: 0,
+    unit: '組',
+    delivery_status: '已交貨',
+    delivery_date: '2024-04-15',
+    remarks: '一期研發樓層智慧照明調光主機已全數完成點交',
+    updated_at: '2025-02-15'
+  },
+  {
+    id: 'EQ-1702',
+    company_name: '優德美科技',
+    contract_id: 'CT-UDM-2025-01',
+    project_name: '優德美智慧綠能研發中心',
+    sales_rep: '陳專案經理',
+    system_type: '燈控系統',
+    brand: 'Lite-Puter',
+    device_name: '8迴路繼電器開關模組箱',
+    model: 'Lite-Puter PL-S0805',
+    quantity: 35,
+    delivered_qty: 20,
+    undelivered_qty: 15,
+    unit: '套',
+    delivery_status: '未交貨',
+    delivery_date: '2025-06-30',
+    remarks: '二期工程15套預計於年中交貨驗收',
+    updated_at: '2025-02-15'
+  },
+  {
+    id: 'EQ-1703',
+    company_name: '優德美科技',
+    contract_id: 'CT-UDM-2025-01',
+    project_name: '優德美智慧綠能研發中心',
+    sales_rep: '陳專案經理',
+    system_type: '攝影機',
+    brand: 'Hikvision',
+    device_name: '4K超高解析度星光級紅外線半球型攝影機',
+    model: 'Hikvision DS-2CD2186',
+    quantity: 40,
+    delivered_qty: 40,
+    undelivered_qty: 0,
+    unit: '支',
+    delivery_status: '已交貨',
+    delivery_date: '2024-05-10',
+    remarks: '公共走廊監控攝影機已點交啟用',
+    updated_at: '2025-02-15'
+  },
+
+  // 18. 富鈺節能科技
+  {
+    id: 'EQ-1801',
+    company_name: '富鈺節能科技',
+    contract_id: 'CT-FY-2025-01',
+    project_name: '富鈺低碳節能展示總部',
+    sales_rep: '林技術主管',
+    system_type: '燈控系統',
+    brand: 'Schneider',
+    device_name: 'DALI-2 智慧照明閘道器控制模組',
+    model: 'Schneider MTN6725-0001',
+    quantity: 16,
+    delivered_qty: 16,
+    undelivered_qty: 0,
+    unit: '組',
+    delivery_status: '已交貨',
+    delivery_date: '2024-03-20',
+    remarks: '展廳與會議室 DALI 照明已正常運作',
+    updated_at: '2025-02-10'
+  },
+  {
+    id: 'EQ-1802',
+    company_name: '富鈺節能科技',
+    contract_id: 'CT-FY-2025-01',
+    project_name: '富鈺低碳節能展示總部',
+    sales_rep: '林技術主管',
+    system_type: '門禁系統',
+    brand: 'Soyal',
+    device_name: '多頻雙模人臉/RFID門禁考勤主機',
+    model: 'Soyal AR-837-EA',
+    quantity: 12,
+    delivered_qty: 6,
+    undelivered_qty: 6,
+    unit: '組',
+    delivery_status: '未交貨',
+    delivery_date: '2025-09-15',
+    remarks: '二期展示區域6組待工程進場後點交',
+    updated_at: '2025-02-10'
   }
 ];
 
@@ -714,15 +815,37 @@ class ApiService {
     } else {
       try {
         const parsed = JSON.parse(raw);
-        const migrated = parsed.map(item => this.normalizeItem(item));
+        // 自動檢測並無縫補齊新增的示範設備 (如優德美、富鈺、燈控系統)
+        const existingIds = new Set(parsed.map(item => item.id));
+        const missingDefaults = INITIAL_MOCK_EQUIPMENT.filter(item => !existingIds.has(item.id));
+        const combined = missingDefaults.length > 0 ? parsed.concat(missingDefaults) : parsed;
+        const migrated = combined.map(item => this.normalizeItem(item));
         localStorage.setItem(this.DATA_STORAGE_KEY, JSON.stringify(migrated));
       } catch (e) {
         localStorage.setItem(this.DATA_STORAGE_KEY, JSON.stringify(INITIAL_MOCK_EQUIPMENT));
       }
     }
 
-    if (!localStorage.getItem(this.COMPANIES_KEY)) {
+    const compRaw = localStorage.getItem(this.COMPANIES_KEY);
+    if (!compRaw) {
       localStorage.setItem(this.COMPANIES_KEY, JSON.stringify(INITIAL_MOCK_COMPANIES));
+    } else {
+      try {
+        const existingComps = JSON.parse(compRaw);
+        const existingNames = new Set(existingComps.map(c => c.company_name));
+        let changed = false;
+        INITIAL_MOCK_COMPANIES.forEach(mockC => {
+          if (!existingNames.has(mockC.company_name)) {
+            existingComps.push(mockC);
+            changed = true;
+          }
+        });
+        if (changed) {
+          localStorage.setItem(this.COMPANIES_KEY, JSON.stringify(existingComps));
+        }
+      } catch (e) {
+        localStorage.setItem(this.COMPANIES_KEY, JSON.stringify(INITIAL_MOCK_COMPANIES));
+      }
     }
   }
 
@@ -762,7 +885,8 @@ class ApiService {
         '宗亞': '陳業務專員', '宗鈺': '王業務副理', '宗泰': '張業務主任', '資訊星': '李業務總監',
         '宗群': '吳業務專員', '宗友': '趙業務專員', '宗晟': '許業務經理', '和興': '黃業務工程師',
         '宗科': '蔡業務專員', '宗順': '吳業務主任', '宗益': '劉業務專員', '百成': '柯業務專員',
-        '宗麒': '楊業務專員', '廣晟': '曾業務主任', '宗榮': '洪業務副理', '宗霖': '邱業務專員'
+        '宗麒': '楊業務專員', '廣晟': '曾業務主任', '宗榮': '洪業務副理', '宗霖': '邱業務專員',
+        '優德美科技': '陳專案經理', '富鈺節能科技': '林技術主管'
       };
       salesRep = defaultReps[item.company_name] || '業務專員';
     }
@@ -819,6 +943,7 @@ class ApiService {
     if (systemType === '攝影機') return 'Hikvision';
     if (systemType === '門禁系統') return 'Soyal';
     if (systemType === '電子鎖') return 'Yale';
+    if (systemType === '燈控系統') return 'Lutron';
 
     return '標準廠牌';
   }
