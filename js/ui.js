@@ -148,13 +148,18 @@ class UIManager {
       });
     }
 
-    // 3. 清單頁 - 設備型號篩選下拉選單
+    // 3. 清單頁 - 設備型號篩選下拉選單 (雙重事件監聽確保 100% 即刻連動)
     const listModelSelect = document.getElementById('filter-model');
     if (listModelSelect) {
       listModelSelect.addEventListener('change', (e) => {
         window.appStore.setModelFilter(e.target.value);
       });
     }
+    document.addEventListener('change', (e) => {
+      if (e.target && e.target.id === 'filter-model') {
+        window.appStore.setModelFilter(e.target.value);
+      }
+    });
 
     // 4. 清單頁 - 交貨狀態篩選下拉選單
     const deliverySelect = document.getElementById('filter-delivery-status');
@@ -964,15 +969,22 @@ class UIManager {
     if (!select) return;
 
     const models = store.getListAvailableModels();
-    const currentVal = store.filters.model;
+    let currentVal = store.filters.model || 'all';
 
-    let optionsHtml = `<option value="all">🏷️ 全部型號 (${models.length}種)</option>`;
+    // 若切換系統或公司後，原本選取的型號不在可用清單中，自動回退為 'all' (全部型號)
+    if (currentVal !== 'all' && !models.includes(currentVal)) {
+      store.filters.model = 'all';
+      currentVal = 'all';
+    }
+
+    let optionsHtml = `<option value="all" ${currentVal === 'all' ? 'selected' : ''}>🏷️ 全部型號 (${models.length}種)</option>`;
     models.forEach(m => {
       const selected = (currentVal === m) ? 'selected' : '';
       optionsHtml += `<option value="${m}" ${selected}>🏷️ ${m}</option>`;
     });
 
     select.innerHTML = optionsHtml;
+    select.value = currentVal;
   }
 
   /**

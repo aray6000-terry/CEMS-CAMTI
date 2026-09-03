@@ -401,8 +401,12 @@ class AppStore {
         if (itemSys !== activeSys) return false;
       }
 
-      // 3. 設備型號篩選
-      if (this.filters.model !== 'all' && item.model !== this.filters.model) return false;
+      // 3. 設備型號篩選 (強大容錯：壓縮多餘空白、忽略大小寫、轉字串)
+      if (this.filters.model && this.filters.model !== 'all') {
+        const itemModel = String(item.model || '').replace(/\s+/g, ' ').trim().toLowerCase();
+        const filterModel = String(this.filters.model).replace(/\s+/g, ' ').trim().toLowerCase();
+        if (itemModel !== filterModel) return false;
+      }
 
       // 4. 交貨狀態精確過濾 (已交貨 / 未交貨)
       if (this.filters.delivery_status !== 'all') {
