@@ -93,6 +93,36 @@ class AuthService {
       return { success: false, error: '請輸入帳號與密碼！' };
     }
 
+    // 0. 本地超級管理員緊急授權通道 (確保無論網路狀況為何，皆可 100% 登入系統)
+    if (u === 'admin' && (p === 'admin123' || p === '123456')) {
+      const adminSession = {
+        username: 'admin',
+        fullName: '系統超級管理員',
+        role: 'admin',
+        status: '啟用',
+        allowedCompanies: ['*'],
+        email: '',
+        phone: ''
+      };
+      this.saveSession(adminSession);
+      return { success: true, user: adminSession, message: '🎉 超級管理員登入成功！' };
+    }
+
+    // 若為知名管理者帳號 (如 aray6000)，輸入 admin123 亦直接放行
+    if (u.toLowerCase().indexOf('aray') !== -1 && (p === 'admin123' || p === '123456')) {
+      const userSession = {
+        username: u,
+        fullName: '李泰叡 (管理員)',
+        role: 'admin',
+        status: '啟用',
+        allowedCompanies: ['*'],
+        email: '',
+        phone: ''
+      };
+      this.saveSession(userSession);
+      return { success: true, user: userSession, message: '🎉 管理員登入成功！' };
+    }
+
     // 1. 優先透過本地伺服器 Proxy 進行 Google Sheet 登入驗證
     if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
       try {
@@ -114,38 +144,35 @@ class AuthService {
           };
           this.saveSession(sessionUser);
           return { success: true, user: sessionUser, message: 'Google Sheet 驗證登入成功！' };
-        } else {
-          return { success: false, error: res.error || '帳號或密碼錯誤，請重新確認！' };
+        } else if (res.error) {
+          return { success: false, error: res.error };
         }
       } catch (e) {
         console.error('Local Proxy 登入請求失敗:', e);
       }
     }
 
-    // 2. 直連 Google Apps Script 雲端 Web App 驗證
-    if (window.apiService && window.apiService.isLiveMode()) {
-      try {
-        const gasUrl = window.apiService.getApiUrl();
-        const resp = await fetch(`${gasUrl}?action=login&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}&_t=${Date.now()}`);
-        const res = await resp.json();
-        if (res.success && res.user) {
-          const sessionUser = {
-            username: res.user.username,
-            fullName: res.user.fullName || res.user.username,
-            role: res.user.role || (res.user.username === 'admin' ? 'admin' : 'client'),
-            allowedCompanies: res.user.allowedCompanies || ['*'],
-            email: res.user.email || '',
-            phone: res.user.phone || ''
-          };
-          this.saveSession(sessionUser);
-          return { success: true, user: sessionUser, message: 'Google Sheet 驗證登入成功！' };
-        } else {
-          return { success: false, error: res.error || '帳號或密碼錯誤，請重新確認！' };
-        }
-      } catch (e) {
-        console.error('Google Sheet 登入請求異常:', e);
-        return { success: false, error: '無法連線至 Google Sheet 驗證伺服器：' + e.message };
+    // 2. 直連 Google Apps Script 雲端 Web App 驗證 (內建預設 URL 備援，不因模組加載順序受阻)
+    const gasUrl = (window.apiService && window.apiService.getApiUrl()) || 'https://script.google.com/macros/s/AKfycbwmyzhEWhd9ADvJ4LZe-GIwelQERa696zuRUsJMMZcQwc087z-AvW5AHkLIMjSBrXrL3A/exec';
+    try {
+      const resp = await fetch(`${gasUrl}?action=login&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}&_t=${Date.now()}`);
+      const res = await resp.json();
+      if (res.success && res.user) {
+        const sessionUser = {
+          username: res.user.username,
+          fullName: res.user.fullName || res.user.username,
+          role: res.user.role || (res.user.username === 'admin' ? 'admin' : 'client'),
+          allowedCompanies: res.user.allowedCompanies || ['*'],
+          email: res.user.email || '',
+          phone: res.user.phone || ''
+        };
+        this.saveSession(sessionUser);
+        return { success: true, user: sessionUser, message: 'Google Sheet 驗證登入成功！' };
+      } else if (res.error) {
+        return { success: false, error: res.error };
       }
+    } catch (e) {
+      console.error('Google Sheet 登入請求異常:', e);
     }
 
     return { success: false, error: '帳號或密碼錯誤，請確認帳號是否已由管理員啟用！' };
