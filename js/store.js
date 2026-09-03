@@ -121,7 +121,18 @@ class AppStore {
     try {
       const res = await window.apiService.syncDatabaseFromCloud(allowed);
       if (res && res.success) {
-        await this.loadData();
+        if (Array.isArray(res.companies) && res.companies.length > 0) {
+          this.companies = res.companies;
+        }
+        if (Array.isArray(res.equipment) && res.equipment.length > 0) {
+          this.equipment = res.equipment;
+          this.equipment.forEach(item => {
+            if (!item.brand || item.brand === '其他廠牌' || item.brand === '標準廠牌') {
+              item.brand = window.apiService.extractBrand(item.model, item.device_name, item.system_type);
+            }
+          });
+        }
+        this.notify();
         return {
           success: true,
           companiesCount: this.companies.length,

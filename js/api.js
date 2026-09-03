@@ -2441,10 +2441,22 @@ class ApiService {
   async syncDatabaseFromCloud(allowedCompanies = ['*']) {
     console.log('🔄 開始手動強制同步雲端 Google 試算表資料庫...');
     try {
-      const companies = await this.fetchCompanies();
-      const equipment = await this.fetchEquipmentList(allowedCompanies);
+      const [companies, equipment] = await Promise.all([
+        this.getCompanies(),
+        this.getEquipment(allowedCompanies)
+      ]);
+
+      if (Array.isArray(equipment) && equipment.length > 0) {
+        try { localStorage.setItem(this.DATA_STORAGE_KEY, JSON.stringify(equipment)); } catch (e) {}
+      }
+      if (Array.isArray(companies) && companies.length > 0) {
+        try { localStorage.setItem(this.COMPANIES_KEY, JSON.stringify(companies)); } catch (e) {}
+      }
+
       return {
         success: true,
+        companies: companies || [],
+        equipment: equipment || [],
         companiesCount: companies ? companies.length : 0,
         equipmentCount: equipment ? equipment.length : 0
       };
