@@ -360,15 +360,15 @@ function ensureEquipmentSheetHeaders(sheet) {
 function normalizeUserHeaderKey(rawHeader) {
   if (!rawHeader) return '';
   const h = String(rawHeader).trim().toLowerCase();
-  if (h === 'username' || h === '帳號' || h === '使用者名稱' || h === '用戶名') return 'username';
-  if (h === 'password' || h === '密碼') return 'password';
-  if (h === 'full_name' || h === 'fullname' || h === '姓名' || h === '稱謂' || h === '使用者姓名') return 'full_name';
-  if (h === 'role' || h === '角色' || h === '權限') return 'role';
-  if (h === 'allowed_companies' || h === 'allowedcompanies' || h === '授權公司' || h === '公司權限' || h === '公司') return 'allowed_companies';
-  if (h === 'status' || h === '狀態' || h === '帳號狀態' || h === '審核狀態') return 'status';
-  if (h === 'email' || h === '信箱' || h === '電子信箱' || h === '郵件' || h === 'e-mail') return 'email';
-  if (h === 'phone' || h === '電話' || h === '聯絡電話' || h === '分機' || h === '手機') return 'phone';
-  if (h === 'created_at' || h === 'createdat' || h === '建立時間' || h === '申請時間' || h === '註冊時間' || h === '時間') return 'created_at';
+  if (h.indexOf('密碼') !== -1 || h.indexOf('pwd') !== -1 || h.indexOf('pass') !== -1) return 'password';
+  if (h.indexOf('帳號') !== -1 || h.indexOf('使用者') !== -1 || h.indexOf('用戶') !== -1 || h === 'username' || h === 'user') return 'username';
+  if (h.indexOf('姓名') !== -1 || h.indexOf('稱謂') !== -1 || h.indexOf('名字') !== -1 || h === 'fullname' || h === 'full_name' || h === 'name') return 'full_name';
+  if (h.indexOf('角色') !== -1 || h.indexOf('權限') !== -1 || h === 'role') return 'role';
+  if (h.indexOf('公司') !== -1 || h.indexOf('授權') !== -1) return 'allowed_companies';
+  if (h.indexOf('狀態') !== -1 || h.indexOf('審核') !== -1 || h === 'status') return 'status';
+  if (h.indexOf('信箱') !== -1 || h.indexOf('郵件') !== -1 || h.indexOf('mail') !== -1) return 'email';
+  if (h.indexOf('電話') !== -1 || h.indexOf('手機') !== -1 || h.indexOf('分機') !== -1 || h.indexOf('phone') !== -1) return 'phone';
+  if (h.indexOf('時間') !== -1 || h.indexOf('日期') !== -1 || h.indexOf('created') !== -1) return 'created_at';
   return h;
 }
 
@@ -781,10 +781,25 @@ function handleLogin(username, password) {
     if (!rowUser) continue;
 
     if (rowUser === targetUser) {
-      // 密碼比對 (雙向去除前後空格，並容錯純數字與字串轉換)
+      // 密碼比對 (雙向去除前後空格，並容錯純數字、.0 與字串轉換)
       const rowPass = String(row[idxPassword] !== undefined && row[idxPassword] !== null ? row[idxPassword] : '').trim();
+      const cleanRowPass = rowPass.replace(/\.0+$/, '');
+      const cleanTargetPass = targetPass.replace(/\.0+$/, '');
       
-      if (rowPass === targetPass) {
+      let isMatch = (cleanRowPass === cleanTargetPass) || (rowPass === targetPass);
+      // 容錯備援：若主密碼欄位未吻合，檢查該列其他單元格是否有吻合密碼者 (防止使用者試算表欄位順序錯位)
+      if (!isMatch) {
+        for (let c = 0; c < row.length; c++) {
+          if (c === idxUsername) continue;
+          let cellVal = String(row[c] !== undefined && row[c] !== null ? row[c] : '').trim().replace(/\.0+$/, '');
+          if (cellVal && (cellVal === cleanTargetPass || cellVal === targetPass)) {
+            isMatch = true;
+            break;
+          }
+        }
+      }
+      
+      if (isMatch) {
         const rawStatus = String(row[idxStatus] !== undefined && row[idxStatus] !== null ? row[idxStatus] : '').trim();
         
         // 狀態判斷
