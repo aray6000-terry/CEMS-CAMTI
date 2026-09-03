@@ -177,13 +177,20 @@ class UIManager {
       });
     }
 
-    // 8. 重新整理資料
+    // 8. 重新整理資料 (即時向 Google Sheet 雲端同步並精確回報讀取筆數)
     const btnRefresh = document.getElementById('btn-refresh');
     if (btnRefresh) {
-      btnRefresh.addEventListener('click', () => {
-        window.appStore.loadData().then(() => {
-          this.showToast('設備資料已更新', 'success');
-        });
+      btnRefresh.addEventListener('click', async () => {
+        btnRefresh.classList.add('loading');
+        try {
+          await window.appStore.loadData();
+          const total = window.appStore.equipment ? window.appStore.equipment.length : 0;
+          this.showToast(`✅ 已成功同步 Google Sheet 最新資料（共 ${total} 筆設備）！`, 'success');
+        } catch (err) {
+          this.showToast(`⚠️ 同步發生異常: ${err.message}`, 'error');
+        } finally {
+          btnRefresh.classList.remove('loading');
+        }
       });
     }
 

@@ -224,9 +224,11 @@ function doGet(e) {
         result = { success: false, error: '未知的 GET action 參數: ' + action };
     }
 
-    return createJsonResponse(result);
+    const callback = (e && e.parameter && (e.parameter.callback || e.parameter.prefix)) || '';
+    return createJsonResponse(result, callback);
   } catch (err) {
-    return createJsonResponse({ success: false, error: err.toString() });
+    const callback = (e && e.parameter && (e.parameter.callback || e.parameter.prefix)) || '';
+    return createJsonResponse({ success: false, error: err.toString() }, callback);
   }
 }
 
@@ -307,7 +309,11 @@ function doPost(e) {
 /**
  * 建立 JSON 回應 (含 CORS 標頭)
  */
-function createJsonResponse(data) {
+function createJsonResponse(data, callback) {
+  if (callback) {
+    return ContentService.createTextOutput(callback + '(' + JSON.stringify(data) + ')')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
   return ContentService.createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
 }

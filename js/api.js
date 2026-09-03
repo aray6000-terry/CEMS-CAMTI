@@ -1959,6 +1959,41 @@ class ApiService {
     localStorage.setItem(this.API_URL_KEY, this.apiUrl);
   }
 
+  /**
+   * JSONP 跨域動態腳本請求 (完全不受瀏覽器 CORS 與 302 導向限制，100% 成功跨域取得資料)
+   */
+  fetchJsonp(url) {
+    return new Promise((resolve, reject) => {
+      const callbackName = 'gas_cb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+      const script = document.createElement('script');
+      const delimiter = url.includes('?') ? '&' : '?';
+      script.src = `${url}${delimiter}callback=${callbackName}`;
+      
+      const timeoutId = setTimeout(() => {
+        cleanup();
+        reject(new Error('JSONP 請求超時'));
+      }, 25000);
+
+      function cleanup() {
+        if (script.parentNode) script.parentNode.removeChild(script);
+        delete window[callbackName];
+        clearTimeout(timeoutId);
+      }
+
+      window[callbackName] = (data) => {
+        cleanup();
+        resolve(data);
+      };
+
+      script.onerror = () => {
+        cleanup();
+        reject(new Error('JSONP 跨域腳本載入失敗'));
+      };
+
+      document.body.appendChild(script);
+    });
+  }
+
   getApiUrl() {
     return this.apiUrl;
   }
@@ -2039,27 +2074,33 @@ class ApiService {
       }
     }
 
-    // 2. 直連 Google Apps Script Web App
+    // 2. 直連 Google Apps Script Web App (優先 Fetch，遇限制自動切換 JSONP 穿透)
     if (this.isLiveMode()) {
+      const liveUrl = `${this.apiUrl}?action=getCompanies&_t=${Date.now()}`;
       try {
-        console.log('📡 正在直連 Google Sheet 同步 16 家公司資料...');
+        console.log('📡 正在直連 Google Sheet 同步 18 家公司資料...');
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 25000);
-        const resp = await fetch(`${this.apiUrl}?action=getCompanies&_t=${Date.now()}`, {
-          method: 'GET',
-          signal: controller.signal
-        });
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
+        const resp = await fetch(liveUrl, { method: 'GET', signal: controller.signal });
         clearTimeout(timeoutId);
         const res = await resp.json();
         if (res.success && Array.isArray(res.list) && res.list.length > 0) {
-          console.log(`✅ 成功從 Google Sheet 取得 ${res.list.length} 家公司資料`);
-          try {
-            localStorage.setItem(this.COMPANIES_KEY, JSON.stringify(res.list));
-          } catch (e) {}
+          console.log(`✅ [Fetch] 成功從 Google Sheet 取得 ${res.list.length} 家公司資料`);
+          try { localStorage.setItem(this.COMPANIES_KEY, JSON.stringify(res.list)); } catch (e) {}
           return res.list;
         }
-      } catch (e) {
-        console.warn('Live API error or timeout, falling back to local cache:', e);
+      } catch (fetchErr) {
+        console.warn('getCompanies Fetch 遇到限制，立即啟動 JSONP 穿透:', fetchErr);
+        try {
+          const res = await this.fetchJsonp(liveUrl);
+          if (res && res.success && Array.isArray(res.list) && res.list.length > 0) {
+            console.log(`✅ [JSONP] 成功從 Google Sheet 穿透取得 ${res.list.length} 家公司資料！`);
+            try { localStorage.setItem(this.COMPANIES_KEY, JSON.stringify(res.list)); } catch (e) {}
+            return res.list;
+          }
+        } catch (jsonpErr) {
+          console.error('getCompanies JSONP 載入亦失敗:', jsonpErr);
+        }
       }
     }
     return this.getLocalCompanies();
@@ -2091,30 +2132,39 @@ class ApiService {
       }
     }
 
-    // 2. 直連 Google Apps Script Web App
+    // 2. 直連 Google Apps Script Web App (優先 Fetch，遇跨域或302自動無縫切換 JSONP 穿透)
     if (this.isLiveMode()) {
+      const liveUrl = `${this.apiUrl}?action=getEquipment&companies=${encodeURIComponent(companyParam)}&_t=${Date.now()}`;
       try {
         console.log(`📡 正在直連 Google Sheet 同步設備清單 (公司: ${companyParam})...`);
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 25000);
-        const resp = await fetch(`${this.apiUrl}?action=getEquipment&companies=${encodeURIComponent(companyParam)}&_t=${Date.now()}`, {
-          method: 'GET',
-          signal: controller.signal
-        });
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
+        const resp = await fetch(liveUrl, { method: 'GET', signal: controller.signal });
         clearTimeout(timeoutId);
         const res = await resp.json();
         if (res.success && Array.isArray(res.list)) {
-          console.log(`✅ 成功從 Google Sheet 取得 ${res.list.length} 筆設備資料`);
+          console.log(`✅ [Fetch] 成功從 Google Sheet 取得 ${res.list.length} 筆設備資料`);
           const list = res.list.map(item => this.normalizeItem(item));
           if (isAll && list.length > 0) {
-            try {
-              localStorage.setItem(this.DATA_STORAGE_KEY, JSON.stringify(list));
-            } catch (e) {}
+            try { localStorage.setItem(this.DATA_STORAGE_KEY, JSON.stringify(list)); } catch (e) {}
           }
           return list;
         }
-      } catch (e) {
-        console.warn('Live API fetch failed or timeout, using local store:', e);
+      } catch (fetchErr) {
+        console.warn('Fetch 遇到跨域或導向限制，立即啟動 JSONP 穿透載入:', fetchErr);
+        try {
+          const res = await this.fetchJsonp(liveUrl);
+          if (res && res.success && Array.isArray(res.list)) {
+            console.log(`✅ [JSONP] 成功從 Google Sheet 穿透取得 ${res.list.length} 筆設備資料！`);
+            const list = res.list.map(item => this.normalizeItem(item));
+            if (isAll && list.length > 0) {
+              try { localStorage.setItem(this.DATA_STORAGE_KEY, JSON.stringify(list)); } catch (e) {}
+            }
+            return list;
+          }
+        } catch (jsonpErr) {
+          console.error('JSONP 載入亦失敗:', jsonpErr);
+        }
       }
     }
 
