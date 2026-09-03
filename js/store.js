@@ -150,6 +150,42 @@ class AppStore {
     }
   }
 
+  /**
+   * 即時新增或更新單筆設備紀錄至當前狀態機，並確保當前分頁與篩選切換至可見狀態
+   */
+  addOrUpdateEquipment(item) {
+    if (!item) return;
+    if (!item.brand || item.brand === '其他廠牌' || item.brand === '標準廠牌') {
+      item.brand = window.apiService.extractBrand(item.model, item.device_name, item.system_type);
+    }
+
+    const idx = this.equipment.findIndex(e => e.id === item.id);
+    if (idx !== -1) {
+      this.equipment[idx] = Object.assign({}, this.equipment[idx], item);
+    } else {
+      this.equipment.unshift(item);
+    }
+
+    // 自動切換分頁與清除阻礙過濾條件，確保使用者 100% 立即看到該項目
+    if (this.filters.company !== 'all' && this.filters.company !== item.company_name) {
+      this.filters.company = item.company_name;
+    }
+    
+    // 如果當前選中的系統分類與該設備不相符，自動切換至該設備所屬系統或全部系統
+    const itemNormSys = this.normalizeSystemType(item.system_type, item);
+    const activeNormSys = this.normalizeSystemType(this.activeSystem);
+    if (this.activeSystem !== 'all' && activeNormSys !== itemNormSys) {
+      this.activeSystem = itemNormSys || 'all';
+    }
+
+    this.filters.model = 'all';
+    this.filters.delivery_status = 'all';
+    this.filters.keyword = '';
+    this.keyword = '';
+
+    this.notify();
+  }
+
   // --- 清單頁篩選方法 ---
   setSystemFilter(systemType) {
     this.activeSystem = systemType;

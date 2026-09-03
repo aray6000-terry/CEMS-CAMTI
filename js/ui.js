@@ -225,9 +225,10 @@ class UIManager {
         btnSyncDb.disabled = true;
 
         try {
+          this.showToast('📡 正在從 Google 試算表完整讀取最新資料（請稍候）...', 'info');
           const res = await window.appStore.syncFromCloud();
           if (res && res.success) {
-            this.showToast(`✅ 資料庫同步完成！共同步 ${res.companiesCount} 家公司、${res.equipmentCount} 筆設備資料`, 'success');
+            this.showToast(`✅ 資料庫同步完成！已從 Google 試算表更新 ${res.companiesCount} 家公司、${res.equipmentCount} 筆設備資料！`, 'success');
           } else {
             this.showToast(`⚠️ 同步完成（已切換本機備援）：共 ${window.appStore.equipment.length} 筆設備`, 'warning');
           }
@@ -1662,8 +1663,18 @@ class UIManager {
 
     const res = await window.apiService.saveEquipment(data, (user && user.username) || 'admin');
     if (res.success) {
-      this.showToast(`已確認並成功${actionText}設備資料！`, 'success');
-      await window.appStore.loadData();
+      const savedItem = res.item || data;
+      // 1. 立即寫入 Store 並切換至對應視角與通知重新渲染
+      window.appStore.addOrUpdateEquipment(savedItem);
+      this.showToast(`✅ 已確認並成功${actionText}設備「${savedItem.device_name}」！`, 'success');
+
+      // 2. 視角自動滾動至設備列表頂部
+      setTimeout(() => {
+        const tableContainer = document.getElementById('equipment-table-container') || document.querySelector('.table-wrapper');
+        if (tableContainer) {
+          tableContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }, 100);
     } else {
       this.showToast('儲存失敗：' + (res.error || '未知錯誤'), 'error');
     }

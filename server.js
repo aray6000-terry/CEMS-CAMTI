@@ -130,6 +130,56 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // 儲存/新增設備 Proxy
+  if (reqPath === '/api/saveEquipment') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      let params = {};
+      try { params = JSON.parse(body); } catch (e) { params = {}; }
+      console.log(`[Proxy] 正在儲存設備至 Google Sheet:`, params.data ? params.data.device_name : '');
+      const payload = {
+        action: 'saveEquipment',
+        data: params.data,
+        username: params.username || 'admin'
+      };
+      postGasJson(GAS_URL, payload, (err, json) => {
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*' });
+        if (!err && json) {
+          res.end(JSON.stringify(json));
+        } else {
+          res.end(JSON.stringify({ success: false, error: (err && err.message) || '儲存失敗' }));
+        }
+      });
+    });
+    return;
+  }
+
+  // 刪除設備 Proxy
+  if (reqPath === '/api/deleteEquipment') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      let params = {};
+      try { params = JSON.parse(body); } catch (e) { params = {}; }
+      console.log(`[Proxy] 正在從 Google Sheet 刪除設備 ID:`, params.id);
+      const payload = {
+        action: 'deleteEquipment',
+        id: params.id,
+        username: params.username || 'admin'
+      };
+      postGasJson(GAS_URL, payload, (err, json) => {
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*' });
+        if (!err && json) {
+          res.end(JSON.stringify(json));
+        } else {
+          res.end(JSON.stringify({ success: false, error: (err && err.message) || '刪除失敗' }));
+        }
+      });
+    });
+    return;
+  }
+
   // 更新帳號狀態與授權公司權限 (超級管理者專屬)
   if (reqPath === '/api/updateUserStatus') {
     let body = '';

@@ -2042,6 +2042,41 @@ class ApiService {
   }
 
   /**
+   * 真正可靠的 JSONP 跨域穿透抓取工具 (突破 GitHub Pages 與瀏覽器 CORS / 302 限制)
+   */
+  fetchJsonp(url, timeoutMs = 45000) {
+    return new Promise((resolve, reject) => {
+      const callbackName = 'gas_cb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+      let timer = null;
+      const script = document.createElement('script');
+      
+      window[callbackName] = function(data) {
+        if (timer) clearTimeout(timer);
+        if (script.parentNode) script.parentNode.removeChild(script);
+        delete window[callbackName];
+        resolve(data);
+      };
+
+      script.onerror = function(err) {
+        if (timer) clearTimeout(timer);
+        if (script.parentNode) script.parentNode.removeChild(script);
+        delete window[callbackName];
+        reject(new Error('JSONP 載入失敗 (跨域腳本連線被阻擋或未回傳合法格式)'));
+      };
+
+      const separator = url.includes('?') ? '&' : '?';
+      script.src = `${url}${separator}callback=${callbackName}`;
+      document.head.appendChild(script);
+
+      timer = setTimeout(() => {
+        if (script.parentNode) script.parentNode.removeChild(script);
+        delete window[callbackName];
+        reject(new Error('JSONP 載入逾時 (超過 ' + Math.round(timeoutMs/1000) + ' 秒)'));
+      }, timeoutMs);
+    });
+  }
+
+  /**
    * 初始化與升級本機資料庫
    */
   initLocalStorage() {
@@ -2344,8 +2379,8 @@ class ApiService {
       try {
         console.log('📡 正在直連 Google Sheet 同步 18 家公司資料...');
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 20000);
-        const resp = await fetch(liveUrl, { method: 'GET', signal: controller.signal });
+        const timeoutId = setTimeout(() => controller.abort(), 45000);
+        const resp = await fetch(liveUrl, { method: 'GET', mode: 'cors', redirect: 'follow', signal: controller.signal });
         clearTimeout(timeoutId);
         const res = await resp.json();
         if (res.success && Array.isArray(res.list) && res.list.length > 0) {
@@ -2356,7 +2391,7 @@ class ApiService {
       } catch (fetchErr) {
         console.warn('getCompanies Fetch 遇到限制，立即啟動 JSONP 穿透:', fetchErr);
         try {
-          const res = await this.fetchJsonp(liveUrl);
+          const res = await this.fetchJsonp(liveUrl, 45000);
           if (res && res.success && Array.isArray(res.list) && res.list.length > 0) {
             console.log(`✅ [JSONP] 成功從 Google Sheet 穿透取得 ${res.list.length} 家公司資料！`);
             try { localStorage.setItem(this.COMPANIES_KEY, JSON.stringify(res.list)); } catch (e) {}
@@ -2402,8 +2437,8 @@ class ApiService {
       try {
         console.log(`📡 正在直連 Google Sheet 同步設備清單 (公司: ${companyParam})...`);
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 20000);
-        const resp = await fetch(liveUrl, { method: 'GET', signal: controller.signal });
+        const timeoutId = setTimeout(() => controller.abort(), 45000);
+        const resp = await fetch(liveUrl, { method: 'GET', mode: 'cors', redirect: 'follow', signal: controller.signal });
         clearTimeout(timeoutId);
         const res = await resp.json();
         if (res.success && Array.isArray(res.list)) {
@@ -2417,7 +2452,7 @@ class ApiService {
       } catch (fetchErr) {
         console.warn('Fetch 遇到跨域或導向限制，立即啟動 JSONP 穿透載入:', fetchErr);
         try {
-          const res = await this.fetchJsonp(liveUrl);
+          const res = await this.fetchJsonp(liveUrl, 45000);
           if (res && res.success && Array.isArray(res.list)) {
             console.log(`✅ [JSONP] 成功從 Google Sheet 穿透取得 ${res.list.length} 筆設備資料！`);
             const list = res.list.map(item => this.normalizeItem(item));
@@ -2484,11 +2519,48 @@ class ApiService {
    */
   async saveEquipment(equipmentData, username = 'admin') {
     const normalized = this.normalizeItem(equipmentData);
+    if (!normalized.id) {
+      normalized.id = 'EQ-' + Math.floor(1000 + Math.random() * 9000);
+    }
+    const today = new Date().toISOString().split('T')[0];
+    normalized.updated_at = today;
 
+    // 1. 本地儲存：100% 第一時間寫入 localStorage，確保離線/在線皆零延遲呈現
+    const raw = localStorage.getItem(this.DATA_STORAGE_KEY);
+    let list = raw ? JSON.parse(raw) : INITIAL_MOCK_EQUIPMENT;
+    list = list.map(item => this.normalizeItem(item));
+    const idx = list.findIndex(e => e.id === normalized.id);
+    if (idx !== -1) {
+      list[idx] = Object.assign({}, list[idx], normalized);
+    } else {
+      list.unshift(normalized);
+    }
+    try {
+      localStorage.setItem(this.DATA_STORAGE_KEY, JSON.stringify(list));
+    } catch (e) {}
+
+    // 2. 本地伺服器環境：透過 Local Proxy 同步寫入 Google Sheet
+    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      try {
+        console.log('📡 透過 Local Proxy 儲存設備至 Google Sheet:', normalized.device_name);
+        const resp = await fetch('/api/saveEquipment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: normalized, username: username })
+        });
+        const res = await resp.json();
+        return { success: true, item: normalized, remote: res };
+      } catch (e) {
+        console.warn('Local Proxy 儲存失敗，切換至直連 GAS:', e);
+      }
+    }
+
+    // 3. 直連 Google Apps Script Web App (使用 text/plain 免除 OPTIONS preflight 阻擋)
     if (this.isLiveMode()) {
       try {
         const resp = await fetch(this.apiUrl, {
           method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({
             action: 'saveEquipment',
             data: normalized,
@@ -2496,32 +2568,13 @@ class ApiService {
           })
         });
         const res = await resp.json();
-        if (res.success) return res;
+        return { success: true, item: normalized, remote: res };
       } catch (e) {
-        console.warn('Live API save failed, saving to local store:', e);
+        console.warn('Live API save failed, saved to local store:', e);
       }
     }
 
-    // 本機儲存
-    const raw = localStorage.getItem(this.DATA_STORAGE_KEY);
-    let list = raw ? JSON.parse(raw) : INITIAL_MOCK_EQUIPMENT;
-    list = list.map(item => this.normalizeItem(item));
-    const today = new Date().toISOString().split('T')[0];
-
-    if (normalized.id) {
-      const idx = list.findIndex(e => e.id === normalized.id);
-      if (idx !== -1) {
-        list[idx] = Object.assign({}, list[idx], normalized, { updated_at: today });
-      } else {
-        list.unshift(Object.assign({}, normalized, { updated_at: today }));
-      }
-    } else {
-      const newId = 'EQ-' + Math.floor(1000 + Math.random() * 9000);
-      list.unshift(Object.assign({}, normalized, { id: newId, updated_at: today }));
-    }
-
-    localStorage.setItem(this.DATA_STORAGE_KEY, JSON.stringify(list));
-    return { success: true, message: '儲存成功' };
+    return { success: true, item: normalized, message: '已儲存至本機資料庫' };
   }
 
   /**
