@@ -313,6 +313,48 @@ function createJsonResponse(data) {
 }
 
 /**
+ * 設備工作表欄位名稱正規化對照表 (相容中文表頭與英文表頭)
+ */
+function normalizeHeaderKey(rawHeader) {
+  if (!rawHeader) return '';
+  var h = String(rawHeader).trim().toLowerCase();
+  if (h === 'id' || h === '設備編號' || h === '編號' || h === '序號') return 'id';
+  if (h === 'company_name' || h === 'companyname' || h === '公司' || h === '公司名稱' || h === '所屬公司') return 'company_name';
+  if (h === 'contract_id' || h === 'contractid' || h === '合約編號' || h === '合約號' || h === '合約案號') return 'contract_id';
+  if (h === 'project_name' || h === 'projectname' || h === '專案名稱' || h === '建案名稱' || h === '工程名稱' || h === '建案') return 'project_name';
+  if (h === 'sales_rep' || h === 'salesrep' || h === '業務人員' || h === '負責業務' || h === '業務專員' || h === '業務') return 'sales_rep';
+  if (h === 'system_type' || h === 'systemtype' || h === '系統別' || h === '系統分類' || h === '系統類別' || h === '系統') return 'system_type';
+  if (h === 'brand' || h === '廠牌' || h === '品牌' || h === '廠牌分類') return 'brand';
+  if (h === 'device_name' || h === 'devicename' || h === '設備名稱' || h === '品名' || h === '項目名稱') return 'device_name';
+  if (h === 'model' || h === '型號' || h === '設備型號' || h === '規格型號') return 'model';
+  if (h === 'quantity' || h === '數量' || h === '合約數量' || h === '總數' || h === '合約總數') return 'quantity';
+  if (h === 'delivered_qty' || h === 'deliveredqty' || h === '已交貨數量' || h === '已交數量' || h === '已交數' || h === '已交') return 'delivered_qty';
+  if (h === 'undelivered_qty' || h === 'undeliveredqty' || h === '未交貨數量' || h === '未交數量' || h === '未交數' || h === '未交') return 'undelivered_qty';
+  if (h === 'unit' || h === '單位') return 'unit';
+  if (h === 'delivery_status' || h === 'deliverystatus' || h === '交貨狀態' || h === '狀態') return 'delivery_status';
+  if (h === 'delivery_date' || h === 'deliverydate' || h === '交貨日期' || h === '交期' || h === '預計交期') return 'delivery_date';
+  if (h === 'remarks' || h === '備註' || h === '說明') return 'remarks';
+  if (h === 'updated_at' || h === 'updatedat' || h === '更新時間' || h === '修改時間') return 'updated_at';
+  return h;
+}
+
+/**
+ * 檢查並自動補齊公司設備工作表之標題列
+ */
+function ensureEquipmentSheetHeaders(sheet) {
+  if (!sheet) return;
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(EQ_HEADERS);
+    sheet.getRange(1, 1, 1, EQ_HEADERS.length)
+      .setFontWeight('bold')
+      .setBackground('#1E293B')
+      .setFontColor('#F8FAFC');
+    sheet.setFrozenRows(1);
+    return;
+  }
+}
+
+/**
  * 使用者欄位名稱正規化對照表 (相容中文表頭與英文表頭)
  */
 function normalizeUserHeaderKey(rawHeader) {
