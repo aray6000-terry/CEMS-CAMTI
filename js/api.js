@@ -110,6 +110,25 @@ const INITIAL_MOCK_EQUIPMENT = [
     remarks: '第二批20組預計2026年到貨交貨',
     updated_at: '2025-02-01'
   },
+  {
+    id: 'EQ-0106',
+    company_name: '宗亞',
+    contract_id: 'CT-ZA-2025-01',
+    project_name: '宗亞智慧園區二期',
+    sales_rep: '林專案經理',
+    system_type: '燈控系統',
+    brand: 'Lutron',
+    device_name: '全區多迴路智能照明控制器',
+    model: 'Lutron Energi Savr Node',
+    quantity: 15,
+    delivered_qty: 10,
+    undelivered_qty: 5,
+    unit: '組',
+    delivery_status: '未交貨',
+    delivery_date: '2025-08-20',
+    remarks: '一期10組已啟用，5組待二期交貨',
+    updated_at: '2025-02-01'
+  },
 
   // 2. 宗鈺
   {
@@ -179,6 +198,25 @@ const INITIAL_MOCK_EQUIPMENT = [
     delivery_date: '2026-02-15',
     remarks: '主管辦公室換裝批次交貨',
     updated_at: '2025-02-10'
+  },
+  {
+    id: 'EQ-0205',
+    company_name: '宗鈺',
+    contract_id: 'CT-ZY-2025-02',
+    project_name: '宗鈺內湖科技大樓',
+    sales_rep: '王業務副理',
+    system_type: '燈控系統',
+    brand: 'Schneider',
+    device_name: '0-10V 商辦智能調光模組',
+    model: 'Schneider SpaceLogic',
+    quantity: 18,
+    delivered_qty: 18,
+    undelivered_qty: 0,
+    unit: '組',
+    delivery_status: '已交貨',
+    delivery_date: '2024-06-15',
+    remarks: '全大樓照明迴路調光點交完成',
+    updated_at: '2025-01-20'
   },
 
   // 3. 宗泰
@@ -250,6 +288,25 @@ const INITIAL_MOCK_EQUIPMENT = [
     remarks: '行政辦公室鋁門全數點交',
     updated_at: '2025-01-15'
   },
+  {
+    id: 'EQ-0305',
+    company_name: '宗泰',
+    contract_id: 'CT-ZT-2024-03',
+    project_name: '宗泰竹科研發廠房',
+    sales_rep: '張業務主任',
+    system_type: '燈控系統',
+    brand: 'Lite-Puter',
+    device_name: '廠區時序照明智慧排程主機',
+    model: 'Lite-Puter EDX-607',
+    quantity: 12,
+    delivered_qty: 8,
+    undelivered_qty: 4,
+    unit: '台',
+    delivery_status: '未交貨',
+    delivery_date: '2025-10-15',
+    remarks: '產線排程主機點交',
+    updated_at: '2025-01-15'
+  },
 
   // 4. 資訊星
   {
@@ -318,6 +375,25 @@ const INITIAL_MOCK_EQUIPMENT = [
     delivery_status: '未交貨',
     delivery_date: '2026-03-01',
     remarks: '第二批機櫃鎖預計2026交貨',
+    updated_at: '2025-02-05'
+  },
+  {
+    id: 'EQ-0405',
+    company_name: '資訊星',
+    contract_id: 'CT-IS-2024-04',
+    project_name: '資訊星雲端數據中心',
+    sales_rep: '李業務總監',
+    system_type: '燈控系統',
+    brand: 'Lutron',
+    device_name: '機房智能照度感測節能開關箱',
+    model: 'Lutron Energi Savr Node',
+    quantity: 25,
+    delivered_qty: 25,
+    undelivered_qty: 0,
+    unit: '組',
+    delivery_status: '已交貨',
+    delivery_date: '2024-11-20',
+    remarks: '數據中心節能開關全數啟用',
     updated_at: '2025-02-05'
   },
 
@@ -900,6 +976,10 @@ class ApiService {
     else if (sysType.includes('攝影') || sysType.includes('監視') || sysType.toLowerCase().includes('cctv')) sysType = '攝影機';
     else if (sysType.includes('對講')) sysType = '對講機';
     else if (sysType.includes('鎖')) sysType = '電子鎖';
+
+    if (!brand) {
+      brand = this.extractBrand(item.model, item.device_name, sysType);
+    }
 
     return Object.assign({}, item, {
       id: item.id || ('EQ-' + Math.floor(1000 + Math.random() * 9000)),

@@ -205,7 +205,7 @@ class AppStore {
     const accessible = this.equipment.filter(item => {
       if (!window.authService.canAccessCompany(item.company_name)) return false;
       if (this.filters.company !== 'all' && item.company_name !== this.filters.company) return false;
-      if (this.activeSystem !== 'all' && item.system_type !== this.activeSystem) return false;
+      if (this.activeSystem !== 'all' && this.normalizeSystemType(item.system_type) !== this.normalizeSystemType(this.activeSystem)) return false;
       return true;
     });
 
@@ -225,7 +225,7 @@ class AppStore {
     const accessible = this.equipment.filter(item => {
       if (!window.authService.canAccessCompany(item.company_name)) return false;
       if (this.filters.company !== 'all' && item.company_name !== this.filters.company) return false;
-      if (this.activeSystem !== 'all' && item.system_type !== this.activeSystem) return false;
+      if (this.activeSystem !== 'all' && this.normalizeSystemType(item.system_type) !== this.normalizeSystemType(this.activeSystem)) return false;
       return true;
     });
 
@@ -248,7 +248,7 @@ class AppStore {
     const accessible = this.equipment.filter(item => {
       if (!window.authService.canAccessCompany(item.company_name)) return false;
       if (this.filters.company !== 'all' && item.company_name !== this.filters.company) return false;
-      if (this.activeSystem !== 'all' && item.system_type !== this.activeSystem) return false;
+      if (this.activeSystem !== 'all' && this.normalizeSystemType(item.system_type) !== this.normalizeSystemType(this.activeSystem)) return false;
       if (this.filters.brand !== 'all' && (item.brand || '').trim() !== this.filters.brand) return false;
       return true;
     });
