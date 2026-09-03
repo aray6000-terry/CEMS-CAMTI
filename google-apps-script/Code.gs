@@ -84,6 +84,10 @@ function doGet(e) {
         result = upgradeAllSheetsAddSalesRep();
         break;
 
+      case 'ensureSheets':
+        result = ensureAllCompanySheets();
+        break;
+
       default:
         result = { success: false, error: '未知的 GET action 參數: ' + action };
     }
@@ -358,6 +362,70 @@ function upgradeAllSheetsAddSalesRep() {
     updatedCount: updatedCount,
     filledRowsCount: filledRowsCount,
     updatedSheets: updatedSheets
+  };
+}
+
+/**
+ * 一鍵自動補齊所有缺失的公司專屬工作表分頁 (安全無損，絕不影響現有工作表)
+ * 執行後會在 Google 試算表下方自動長出「優德美科技」、「富鈺節能科技」等新工作表！
+ */
+function ensureAllCompanySheets() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (!ss) return { success: false, error: '找不到試算表' };
+
+  let createdSheets = [];
+
+  // 1. 確保 Companies 表中有新公司
+  let compSheet = ss.getSheetByName(SYSTEM_SHEETS.COMPANIES);
+  if (compSheet) {
+    const data = compSheet.getDataRange().getValues();
+    const existingCompNames = data.slice(1).map(function(r) { return String(r[1]).trim(); });
+    
+    const newComps = [
+      ['CP-017', '優德美科技', '陳專案經理', '02-2799-8801 #101', '2024-01-01', '2027-12-31', '合約履約中'],
+      ['CP-018', '富鈺節能科技', '林技術主管', '02-2799-8802 #201', '2024-01-01', '2027-12-31', '合約履約中']
+    ];
+
+    newComps.forEach(function(compRow) {
+      if (existingCompNames.indexOf(compRow[1]) === -1) {
+        compSheet.appendRow(compRow);
+      }
+    });
+  }
+
+  // 2. 檢查 COMPANY_NAMES 中所有公司，若工作表分頁不存在則立即新增
+  for (let c = 0; c < COMPANY_NAMES.length; c++) {
+    const compName = COMPANY_NAMES[c];
+    let sheet = ss.getSheetByName(compName);
+    if (!sheet) {
+      sheet = ss.insertSheet(compName);
+      sheet.appendRow(EQ_HEADERS);
+      sheet.getRange(1, 1, 1, EQ_HEADERS.length)
+        .setFontWeight('bold')
+        .setBackground('#1E293B')
+        .setFontColor('#F8FAFC');
+      sheet.setFrozenRows(1);
+
+      // 若有預設示範設備資料則填入
+      if (typeof sampleEqMap !== 'undefined' && sampleEqMap[compName] && sampleEqMap[compName].length > 0) {
+        const rows = sampleEqMap[compName];
+        for (let r = 0; r < rows.length; r++) {
+          sheet.appendRow(rows[r]);
+        }
+      }
+      createdSheets.push(compName);
+    } else {
+      // 若工作表已存在，自動補齊 sales_rep 標題列
+      ensureEquipmentSheetHeaders(sheet);
+    }
+  }
+
+  return {
+    success: true,
+    message: createdSheets.length > 0 
+      ? '🎉 已成功長出新公司工作表分頁：' + createdSheets.join('、')
+      : '所有 18 家公司工作表分頁皆已存在，無需新增！',
+    createdSheets: createdSheets
   };
 }
 
@@ -666,6 +734,11 @@ function normalizeHeaderKey(rawHeader) {
  * 取得設備清單 (支援跨公司獨立分頁或單一 Equipment 工作表)
  */
 function getEquipmentList(userCompanies) {
+  // 自動確保所有 18 家公司工作表分頁皆已存在
+  try {
+    ensureAllCompanySheets();
+  } catch (e) {}
+
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const allowedList = (userCompanies === '*' || !userCompanies) ? ['*'] : userCompanies.split(',').map(function(c) { return c.trim(); });
   const list = [];
