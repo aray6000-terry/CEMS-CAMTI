@@ -861,13 +861,13 @@ class UIManager {
 
     const map = {
       'all': accessible.length,
-      '對講系統': accessible.filter(e => store.normalizeSystemType(e.system_type, e) === '對講系統').length,
-      '對講機': accessible.filter(e => store.normalizeSystemType(e.system_type, e) === '對講系統').length,
-      '門禁系統': accessible.filter(e => store.normalizeSystemType(e.system_type, e) === '門禁系統').length,
-      '攝影機系統': accessible.filter(e => store.normalizeSystemType(e.system_type, e) === '攝影機系統').length,
-      '攝影機': accessible.filter(e => store.normalizeSystemType(e.system_type, e) === '攝影機系統').length,
-      '電子鎖': accessible.filter(e => store.normalizeSystemType(e.system_type, e) === '電子鎖').length,
-      '燈控系統': accessible.filter(e => store.normalizeSystemType(e.system_type, e) === '燈控系統').length,
+      '對講系統': accessible.filter(e => store.normalizeSystemType(e.system_type) === '對講系統').length,
+      '對講機': accessible.filter(e => store.normalizeSystemType(e.system_type) === '對講系統').length,
+      '門禁系統': accessible.filter(e => store.normalizeSystemType(e.system_type) === '門禁系統').length,
+      '攝影機系統': accessible.filter(e => store.normalizeSystemType(e.system_type) === '攝影機系統').length,
+      '攝影機': accessible.filter(e => store.normalizeSystemType(e.system_type) === '攝影機系統').length,
+      '電子鎖': accessible.filter(e => store.normalizeSystemType(e.system_type) === '電子鎖').length,
+      '燈控系統': accessible.filter(e => store.normalizeSystemType(e.system_type) === '燈控系統').length,
     };
 
     document.querySelectorAll('.sys-tab-btn').forEach(btn => {
@@ -1321,7 +1321,7 @@ class UIManager {
             `;
           }).join('');
 
-          const rowNormSys = store.normalizeSystemType(r.system_type, r);
+          const rowNormSys = store.normalizeSystemType(r.system_type);
           return `
             <tr>
               <td>

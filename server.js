@@ -4,6 +4,32 @@ const url = require('url');
 const fs = require('fs');
 const path = require('path');
 
+const vm = require('vm');
+
+let CryptoSecurity = null;
+try {
+  const cryptoCode = fs.readFileSync(path.join(__dirname, 'js', 'crypto.js'), 'utf8');
+  const cryptoSandbox = {};
+  vm.createContext(cryptoSandbox);
+  vm.runInContext(cryptoCode, cryptoSandbox);
+  CryptoSecurity = cryptoSandbox.CryptoSecurity;
+} catch (e) {
+  console.error('[Server] 載入 CryptoSecurity 模組失敗:', e);
+}
+
+function unwrapServerResponse(res) {
+  if (!res) return res;
+  if (res.encrypted === true && res.data && CryptoSecurity) {
+    try {
+      const dec = CryptoSecurity.decrypt(res.data);
+      if (dec !== undefined && dec !== null) return dec;
+    } catch (e) {
+      console.error('[Server] 解密封包失敗:', e);
+    }
+  }
+  return res;
+}
+
 let PORT = 5173;
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbwmyzhEWhd9ADvJ4LZe-GIwelQERa696zuRUsJMMZcQwc087z-AvW5AHkLIMjSBrXrL3A/exec';
 
@@ -124,7 +150,8 @@ const server = http.createServer((req, res) => {
       if (err) {
         res.end(JSON.stringify({ success: false, error: err.message }));
       } else {
-        res.end(JSON.stringify(json));
+        const unwrapped = unwrapServerResponse(json);
+        res.end(JSON.stringify(unwrapped));
       }
     });
     return;
@@ -249,7 +276,7 @@ const server = http.createServer((req, res) => {
       
       // 1. 呼叫 Google Apps Script 進行帳密驗證
       const targetUrl = `${GAS_URL}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&_t=${Date.now()}`;
-      fetchGasJson(targetUrl, (err, json) => {
+      fetchGasJson(targetUrl, (err, rawJson) => {
         if (err) {
           console.error('[Proxy] Google Sheet 登入連線錯誤:', err);
           res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*' });
@@ -257,57 +284,18 @@ const server = http.createServer((req, res) => {
           return;
         }
 
-        if (!json.success) {
-          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*' });
-          res.end(JSON.stringify(json));
+        const json = unwrapServerResponse(rawJson);
+
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*' });
+        if (!json || !json.success) {
+          const errMsg = (json && json.error) ? json.error : '帳號或密碼錯誤，請確認帳號是否已由管理員啟用！';
+          console.log(`[Proxy] 登入驗證未通過 ❌ (${username}):`, errMsg);
+          res.end(JSON.stringify({ success: false, error: errMsg }));
           return;
         }
 
-        // admin 超級管理員一律放行且具備全部權限
-        if (username === 'admin') {
-          if (json.user) {
-            json.user.role = 'admin';
-            json.user.allowedCompanies = ['*'];
-          }
-          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*' });
-          res.end(JSON.stringify(json));
-          return;
-        }
-
-        // 2. 對於一般帳號，向 Google Sheet 即時查詢其啟用狀態 (status) 與授權公司 (allowedCompanies)
-        const getUsersUrl = `${GAS_URL}?action=getUsers&_t=${Date.now()}`;
-        fetchGasJson(getUsersUrl, (uErr, uJson) => {
-          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*' });
-          if (!uErr && uJson && uJson.list) {
-            const matchedUser = uJson.list.find(u => String(u.username).trim().toLowerCase() === username.toLowerCase());
-            const currentStatus = matchedUser ? (matchedUser.status || '待審核') : '待審核';
-            if (currentStatus !== '啟用') {
-              console.log(`[Proxy] 登入拒絕 ❌ 帳號「${username}」狀態為【${currentStatus}】，尚未由超級管理者啟用`);
-              res.end(JSON.stringify({
-                success: false,
-                error: `此帳號目前為【${currentStatus}】狀態，尚未由超級管理者審核啟用，請聯繫管理員！`
-              }));
-              return;
-            }
-
-            if (json.user && matchedUser) {
-              json.user.fullName = matchedUser.fullName || json.user.fullName;
-              json.user.role = matchedUser.role || json.user.role || 'client';
-              json.user.status = currentStatus;
-              
-              const rawAllowed = matchedUser.allowedCompanies || '*';
-              if (rawAllowed === '*' || rawAllowed === '') {
-                json.user.allowedCompanies = ['*'];
-              } else if (Array.isArray(rawAllowed)) {
-                json.user.allowedCompanies = rawAllowed;
-              } else {
-                json.user.allowedCompanies = String(rawAllowed).split(',').map(c => c.trim()).filter(Boolean);
-              }
-            }
-          }
-          console.log(`[Proxy] 登入驗證通過 ✅ (${username})，授權公司:`, (json.user && json.user.allowedCompanies));
-          res.end(JSON.stringify(json));
-        });
+        console.log(`[Proxy] 登入驗證通過 ✅ (${username})，姓名: ${json.user && json.user.fullName}，角色: ${json.user && json.user.role}，授權公司:`, (json.user && json.user.allowedCompanies));
+        res.end(JSON.stringify(json));
       });
     });
     return;

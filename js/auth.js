@@ -87,6 +87,26 @@ class AuthService {
     return this.currentUser.role === 'editor' || this.currentUser.role === 'admin';
   }
 
+  /**
+   * 解密並還原伺服器回應 (支援端到端 AES 加密封包)
+   */
+  unwrap(res) {
+    if (!res) return res;
+    if (res.encrypted === true && res.data) {
+      if (typeof window !== 'undefined' && window.CryptoSecurity) {
+        try {
+          const decrypted = window.CryptoSecurity.decrypt(res.data);
+          if (decrypted !== undefined && decrypted !== null) {
+            return decrypted;
+          }
+        } catch (e) {
+          console.error('⚠️ [Auth] 解密伺服器封包失敗:', e);
+        }
+      }
+    }
+    return res;
+  }
+
   canViewCost() {
     return true;
   }
@@ -141,8 +161,9 @@ class AuthService {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username: u, password: p })
         });
-        const res = await resp.json();
-        if (res.success && res.user) {
+        const raw = await resp.json();
+        const res = this.unwrap(raw);
+        if (res && res.success && res.user) {
           const sessionUser = {
             username: res.user.username,
             fullName: res.user.fullName || res.user.username,
@@ -153,7 +174,7 @@ class AuthService {
           };
           this.saveSession(sessionUser);
           return { success: true, user: sessionUser, message: 'Google Sheet 驗證登入成功！' };
-        } else if (res.error) {
+        } else if (res && res.error) {
           return { success: false, error: res.error };
         }
       } catch (e) {
@@ -165,8 +186,9 @@ class AuthService {
     const gasUrl = (window.apiService && window.apiService.getApiUrl()) || 'https://script.google.com/macros/s/AKfycbwmyzhEWhd9ADvJ4LZe-GIwelQERa696zuRUsJMMZcQwc087z-AvW5AHkLIMjSBrXrL3A/exec';
     try {
       const resp = await fetch(`${gasUrl}?action=login&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}&_t=${Date.now()}`);
-      const res = await resp.json();
-      if (res.success && res.user) {
+      const raw = await resp.json();
+      const res = this.unwrap(raw);
+      if (res && res.success && res.user) {
         const sessionUser = {
           username: res.user.username,
           fullName: res.user.fullName || res.user.username,
@@ -177,7 +199,7 @@ class AuthService {
         };
         this.saveSession(sessionUser);
         return { success: true, user: sessionUser, message: 'Google Sheet 驗證登入成功！' };
-      } else if (res.error) {
+      } else if (res && res.error) {
         return { success: false, error: res.error };
       }
     } catch (e) {
@@ -218,15 +240,16 @@ class AuthService {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        const res = await resp.json();
-        if (res.success) {
+        const raw = await resp.json();
+        const res = this.unwrap(raw);
+        if (res && res.success) {
           return {
             success: true,
             isPending: true,
             message: res.message || '🎉 帳號申請已送出！目前狀態為【待審核】，需由超級管理者審核啟用後方可登入。'
           };
         } else {
-          return { success: false, error: res.error || 'Google Sheet 註冊失敗，請重試！' };
+          return { success: false, error: (res && res.error) || 'Google Sheet 註冊失敗，請重試！' };
         }
       } catch (e) {
         console.error('Proxy 註冊請求失敗:', e);
@@ -263,15 +286,16 @@ class AuthService {
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(postData)
         });
-        const res = await resp.json();
-        if (res.success) {
+        const raw = await resp.json();
+        const res = this.unwrap(raw);
+        if (res && res.success) {
           return {
             success: true,
             isPending: true,
             message: '🎉 帳號申請已送出！目前狀態為【待審核】，需由超級管理者審核啟用後方可登入。'
           };
         } else {
-          return { success: false, error: res.error || 'Google Sheet 註冊失敗！' };
+          return { success: false, error: (res && res.error) || 'Google Sheet 註冊失敗！' };
         }
       } catch (e) {
         console.error('Google Sheet 寫入註冊失敗:', e);
@@ -289,8 +313,9 @@ class AuthService {
     if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
       try {
         const resp = await fetch('/api/getUsers');
-        const res = await resp.json();
-        return res.list || [];
+        const raw = await resp.json();
+        const res = this.unwrap(raw);
+        return (res && res.list) || [];
       } catch (e) {
         console.error('Fetch users error:', e);
       }
@@ -299,8 +324,9 @@ class AuthService {
       try {
         const gasUrl = window.apiService.getApiUrl();
         const resp = await fetch(`${gasUrl}?action=getUsers&_t=${Date.now()}`);
-        const res = await resp.json();
-        return res.list || [];
+        const raw = await resp.json();
+        const res = this.unwrap(raw);
+        return (res && res.list) || [];
       } catch (e) {}
     }
     return [];
@@ -328,7 +354,8 @@ class AuthService {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        return await resp.json();
+        const raw = await resp.json();
+        return this.unwrap(raw);
       } catch (e) {
         console.error('Update user status error:', e);
       }

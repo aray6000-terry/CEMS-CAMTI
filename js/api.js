@@ -184,10 +184,10 @@ class ApiService {
       salesRep = defaultReps[item.company_name] || '業務專員';
     }
 
-    // 系統分類權威標準化 (優先 100% 採信資料庫填寫之值，絕不被設備名稱/型號反向覆蓋)
+    // 系統分類權威標準化 (只參考 system_type 分類，絕不參考設備名稱/型號)
     let brand = (item.brand || item.廠牌 || item.廠牌分類 || item.品牌 || '').toString().trim();
     let rawSys = (item.system_type || item.系統分類 || item.系統別 || '').toString().trim();
-    let sysType = this.canonicalSystemType(rawSys, item.device_name, item.model);
+    let sysType = this.canonicalSystemType(rawSys);
 
     if (!brand) {
       brand = this.extractBrand(item.model, item.device_name, sysType);
@@ -247,28 +247,20 @@ class ApiService {
   }
 
   /**
-   * 系統分類權威標準化 (優先 100% 採信資料庫已填寫值，僅在空白時透過名稱/型號智慧輔助推導)
+   * 系統分類權威標準化 (只參考 system_type 分類，絕不參考 device_name 設備名稱或型號)
    */
-  canonicalSystemType(rawType, deviceName, model) {
+  canonicalSystemType(rawType) {
     const s = String(rawType || '').trim();
-    if (s) {
-      const lower = s.toLowerCase();
-      if (lower.indexOf('門禁') !== -1 || lower.indexOf('刷卡') !== -1 || lower.indexOf('讀卡') !== -1 || lower.indexOf('閘門') !== -1 || lower.indexOf('access') !== -1) return '門禁系統';
-      if (lower.indexOf('燈控') !== -1 || lower.indexOf('照明') !== -1 || lower.indexOf('調光') !== -1 || lower.indexOf('燈光') !== -1 || lower.indexOf('light') !== -1) return '燈控系統';
-      if (lower.indexOf('攝影') !== -1 || lower.indexOf('監視') !== -1 || lower.indexOf('監控') !== -1 || lower.indexOf('cctv') !== -1 || lower.indexOf('camera') !== -1) return '攝影機系統';
-      if (lower.indexOf('鎖') !== -1 || lower.indexOf('lock') !== -1) return '電子鎖';
-      if (lower.indexOf('對講') !== -1 || lower.indexOf('intercom') !== -1) return '對講系統';
-      return s;
-    }
+    if (!s) return '對講系統';
 
-    const text = (String(deviceName || '') + ' ' + String(model || '')).toLowerCase();
-    if (text.indexOf('門禁') !== -1 || text.indexOf('刷卡') !== -1 || text.indexOf('讀卡') !== -1 || text.indexOf('閘門') !== -1 || text.indexOf('access') !== -1) return '門禁系統';
-    if (text.indexOf('燈控') !== -1 || text.indexOf('照明') !== -1 || text.indexOf('調光') !== -1 || text.indexOf('燈光') !== -1 || text.indexOf('light') !== -1) return '燈控系統';
-    if (text.indexOf('攝影') !== -1 || text.indexOf('監視') !== -1 || text.indexOf('監控') !== -1 || text.indexOf('cctv') !== -1 || text.indexOf('camera') !== -1) return '攝影機系統';
-    if (text.indexOf('鎖') !== -1 || text.indexOf('陽極') !== -1 || text.indexOf('磁力') !== -1 || text.indexOf('陰極') !== -1 || text.indexOf('lock') !== -1) return '電子鎖';
-    if (text.indexOf('對講') !== -1 || text.indexOf('門口機') !== -1 || text.indexOf('室內機') !== -1 || text.indexOf('總機') !== -1 || text.indexOf('intercom') !== -1) return '對講系統';
+    const lower = s.toLowerCase();
+    if (lower.indexOf('門禁') !== -1 || lower.indexOf('access') !== -1) return '門禁系統';
+    if (lower.indexOf('燈控') !== -1 || lower.indexOf('照明') !== -1 || lower.indexOf('調光') !== -1 || lower.indexOf('燈光') !== -1 || lower.indexOf('light') !== -1) return '燈控系統';
+    if (lower.indexOf('攝影') !== -1 || lower.indexOf('監視') !== -1 || lower.indexOf('監控') !== -1 || lower.indexOf('cctv') !== -1 || lower.indexOf('camera') !== -1) return '攝影機系統';
+    if (lower.indexOf('鎖') !== -1 || lower.indexOf('lock') !== -1) return '電子鎖';
+    if (lower.indexOf('對講') !== -1 || lower.indexOf('intercom') !== -1) return '對講系統';
 
-    return '對講系統';
+    return s;
   }
 
   isLiveMode() {

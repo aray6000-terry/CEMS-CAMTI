@@ -445,33 +445,22 @@ class AppStore {
   }
 
   /**
-   * 系統別名稱權威正規化 (優先 100% 採信資料庫已填寫值，相容「對講機」⇄「對講系統」、「攝影機」⇄「攝影機系統」等別名)
+   * 系統別名稱權威正規化 (只參考 system_type 分類，絕不參考 device_name 設備名稱或型號)
    */
-  normalizeSystemType(sys, item = null) {
-    let s = String(sys || '').trim();
-    
-    // 1. 若資料庫欄位已有明確字串，進行標準命名對照 (100% 尊重資料庫，絕不被設備名稱覆蓋)
-    if (s && s !== '未分類' && s !== 'undefined') {
-      const lower = s.toLowerCase();
-      if (lower.indexOf('門禁') !== -1 || lower.indexOf('刷卡') !== -1 || lower.indexOf('讀卡') !== -1 || lower.indexOf('閘門') !== -1 || lower.indexOf('access') !== -1) return '門禁系統';
-      if (lower.indexOf('燈控') !== -1 || lower.indexOf('照明') !== -1 || lower.indexOf('調光') !== -1 || lower.indexOf('燈光') !== -1 || lower.indexOf('light') !== -1) return '燈控系統';
-      if (lower.indexOf('攝影') !== -1 || lower.indexOf('監視') !== -1 || lower.indexOf('監控') !== -1 || lower.indexOf('cctv') !== -1 || lower.indexOf('camera') !== -1) return '攝影機系統';
-      if (lower.indexOf('鎖') !== -1 || lower.indexOf('lock') !== -1) return '電子鎖';
-      if (lower.indexOf('對講') !== -1 || lower.indexOf('intercom') !== -1) return '對講系統';
-      return s;
+  normalizeSystemType(sys) {
+    const s = String(sys || '').trim();
+    if (!s || s === '未分類' || s === 'undefined' || s === 'null') {
+      return '對講系統';
     }
-    
-    // 2. 僅在 sys 為空值時，才從設備名稱、型號、備註全方位智慧推導
-    if (item) {
-      const text = `${item.device_name || ''} ${item.model || ''} ${item.remarks || ''}`.trim().toLowerCase();
-      if (text.indexOf('門禁') !== -1 || text.indexOf('刷卡') !== -1 || text.indexOf('讀卡') !== -1 || text.indexOf('閘門') !== -1 || text.indexOf('access') !== -1) return '門禁系統';
-      if (text.indexOf('燈控') !== -1 || text.indexOf('照明') !== -1 || text.indexOf('調光') !== -1 || text.indexOf('燈光') !== -1 || text.indexOf('light') !== -1) return '燈控系統';
-      if (text.indexOf('攝影') !== -1 || text.indexOf('監視') !== -1 || text.indexOf('監控') !== -1 || text.indexOf('cctv') !== -1 || text.indexOf('camera') !== -1) return '攝影機系統';
-      if (text.indexOf('鎖') !== -1 || text.indexOf('陽極') !== -1 || text.indexOf('磁力') !== -1 || text.indexOf('陰極') !== -1 || text.indexOf('lock') !== -1) return '電子鎖';
-      if (text.indexOf('對講') !== -1 || text.indexOf('門口機') !== -1 || text.indexOf('室內機') !== -1 || text.indexOf('總機') !== -1 || text.indexOf('intercom') !== -1) return '對講系統';
-    }
-    
-    return '對講系統';
+
+    const lower = s.toLowerCase();
+    if (lower.indexOf('門禁') !== -1 || lower.indexOf('access') !== -1) return '門禁系統';
+    if (lower.indexOf('燈控') !== -1 || lower.indexOf('照明') !== -1 || lower.indexOf('調光') !== -1 || lower.indexOf('light') !== -1) return '燈控系統';
+    if (lower.indexOf('攝影') !== -1 || lower.indexOf('監視') !== -1 || lower.indexOf('監控') !== -1 || lower.indexOf('cctv') !== -1 || lower.indexOf('camera') !== -1) return '攝影機系統';
+    if (lower.indexOf('鎖') !== -1 || lower.indexOf('lock') !== -1) return '電子鎖';
+    if (lower.indexOf('對講') !== -1 || lower.indexOf('intercom') !== -1) return '對講系統';
+
+    return s;
   }
 
   /**
@@ -611,7 +600,7 @@ class AppStore {
       totalDeliveredQty += dQty;
       totalUndeliveredQty += uQty;
 
-      const sType = this.normalizeSystemType(item.system_type, item);
+      const sType = this.normalizeSystemType(item.system_type);
       if (sType === '對講系統' || sType === '對講機') intercomQty += q;
       if (sType === '門禁系統') accessQty += q;
       if (sType === '攝影機系統' || sType === '攝影機') cameraQty += q;
