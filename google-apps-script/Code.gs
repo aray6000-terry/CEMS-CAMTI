@@ -235,6 +235,55 @@ function createJsonResponse(data, callback, shouldEncrypt) {
 }
 
 /**
+ * 系統分類權威標準化 (優先 100% 採信資料庫已填寫值，僅在空白時透過名稱/型號智慧輔助推導)
+ */
+function canonicalSystemType(rawType, deviceName, model) {
+  var s = String(rawType || '').trim();
+  
+  // 1. 若資料庫已明確填寫系統分類，進行標準化命名對照 (100% 尊重資料庫，絕不被設備名稱覆蓋)
+  if (s) {
+    var lower = s.toLowerCase();
+    if (lower.indexOf('門禁') !== -1 || lower.indexOf('刷卡') !== -1 || lower.indexOf('讀卡') !== -1 || lower.indexOf('閘門') !== -1 || lower.indexOf('access') !== -1) {
+      return '門禁系統';
+    }
+    if (lower.indexOf('燈控') !== -1 || lower.indexOf('照明') !== -1 || lower.indexOf('調光') !== -1 || lower.indexOf('燈光') !== -1 || lower.indexOf('light') !== -1) {
+      return '燈控系統';
+    }
+    if (lower.indexOf('攝影') !== -1 || lower.indexOf('監視') !== -1 || lower.indexOf('監控') !== -1 || lower.indexOf('cctv') !== -1 || lower.indexOf('camera') !== -1) {
+      return '攝影機系統';
+    }
+    if (lower.indexOf('鎖') !== -1 || lower.indexOf('lock') !== -1) {
+      return '電子鎖';
+    }
+    if (lower.indexOf('對講') !== -1 || lower.indexOf('intercom') !== -1) {
+      return '對講系統';
+    }
+    // 若為其他合法自訂系統 (如「廣播系統」、「光纖網路」)，完整忠實保留
+    return s;
+  }
+
+  // 2. 僅在資料庫欄位為空時，才依據設備名稱與型號進行語意輔助推導
+  var text = (String(deviceName || '') + ' ' + String(model || '')).toLowerCase();
+  if (text.indexOf('門禁') !== -1 || text.indexOf('刷卡') !== -1 || text.indexOf('讀卡') !== -1 || text.indexOf('閘門') !== -1 || text.indexOf('access') !== -1) {
+    return '門禁系統';
+  }
+  if (text.indexOf('燈控') !== -1 || text.indexOf('照明') !== -1 || text.indexOf('調光') !== -1 || text.indexOf('燈光') !== -1 || text.indexOf('light') !== -1) {
+    return '燈控系統';
+  }
+  if (text.indexOf('攝影') !== -1 || text.indexOf('監視') !== -1 || text.indexOf('監控') !== -1 || text.indexOf('cctv') !== -1 || text.indexOf('camera') !== -1) {
+    return '攝影機系統';
+  }
+  if (text.indexOf('鎖') !== -1 || text.indexOf('陽極') !== -1 || text.indexOf('磁力') !== -1 || text.indexOf('陰極') !== -1 || text.indexOf('lock') !== -1) {
+    return '電子鎖';
+  }
+  if (text.indexOf('對講') !== -1 || text.indexOf('門口機') !== -1 || text.indexOf('室內機') !== -1 || text.indexOf('總機') !== -1 || text.indexOf('intercom') !== -1) {
+    return '對講系統';
+  }
+
+  return '對講系統';
+}
+
+/**
  * 設備工作表欄位名稱正規化對照表 (相容中文表頭與英文表頭)
  */
 function normalizeHeaderKey(rawHeader) {
@@ -815,27 +864,10 @@ function getEquipmentList(userCompanies) {
 
       // 補齊預設值與系統別名稱正規化容錯
       if (!item.id) item.id = 'EQ-' + sheetName + '-' + i;
-      // 智慧解析系統分類 (全方位從欄位、設備名稱、型號反向推導，徹底解決表頭不一致或落入預設值問題)
+      
+      // 權威標準化系統分類 (優先 100% 採信資料庫中已填寫之值，絕不被設備名稱/型號反向覆蓋)
       var rawType = String(item.system_type || (row.length > 5 ? row[5] : '') || '').trim();
-      var combinedText = (rawType + ' ' + (item.device_name || '') + ' ' + (item.model || '')).toLowerCase();
-
-      if (combinedText.indexOf('門禁') !== -1 || combinedText.indexOf('刷卡') !== -1 || combinedText.indexOf('讀卡') !== -1 || combinedText.indexOf('閘門') !== -1 || combinedText.indexOf('access') !== -1) {
-        item.system_type = '門禁系統';
-      } else if (combinedText.indexOf('燈控') !== -1 || combinedText.indexOf('照明') !== -1 || combinedText.indexOf('調光') !== -1 || combinedText.indexOf('燈光') !== -1 || combinedText.indexOf('light') !== -1) {
-        item.system_type = '燈控系統';
-      } else if (combinedText.indexOf('攝影') !== -1 || combinedText.indexOf('監視') !== -1 || combinedText.indexOf('監控') !== -1 || combinedText.indexOf('cctv') !== -1 || combinedText.indexOf('camera') !== -1) {
-        item.system_type = '攝影機系統';
-      } else if (combinedText.indexOf('鎖') !== -1 || combinedText.indexOf('陽極') !== -1 || combinedText.indexOf('磁力') !== -1 || combinedText.indexOf('陰極') !== -1 || combinedText.indexOf('lock') !== -1) {
-        item.system_type = '電子鎖';
-      } else if (combinedText.indexOf('對講') !== -1 || combinedText.indexOf('門口機') !== -1 || combinedText.indexOf('室內機') !== -1 || combinedText.indexOf('intercom') !== -1) {
-        item.system_type = '對講系統';
-      } else if (rawType === '對講機') {
-        item.system_type = '對講系統';
-      } else if (rawType === '攝影機') {
-        item.system_type = '攝影機系統';
-      } else {
-        item.system_type = rawType || '對講系統';
-      }
+      item.system_type = canonicalSystemType(rawType, item.device_name, item.model);
       if (!item.device_name) item.device_name = '設備項目 ' + i;
       
       const q = Number(item.quantity) || 1;
@@ -989,13 +1021,14 @@ function saveEquipment(item, username) {
 
   // 動態依照工作表表頭順序組裝資料，確保絕無欄位位移
   const targetHeaders = targetSheet.getRange(1, 1, 1, Math.max(targetSheet.getLastColumn(), 1)).getValues()[0].map(normalizeHeaderKey);
+  const savedSysType = canonicalSystemType(item.system_type, item.device_name, item.model);
   const valMap = {
     id: id,
     company_name: companyName,
     contract_id: item.contract_id || '',
     project_name: item.project_name || '',
     sales_rep: item.sales_rep || '',
-    system_type: item.system_type || '對講機',
+    system_type: savedSysType,
     brand: item.brand || '',
     device_name: item.device_name || '',
     model: item.model || '',
@@ -1013,7 +1046,7 @@ function saveEquipment(item, username) {
     ? targetHeaders.map(function(key) { return (valMap[key] !== undefined) ? valMap[key] : (item[key] || ''); })
     : [
       id, companyName, item.contract_id || '', item.project_name || '', item.sales_rep || '',
-      item.system_type || '對講機', item.brand || '', item.device_name || '', item.model || '', totalQty, deliveredQty,
+      savedSysType, item.brand || '', item.device_name || '', item.model || '', totalQty, deliveredQty,
       undeliveredQty, item.unit || '台', status, item.delivery_date || todayStr, item.remarks || '', todayStr
     ];
 

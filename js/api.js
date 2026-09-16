@@ -184,19 +184,10 @@ class ApiService {
       salesRep = defaultReps[item.company_name] || '業務專員';
     }
 
-    // 廠牌正規化 (若未填寫或舊資料，自動智慧推導)
+    // 系統分類權威標準化 (優先 100% 採信資料庫填寫之值，絕不被設備名稱/型號反向覆蓋)
     let brand = (item.brand || item.廠牌 || item.廠牌分類 || item.品牌 || '').toString().trim();
     let rawSys = (item.system_type || item.系統分類 || item.系統別 || '').toString().trim();
-    let combinedText = (rawSys + ' ' + (item.device_name || '') + ' ' + (item.model || '')).toLowerCase();
-    let sysType = '對講系統';
-    if (combinedText.indexOf('門禁') !== -1 || combinedText.indexOf('刷卡') !== -1 || combinedText.indexOf('讀卡') !== -1 || combinedText.indexOf('閘門') !== -1 || combinedText.indexOf('access') !== -1) sysType = '門禁系統';
-    else if (combinedText.indexOf('燈控') !== -1 || combinedText.indexOf('照明') !== -1 || combinedText.indexOf('調光') !== -1 || combinedText.indexOf('燈光') !== -1 || combinedText.indexOf('light') !== -1) sysType = '燈控系統';
-    else if (combinedText.indexOf('攝影') !== -1 || combinedText.indexOf('監視') !== -1 || combinedText.indexOf('監控') !== -1 || combinedText.indexOf('cctv') !== -1 || combinedText.indexOf('camera') !== -1) sysType = '攝影機系統';
-    else if (combinedText.indexOf('鎖') !== -1 || combinedText.indexOf('陽極') !== -1 || combinedText.indexOf('磁力') !== -1 || combinedText.indexOf('陰極') !== -1 || combinedText.indexOf('lock') !== -1) sysType = '電子鎖';
-    else if (combinedText.indexOf('對講') !== -1 || combinedText.indexOf('門口機') !== -1 || combinedText.indexOf('室內機') !== -1 || combinedText.indexOf('intercom') !== -1) sysType = '對講系統';
-    else if (rawSys === '對講機') sysType = '對講系統';
-    else if (rawSys === '攝影機') sysType = '攝影機系統';
-    else sysType = rawSys || '對講系統';
+    let sysType = this.canonicalSystemType(rawSys, item.device_name, item.model);
 
     if (!brand) {
       brand = this.extractBrand(item.model, item.device_name, sysType);
@@ -253,6 +244,31 @@ class ApiService {
     if (systemType === '燈控系統') return 'Lutron';
 
     return '標準廠牌';
+  }
+
+  /**
+   * 系統分類權威標準化 (優先 100% 採信資料庫已填寫值，僅在空白時透過名稱/型號智慧輔助推導)
+   */
+  canonicalSystemType(rawType, deviceName, model) {
+    const s = String(rawType || '').trim();
+    if (s) {
+      const lower = s.toLowerCase();
+      if (lower.indexOf('門禁') !== -1 || lower.indexOf('刷卡') !== -1 || lower.indexOf('讀卡') !== -1 || lower.indexOf('閘門') !== -1 || lower.indexOf('access') !== -1) return '門禁系統';
+      if (lower.indexOf('燈控') !== -1 || lower.indexOf('照明') !== -1 || lower.indexOf('調光') !== -1 || lower.indexOf('燈光') !== -1 || lower.indexOf('light') !== -1) return '燈控系統';
+      if (lower.indexOf('攝影') !== -1 || lower.indexOf('監視') !== -1 || lower.indexOf('監控') !== -1 || lower.indexOf('cctv') !== -1 || lower.indexOf('camera') !== -1) return '攝影機系統';
+      if (lower.indexOf('鎖') !== -1 || lower.indexOf('lock') !== -1) return '電子鎖';
+      if (lower.indexOf('對講') !== -1 || lower.indexOf('intercom') !== -1) return '對講系統';
+      return s;
+    }
+
+    const text = (String(deviceName || '') + ' ' + String(model || '')).toLowerCase();
+    if (text.indexOf('門禁') !== -1 || text.indexOf('刷卡') !== -1 || text.indexOf('讀卡') !== -1 || text.indexOf('閘門') !== -1 || text.indexOf('access') !== -1) return '門禁系統';
+    if (text.indexOf('燈控') !== -1 || text.indexOf('照明') !== -1 || text.indexOf('調光') !== -1 || text.indexOf('燈光') !== -1 || text.indexOf('light') !== -1) return '燈控系統';
+    if (text.indexOf('攝影') !== -1 || text.indexOf('監視') !== -1 || text.indexOf('監控') !== -1 || text.indexOf('cctv') !== -1 || text.indexOf('camera') !== -1) return '攝影機系統';
+    if (text.indexOf('鎖') !== -1 || text.indexOf('陽極') !== -1 || text.indexOf('磁力') !== -1 || text.indexOf('陰極') !== -1 || text.indexOf('lock') !== -1) return '電子鎖';
+    if (text.indexOf('對講') !== -1 || text.indexOf('門口機') !== -1 || text.indexOf('室內機') !== -1 || text.indexOf('總機') !== -1 || text.indexOf('intercom') !== -1) return '對講系統';
+
+    return '對講系統';
   }
 
   isLiveMode() {

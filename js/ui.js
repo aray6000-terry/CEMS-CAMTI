@@ -1104,8 +1104,8 @@ class UIManager {
             </div>
           </td>
           <td>
-            <span class="badge badge-system" data-sys="${item.system_type}">
-              <i class="fas ${sysIcon}"></i> ${item.system_type}
+            <span class="badge badge-system" data-sys="${normSys}">
+              <i class="fas ${sysIcon}"></i> ${normSys}
             </span>
           </td>
           <td>
@@ -1321,11 +1321,12 @@ class UIManager {
             `;
           }).join('');
 
+          const rowNormSys = store.normalizeSystemType(r.system_type, r);
           return `
             <tr>
               <td>
-                <span class="badge badge-system" data-sys="${r.system_type}">
-                  ${r.system_type}
+                <span class="badge badge-system" data-sys="${rowNormSys}">
+                  ${rowNormSys}
                 </span>
               </td>
               <td>

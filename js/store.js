@@ -8,7 +8,7 @@ class AppStore {
     this.companies = (window.apiService && window.apiService.getLocalCompanies) ? window.apiService.getLocalCompanies() : [];
     this.equipment = (window.apiService && window.apiService.getLocalEquipment) ? window.apiService.getLocalEquipment(['*']) : [];
     this.loading = false;
-    this.activeSystem = 'all'; // 'all', '對講機', '攝影機', '門禁系統', '電子鎖'
+    this.activeSystem = 'all'; // 'all', '對講系統', '門禁系統', '攝影機系統', '電子鎖', '燈控系統'
     
     // 清單過濾條件 (支援公司、系統分類、廠牌分類、型號、交貨狀態、年度區間、關鍵字)
     this.filters = {
@@ -24,7 +24,7 @@ class AppStore {
     // 3-5年年度分析報表過濾條件 (支援公司、系統、廠牌、型號多層級連動)
     this.reportFilters = {
       company: 'all',
-      system: 'all',           // 'all', '對講機', '攝影機', '門禁系統', '電子鎖'
+      system: 'all',           // 'all', '對講系統', '門禁系統', '攝影機系統', '電子鎖', '燈控系統'
       brand: 'all',            // 'all' 或特定廠牌
       model: 'all',            // 'all' 或特定型號
       deliveryStatus: 'all',   // 'all', '已交貨', '未交貨'
@@ -398,8 +398,10 @@ class AppStore {
    */
   getAllUniqueBrands(systemType = null) {
     const brandsSet = new Set();
+    const targetSys = systemType && systemType !== 'all' ? this.normalizeSystemType(systemType) : null;
     this.equipment.forEach(item => {
-      if (!systemType || systemType === 'all' || item.system_type === systemType) {
+      const itemSys = this.normalizeSystemType(item.system_type, item);
+      if (!targetSys || itemSys === targetSys) {
         const b = (item.brand || '').trim();
         if (b) brandsSet.add(b);
       }
@@ -443,23 +445,33 @@ class AppStore {
   }
 
   /**
-   * 系統別名稱容錯正規化 (相容「門禁」與「門禁系統」、「燈控」與「燈控系統」)
+   * 系統別名稱權威正規化 (優先 100% 採信資料庫已填寫值，相容「對講機」⇄「對講系統」、「攝影機」⇄「攝影機系統」等別名)
    */
   normalizeSystemType(sys, item = null) {
-    let s = String(sys || '').trim().toLowerCase();
+    let s = String(sys || '').trim();
     
-    // 若 sys 為空，但有傳入 item，自動從設備名稱、型號、備註全方位推導
-    if ((!s || s === '未分類' || s === 'undefined') && item) {
-      s = `${item.system_type || ''} ${item.device_name || ''} ${item.model || ''} ${item.remarks || ''}`.trim().toLowerCase();
+    // 1. 若資料庫欄位已有明確字串，進行標準命名對照 (100% 尊重資料庫，絕不被設備名稱覆蓋)
+    if (s && s !== '未分類' && s !== 'undefined') {
+      const lower = s.toLowerCase();
+      if (lower.indexOf('門禁') !== -1 || lower.indexOf('刷卡') !== -1 || lower.indexOf('讀卡') !== -1 || lower.indexOf('閘門') !== -1 || lower.indexOf('access') !== -1) return '門禁系統';
+      if (lower.indexOf('燈控') !== -1 || lower.indexOf('照明') !== -1 || lower.indexOf('調光') !== -1 || lower.indexOf('燈光') !== -1 || lower.indexOf('light') !== -1) return '燈控系統';
+      if (lower.indexOf('攝影') !== -1 || lower.indexOf('監視') !== -1 || lower.indexOf('監控') !== -1 || lower.indexOf('cctv') !== -1 || lower.indexOf('camera') !== -1) return '攝影機系統';
+      if (lower.indexOf('鎖') !== -1 || lower.indexOf('lock') !== -1) return '電子鎖';
+      if (lower.indexOf('對講') !== -1 || lower.indexOf('intercom') !== -1) return '對講系統';
+      return s;
     }
-
-    if (s.indexOf('門禁') !== -1 || s.indexOf('刷卡') !== -1 || s.indexOf('讀卡') !== -1 || s.indexOf('讀頭') !== -1 || s.indexOf('電梯管制') !== -1 || s.indexOf('樓層管制') !== -1 || s.indexOf('閘門') !== -1 || s.indexOf('access') !== -1) return '門禁系統';
-    if (s.indexOf('燈控') !== -1 || s.indexOf('照明') !== -1 || s.indexOf('調光') !== -1 || s.indexOf('燈光') !== -1 || s.indexOf('迴路') !== -1 || s.indexOf('light') !== -1 || s.indexOf('lutron') !== -1 || s.indexOf('schneider') !== -1) return '燈控系統';
-    if (s.indexOf('攝影') !== -1 || s.indexOf('監視') !== -1 || s.indexOf('監控') !== -1 || s.indexOf('cctv') !== -1 || s.indexOf('camera') !== -1 || s.indexOf('錄影') !== -1) return '攝影機系統';
-    if (s.indexOf('對講') !== -1 || s.indexOf('門口機') !== -1 || s.indexOf('室內機') !== -1 || s.indexOf('總機') !== -1 || s.indexOf('intercom') !== -1) return '對講系統';
-    if (s.indexOf('鎖') !== -1 || s.indexOf('陽極') !== -1 || s.indexOf('磁力') !== -1 || s.indexOf('陰極') !== -1 || s.indexOf('lock') !== -1) return '電子鎖';
     
-    return String(sys || '').trim();
+    // 2. 僅在 sys 為空值時，才從設備名稱、型號、備註全方位智慧推導
+    if (item) {
+      const text = `${item.device_name || ''} ${item.model || ''} ${item.remarks || ''}`.trim().toLowerCase();
+      if (text.indexOf('門禁') !== -1 || text.indexOf('刷卡') !== -1 || text.indexOf('讀卡') !== -1 || text.indexOf('閘門') !== -1 || text.indexOf('access') !== -1) return '門禁系統';
+      if (text.indexOf('燈控') !== -1 || text.indexOf('照明') !== -1 || text.indexOf('調光') !== -1 || text.indexOf('燈光') !== -1 || text.indexOf('light') !== -1) return '燈控系統';
+      if (text.indexOf('攝影') !== -1 || text.indexOf('監視') !== -1 || text.indexOf('監控') !== -1 || text.indexOf('cctv') !== -1 || text.indexOf('camera') !== -1) return '攝影機系統';
+      if (text.indexOf('鎖') !== -1 || text.indexOf('陽極') !== -1 || text.indexOf('磁力') !== -1 || text.indexOf('陰極') !== -1 || text.indexOf('lock') !== -1) return '電子鎖';
+      if (text.indexOf('對講') !== -1 || text.indexOf('門口機') !== -1 || text.indexOf('室內機') !== -1 || text.indexOf('總機') !== -1 || text.indexOf('intercom') !== -1) return '對講系統';
+    }
+    
+    return '對講系統';
   }
 
   /**
@@ -764,14 +776,15 @@ class AppStore {
     // 各型號詳細交貨矩陣明細
     const modelGroups = {};
     accessibleEquipment.forEach(item => {
-      const key = `${item.system_type}__${item.brand || '標準廠牌'}__${item.model || '未標示型號'}__${item.project_name || '未指定建案'}`;
+      const normSys = this.normalizeSystemType(item.system_type, item);
+      const key = `${normSys}__${item.brand || '標準廠牌'}__${item.model || '未標示型號'}__${item.project_name || '未指定建案'}`;
       const q = Number(item.quantity) || 1;
       const dQty = Number(item.delivered_qty) !== undefined ? Number(item.delivered_qty) : (item.delivery_status === '已交貨' ? q : 0);
       const uQty = Number(item.undelivered_qty) !== undefined ? Number(item.undelivered_qty) : (q - dQty);
 
       if (!modelGroups[key]) {
         modelGroups[key] = {
-          system_type: item.system_type,
+          system_type: normSys,
           brand: item.brand || '標準廠牌',
           model: item.model || '標準通用型',
           device_name: item.device_name,

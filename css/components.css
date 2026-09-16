@@ -631,9 +631,9 @@ select.form-control {
 }
 .badge-system[data-sys="對講系統"], .badge-system[data-sys="對講機"] { background: rgba(14, 165, 233, 0.15); color: #38bdf8; border-color: rgba(14, 165, 233, 0.3); }
 .badge-system[data-sys="攝影機系統"], .badge-system[data-sys="攝影機"] { background: rgba(139, 92, 246, 0.15); color: #c084fc; border-color: rgba(139, 92, 246, 0.3); }
-.badge-system[data-sys="門禁系統"] { background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
+.badge-system[data-sys="門禁系統"], .badge-system[data-sys="門禁"] { background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
 .badge-system[data-sys="電子鎖"] { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); }
-.badge-system[data-sys="燈控系統"] { background: rgba(244, 63, 94, 0.15); color: #fb7185; border-color: rgba(244, 63, 94, 0.3); }
+.badge-system[data-sys="燈控系統"], .badge-system[data-sys="燈控"] { background: rgba(244, 63, 94, 0.15); color: #fb7185; border-color: rgba(244, 63, 94, 0.3); }
 
 .badge-status-normal {
   background: var(--status-normal-bg);
