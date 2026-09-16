@@ -81,11 +81,11 @@ const server = http.createServer((req, res) => {
   const parsed = url.parse(req.url, true);
   let reqPath = decodeURIComponent(parsed.pathname || '/');
 
-  // 1. 本地伺服器 Proxy 路由
+  // 1. 本地伺服器 Proxy 路由 (支援端到端加密通道轉發)
   if (reqPath === '/api/getEquipment') {
     const companies = (parsed.query && parsed.query.companies) ? parsed.query.companies : '*';
-    const targetUrl = `${GAS_URL}?action=getEquipment&companies=${encodeURIComponent(companies)}&_t=${Date.now()}`;
-    console.log(`[Proxy] 正在向 Google Sheet 請求設備資料 (companies: ${companies})...`);
+    const targetUrl = `${GAS_URL}?action=getEquipment&companies=${encodeURIComponent(companies)}&encrypt=true&_t=${Date.now()}`;
+    console.log(`[Proxy] 正在向 Google Sheet 請求加密設備資料 (companies: ${companies})...`);
     fetchGasJson(targetUrl, (err, json) => {
       res.writeHead(200, {
         'Content-Type': 'application/json; charset=utf-8',
@@ -101,7 +101,7 @@ const server = http.createServer((req, res) => {
   }
 
   if (reqPath === '/api/getCompanies') {
-    const targetUrl = `${GAS_URL}?action=getCompanies&_t=${Date.now()}`;
+    const targetUrl = `${GAS_URL}?action=getCompanies&encrypt=true&_t=${Date.now()}`;
     fetchGasJson(targetUrl, (err, json) => {
       res.writeHead(200, {
         'Content-Type': 'application/json; charset=utf-8',
@@ -118,7 +118,7 @@ const server = http.createServer((req, res) => {
 
   // 取得使用者清單 (供超級管理者審核)
   if (reqPath === '/api/getUsers') {
-    const targetUrl = `${GAS_URL}?action=getUsers&_t=${Date.now()}`;
+    const targetUrl = `${GAS_URL}?action=getUsers&encrypt=true&_t=${Date.now()}`;
     fetchGasJson(targetUrl, (err, json) => {
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*' });
       if (err) {
@@ -130,15 +130,15 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // 儲存/新增設備 Proxy
+  // 儲存/新增設備 Proxy (支援加密透傳)
   if (reqPath === '/api/saveEquipment') {
     let body = '';
     req.on('data', chunk => { body += chunk; });
     req.on('end', () => {
       let params = {};
       try { params = JSON.parse(body); } catch (e) { params = {}; }
-      console.log(`[Proxy] 正在儲存設備至 Google Sheet:`, params.data ? params.data.device_name : '');
-      const payload = {
+      console.log(`[Proxy] 正在儲存設備至 Google Sheet:`, params.data ? (params.data.device_name || '已加密封包') : '');
+      const payload = params.encrypted ? params : {
         action: 'saveEquipment',
         data: params.data,
         username: params.username || 'admin'
@@ -148,22 +148,22 @@ const server = http.createServer((req, res) => {
         if (!err && json) {
           res.end(JSON.stringify(json));
         } else {
-          res.end(JSON.stringify({ success: false, error: (err && err.message) || '儲存失敗' }));
+          res.end(JSON.stringify({ success: false, error: err ? err.message : '連線逾時' }));
         }
       });
     });
     return;
   }
 
-  // 刪除設備 Proxy
+  // 刪除設備 Proxy (支援加密透傳)
   if (reqPath === '/api/deleteEquipment') {
     let body = '';
     req.on('data', chunk => { body += chunk; });
     req.on('end', () => {
       let params = {};
       try { params = JSON.parse(body); } catch (e) { params = {}; }
-      console.log(`[Proxy] 正在從 Google Sheet 刪除設備 ID:`, params.id);
-      const payload = {
+      console.log(`[Proxy] 正在從 Google Sheet 刪除設備:`, params.encrypted ? '已加密封包' : ('ID: ' + params.id));
+      const payload = params.encrypted ? params : {
         action: 'deleteEquipment',
         id: params.id,
         username: params.username || 'admin'

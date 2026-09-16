@@ -47,7 +47,27 @@ class ApiService {
   }
 
   /**
-   * 真正可靠的 JSONP 跨域穿透抓取工具 (突破 GitHub Pages 與瀏覽器 CORS / 302 限制)
+   * 智慧解密與反序列化回應封包
+   * 若後端回傳加密信封 { encrypted: true, data: "..." }，自動解密還原為原始物件/陣列
+   * 若為傳統未加密回應，則保持原樣（全相容）
+   */
+  unwrapResponse(res) {
+    if (!res) return res;
+    if (res.encrypted === true && res.data && typeof window !== 'undefined' && window.CryptoSecurity) {
+      try {
+        const decrypted = window.CryptoSecurity.decrypt(res.data);
+        if (decrypted !== undefined && decrypted !== null) {
+          return decrypted;
+        }
+      } catch (err) {
+        console.error('⚠️ 解密後端回應封包失敗:', err);
+      }
+    }
+    return res;
+  }
+
+  /**
+   * 真正可靠的 JSONP 跨域穿透抓取工具 (突破 GitHub Pages 與瀏覽器 CORS / 302 限制，支援自動解密)
    */
   fetchJsonp(url, timeoutMs = 45000) {
     return new Promise((resolve, reject) => {
@@ -55,11 +75,11 @@ class ApiService {
       let timer = null;
       const script = document.createElement('script');
       
-      window[callbackName] = function(data) {
+      window[callbackName] = (data) => {
         if (timer) clearTimeout(timer);
         if (script.parentNode) script.parentNode.removeChild(script);
         delete window[callbackName];
-        resolve(data);
+        resolve(this.unwrapResponse(data));
       };
 
       script.onerror = function(err) {
@@ -244,55 +264,21 @@ class ApiService {
     localStorage.setItem(this.API_URL_KEY, this.apiUrl);
   }
 
-  /**
-   * JSONP 跨域動態腳本請求 (完全不受瀏覽器 CORS 與 302 導向限制，100% 成功跨域取得資料)
-   */
-  fetchJsonp(url) {
-    return new Promise((resolve, reject) => {
-      const callbackName = 'gas_cb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
-      const script = document.createElement('script');
-      const delimiter = url.includes('?') ? '&' : '?';
-      script.src = `${url}${delimiter}callback=${callbackName}`;
-      
-      const timeoutId = setTimeout(() => {
-        cleanup();
-        reject(new Error('JSONP 請求超時'));
-      }, 25000);
-
-      function cleanup() {
-        if (script.parentNode) script.parentNode.removeChild(script);
-        delete window[callbackName];
-        clearTimeout(timeoutId);
-      }
-
-      window[callbackName] = (data) => {
-        cleanup();
-        resolve(data);
-      };
-
-      script.onerror = () => {
-        cleanup();
-        reject(new Error('JSONP 跨域腳本載入失敗'));
-      };
-
-      document.body.appendChild(script);
-    });
-  }
-
   getApiUrl() {
     return this.apiUrl;
   }
 
   /**
-   * 測試 Google Apps Script Web App 連線
+   * 測試 Google Apps Script Web App 連線 (支援端到端加密通道驗證)
    */
   async testConnection(testUrl) {
     const url = testUrl || this.apiUrl;
     if (!url) return { success: false, error: '請輸入 Google Apps Script 部署網址' };
 
     try {
-      const resp = await fetch(`${url}?action=ping`, { method: 'GET' });
-      const data = await resp.json();
+      const resp = await fetch(`${url}?action=ping&encrypt=true&_t=${Date.now()}`, { method: 'GET' });
+      const raw = await resp.json();
+      const data = this.unwrapResponse(raw);
       return data;
     } catch (e) {
       return { success: false, error: '連線失敗：' + e.message + ' (請確認已部署為 Web App 且權限設為 Anyone)' };
@@ -337,17 +323,18 @@ class ApiService {
   }
 
   /**
-   * 取得公司清單 (即時從 Google Sheet 同步，支援防快取)
+   * 取得公司清單 (即時從 Google Sheet 同步，支援端到端加密與防快取)
    */
   async getCompanies() {
     // 1. 若在本地伺服器環境，優先透過 Local Proxy 同步
     if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
       try {
-        console.log('📡 透過 Local Proxy 同步 16 家公司清單...');
-        const resp = await fetch(`/api/getCompanies?_t=${Date.now()}`);
-        const res = await resp.json();
+        console.log('📡 透過 Local Proxy 同步 18 家公司清單 (加密通道)...');
+        const resp = await fetch(`/api/getCompanies?encrypt=true&_t=${Date.now()}`);
+        const raw = await resp.json();
+        const res = this.unwrapResponse(raw);
         if (res.success && Array.isArray(res.list) && res.list.length > 0) {
-          console.log(`✅ [Proxy] 成功取得 ${res.list.length} 家公司資料`);
+          console.log(`✅ [Proxy] 成功取得 ${res.list.length} 家公司資料 (已安全解密)`);
           try { localStorage.setItem(this.COMPANIES_KEY, JSON.stringify(res.list)); } catch (e) {}
           return res.list;
         }
@@ -358,25 +345,27 @@ class ApiService {
 
     // 2. 直連 Google Apps Script Web App (優先 Fetch，遇限制自動切換 JSONP 穿透)
     if (this.isLiveMode()) {
-      const liveUrl = `${this.apiUrl}?action=getCompanies&_t=${Date.now()}`;
+      const liveUrl = `${this.apiUrl}?action=getCompanies&encrypt=true&_t=${Date.now()}`;
       try {
-        console.log('📡 正在直連 Google Sheet 同步 18 家公司資料...');
+        console.log('📡 正在直連 Google Sheet 同步 18 家公司資料 (端到端加密通道)...');
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 45000);
         const resp = await fetch(liveUrl, { method: 'GET', mode: 'cors', redirect: 'follow', signal: controller.signal });
         clearTimeout(timeoutId);
-        const res = await resp.json();
+        const raw = await resp.json();
+        const res = this.unwrapResponse(raw);
         if (res.success && Array.isArray(res.list) && res.list.length > 0) {
-          console.log(`✅ [Fetch] 成功從 Google Sheet 取得 ${res.list.length} 家公司資料`);
+          console.log(`✅ [Fetch] 成功從 Google Sheet 取得 ${res.list.length} 家公司資料 (已安全解密)`);
           try { localStorage.setItem(this.COMPANIES_KEY, JSON.stringify(res.list)); } catch (e) {}
           return res.list;
         }
       } catch (fetchErr) {
         console.warn('getCompanies Fetch 遇到限制，立即啟動 JSONP 穿透:', fetchErr);
         try {
-          const res = await this.fetchJsonp(liveUrl, 45000);
+          const raw = await this.fetchJsonp(liveUrl, 45000);
+          const res = this.unwrapResponse(raw);
           if (res && res.success && Array.isArray(res.list) && res.list.length > 0) {
-            console.log(`✅ [JSONP] 成功從 Google Sheet 穿透取得 ${res.list.length} 家公司資料！`);
+            console.log(`✅ [JSONP] 成功從 Google Sheet 穿透取得 ${res.list.length} 家公司資料 (已安全解密)！`);
             try { localStorage.setItem(this.COMPANIES_KEY, JSON.stringify(res.list)); } catch (e) {}
             return res.list;
           }
@@ -389,7 +378,7 @@ class ApiService {
   }
 
   /**
-   * 取得設備資料 (即時從 Google Sheet 各公司工作表分頁同步，支援防快取)
+   * 取得設備資料 (即時從 Google Sheet 各公司工作表分頁同步，支援端到端加密與防快取)
    */
   async getEquipment(allowedCompanies = []) {
     const isAll = allowedCompanies.includes('*') || allowedCompanies.length === 0;
@@ -398,11 +387,12 @@ class ApiService {
     // 1. 若在本地伺服器環境，優先透過 Local Proxy 同步
     if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
       try {
-        console.log(`📡 透過 Local Proxy 同步設備清單 (公司: ${companyParam})...`);
-        const resp = await fetch(`/api/getEquipment?companies=${encodeURIComponent(companyParam)}&_t=${Date.now()}`);
-        const res = await resp.json();
+        console.log(`📡 透過 Local Proxy 同步設備清單 (公司: ${companyParam}, 加密通道)...`);
+        const resp = await fetch(`/api/getEquipment?companies=${encodeURIComponent(companyParam)}&encrypt=true&_t=${Date.now()}`);
+        const raw = await resp.json();
+        const res = this.unwrapResponse(raw);
         if (res.success && Array.isArray(res.list)) {
-          console.log(`✅ [Proxy] 成功取得 ${res.list.length} 筆設備資料`);
+          console.log(`✅ [Proxy] 成功取得 ${res.list.length} 筆設備資料 (已安全解密)`);
           const list = res.list.map(item => this.normalizeItem(item));
           if (isAll && list.length > 0) {
             try { localStorage.setItem(this.DATA_STORAGE_KEY, JSON.stringify(list)); } catch (e) {}
@@ -416,16 +406,17 @@ class ApiService {
 
     // 2. 直連 Google Apps Script Web App (優先 Fetch，遇跨域或302自動無縫切換 JSONP 穿透)
     if (this.isLiveMode()) {
-      const liveUrl = `${this.apiUrl}?action=getEquipment&companies=${encodeURIComponent(companyParam)}&_t=${Date.now()}`;
+      const liveUrl = `${this.apiUrl}?action=getEquipment&companies=${encodeURIComponent(companyParam)}&encrypt=true&_t=${Date.now()}`;
       try {
-        console.log(`📡 正在直連 Google Sheet 同步設備清單 (公司: ${companyParam})...`);
+        console.log(`📡 正在直連 Google Sheet 同步設備清單 (公司: ${companyParam}, 端到端加密通道)...`);
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 45000);
         const resp = await fetch(liveUrl, { method: 'GET', mode: 'cors', redirect: 'follow', signal: controller.signal });
         clearTimeout(timeoutId);
-        const res = await resp.json();
+        const raw = await resp.json();
+        const res = this.unwrapResponse(raw);
         if (res.success && Array.isArray(res.list)) {
-          console.log(`✅ [Fetch] 成功從 Google Sheet 取得 ${res.list.length} 筆設備資料`);
+          console.log(`✅ [Fetch] 成功從 Google Sheet 取得 ${res.list.length} 筆設備資料 (已安全解密)`);
           const list = res.list.map(item => this.normalizeItem(item));
           if (isAll && list.length > 0) {
             try { localStorage.setItem(this.DATA_STORAGE_KEY, JSON.stringify(list)); } catch (e) {}
@@ -435,9 +426,10 @@ class ApiService {
       } catch (fetchErr) {
         console.warn('Fetch 遇到跨域或導向限制，立即啟動 JSONP 穿透載入:', fetchErr);
         try {
-          const res = await this.fetchJsonp(liveUrl, 45000);
+          const raw = await this.fetchJsonp(liveUrl, 45000);
+          const res = this.unwrapResponse(raw);
           if (res && res.success && Array.isArray(res.list)) {
-            console.log(`✅ [JSONP] 成功從 Google Sheet 穿透取得 ${res.list.length} 筆設備資料！`);
+            console.log(`✅ [JSONP] 成功從 Google Sheet 穿透取得 ${res.list.length} 筆設備資料 (已安全解密)！`);
             const list = res.list.map(item => this.normalizeItem(item));
             if (isAll && list.length > 0) {
               try { localStorage.setItem(this.DATA_STORAGE_KEY, JSON.stringify(list)); } catch (e) {}
@@ -538,19 +530,32 @@ class ApiService {
       }
     }
 
-    // 3. 直連 Google Apps Script Web App (使用 text/plain 免除 OPTIONS preflight 阻擋)
+    // 3. 直連 Google Apps Script Web App (端到端加密發送，text/plain 免除 OPTIONS preflight 阻擋)
     if (this.isLiveMode()) {
       try {
+        const payload = {
+          action: 'saveEquipment',
+          data: normalized,
+          username: username
+        };
+        let postBody = payload;
+        if (typeof window !== 'undefined' && window.CryptoSecurity) {
+          try {
+            postBody = {
+              encrypted: true,
+              data: window.CryptoSecurity.encrypt(payload)
+            };
+          } catch (encErr) {
+            postBody = payload;
+          }
+        }
         const resp = await fetch(this.apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({
-            action: 'saveEquipment',
-            data: normalized,
-            username: username
-          })
+          body: JSON.stringify(postBody)
         });
-        const res = await resp.json();
+        const raw = await resp.json();
+        const res = this.unwrapResponse(raw);
         return { success: true, item: normalized, remote: res };
       } catch (e) {
         console.warn('Live API save failed, saved to local store:', e);
@@ -584,21 +589,34 @@ class ApiService {
   }
 
   /**
-   * 刪除設備
+   * 刪除設備 (支援端到端加密通道)
    */
   async deleteEquipment(id, username = 'admin') {
     if (this.isLiveMode()) {
       try {
+        const payload = {
+          action: 'deleteEquipment',
+          id: id,
+          username: username
+        };
+        let postBody = payload;
+        if (typeof window !== 'undefined' && window.CryptoSecurity) {
+          try {
+            postBody = {
+              encrypted: true,
+              data: window.CryptoSecurity.encrypt(payload)
+            };
+          } catch (encErr) {
+            postBody = payload;
+          }
+        }
         const resp = await fetch(this.apiUrl, {
           method: 'POST',
-          body: JSON.stringify({
-            action: 'deleteEquipment',
-            id: id,
-            username: username
-          })
+          body: JSON.stringify(postBody)
         });
-        const res = await resp.json();
-        if (res.success) return res;
+        const raw = await resp.json();
+        const res = this.unwrapResponse(raw);
+        if (res && res.success) return res;
       } catch (e) {
         console.warn('Live API delete failed, deleting from local store:', e);
       }
