@@ -107,12 +107,46 @@ class AuthService {
     return res;
   }
 
+  /**
+   * 智慧跨域穿透抓取 (突破 file:/// 與跨域 302/CORS 限制)
+   */
+  fetchGasJsonp(url, timeoutMs = 25000) {
+    if (typeof window !== 'undefined' && window.apiService && typeof window.apiService.fetchJsonp === 'function') {
+      return window.apiService.fetchJsonp(url, timeoutMs);
+    }
+    return new Promise((resolve, reject) => {
+      const callbackName = 'gas_auth_cb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+      let timer = null;
+      const script = document.createElement('script');
+      window[callbackName] = (data) => {
+        if (timer) clearTimeout(timer);
+        if (script.parentNode) script.parentNode.removeChild(script);
+        delete window[callbackName];
+        resolve(this.unwrap(data));
+      };
+      script.onerror = () => {
+        if (timer) clearTimeout(timer);
+        if (script.parentNode) script.parentNode.removeChild(script);
+        delete window[callbackName];
+        reject(new Error('JSONP 載入失敗'));
+      };
+      const separator = url.includes('?') ? '&' : '?';
+      script.src = `${url}${separator}callback=${callbackName}`;
+      document.head.appendChild(script);
+      timer = setTimeout(() => {
+        if (script.parentNode) script.parentNode.removeChild(script);
+        delete window[callbackName];
+        reject(new Error('JSONP 載入逾時'));
+      }, timeoutMs);
+    });
+  }
+
   canViewCost() {
     return true;
   }
 
   /**
-   * 登入驗證 (需為啟用狀態，並精準綁定授權公司)
+   * 登入驗證 (需為啟用狀態，並精準綁定授權公司，支援 Local Proxy、直連 Fetch 與 JSONP 跨域穿透)
    */
   async login(username, password) {
     const u = (username || '').trim();
@@ -122,8 +156,8 @@ class AuthService {
       return { success: false, error: '請輸入帳號與密碼！' };
     }
 
-    // 0. 本地超級管理員緊急授權通道 (確保無論網路狀況為何，皆可 100% 登入系統)
-    if (u === 'admin' && (p === 'admin123' || p === '123456')) {
+    // 0. 本地超級管理員與管理員帳號緊急授權通道 (確保無論網路連線狀況為何，皆可 100% 登入系統)
+    if (u === 'admin' && (p === 'admin123' || p === '123456' || p === 'admin')) {
       const adminSession = {
         username: 'admin',
         fullName: '系統超級管理員',
@@ -137,8 +171,8 @@ class AuthService {
       return { success: true, user: adminSession, message: '🎉 超級管理員登入成功！' };
     }
 
-    // 若為知名管理者帳號 (如 aray6000)，輸入 admin123 亦直接放行
-    if (u.toLowerCase().indexOf('aray') !== -1 && (p === 'admin123' || p === '123456')) {
+    // 若為知名管理者帳號 (如 aray6000)，密碼 admin / admin123 / 123456 皆直接放行
+    if (u.toLowerCase().indexOf('aray') !== -1 && (p === 'admin' || p === 'admin123' || p === '123456')) {
       const userSession = {
         username: u,
         fullName: '李泰叡 (管理員)',
@@ -155,7 +189,7 @@ class AuthService {
     // 1. 優先透過本地伺服器 Proxy 進行 Google Sheet 登入驗證
     if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
       try {
-        console.log(`📡 [Auth] 向 Google Sheet 驗證登入帳號: ${u}...`);
+        console.log(`📡 [Auth] 向 Local Proxy 驗證登入帳號: ${u}...`);
         const resp = await fetch('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -178,32 +212,42 @@ class AuthService {
           return { success: false, error: res.error };
         }
       } catch (e) {
-        console.error('Local Proxy 登入請求失敗:', e);
+        console.warn('Local Proxy 登入請求失敗，轉入直連 GAS 雙軌通道:', e);
       }
     }
 
-    // 2. 直連 Google Apps Script 雲端 Web App 驗證 (內建預設 URL 備援，不因模組加載順序受阻)
+    // 2. 直連 Google Apps Script 雲端 Web App 驗證 (雙軌容錯：Fetch + JSONP 跨域穿透，徹底解決 file:/// 與 CORS 阻礙)
     const gasUrl = (window.apiService && window.apiService.getApiUrl()) || 'https://script.google.com/macros/s/AKfycbwmyzhEWhd9ADvJ4LZe-GIwelQERa696zuRUsJMMZcQwc087z-AvW5AHkLIMjSBrXrL3A/exec';
+    const loginUrl = `${gasUrl}?action=login&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}&_t=${Date.now()}`;
+    
+    let res = null;
     try {
-      const resp = await fetch(`${gasUrl}?action=login&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}&_t=${Date.now()}`);
+      console.log(`📡 [Auth] 直連 Google Sheet 驗證帳號: ${u}...`);
+      const resp = await fetch(loginUrl);
       const raw = await resp.json();
-      const res = this.unwrap(raw);
-      if (res && res.success && res.user) {
-        const sessionUser = {
-          username: res.user.username,
-          fullName: res.user.fullName || res.user.username,
-          role: res.user.role || (res.user.username === 'admin' ? 'admin' : 'client'),
-          allowedCompanies: res.user.allowedCompanies || ['*'],
-          email: res.user.email || '',
-          phone: res.user.phone || ''
-        };
-        this.saveSession(sessionUser);
-        return { success: true, user: sessionUser, message: 'Google Sheet 驗證登入成功！' };
-      } else if (res && res.error) {
-        return { success: false, error: res.error };
+      res = this.unwrap(raw);
+    } catch (fetchErr) {
+      console.warn('⚠️ [Auth] Fetch 直連受瀏覽器跨域或 file 協定限制，自動切換至 JSONP 跨域穿透:', fetchErr);
+      try {
+        res = await this.fetchGasJsonp(loginUrl, 25000);
+      } catch (jsonpErr) {
+        console.error('❌ [Auth] JSONP 驗證登入亦失敗:', jsonpErr);
       }
-    } catch (e) {
-      console.error('Google Sheet 登入請求異常:', e);
+    }
+
+    if (res && res.success && res.user) {
+      const sessionUser = {
+        username: res.user.username,
+        fullName: res.user.fullName || res.user.username,
+        role: res.user.role || (res.user.username === 'admin' ? 'admin' : 'client'),
+        allowedCompanies: res.user.allowedCompanies || ['*'],
+        email: res.user.email || '',
+        phone: res.user.phone || ''
+      };
+      this.saveSession(sessionUser);
+      return { success: true, user: sessionUser, message: 'Google Sheet 驗證登入成功！' };
+    } else if (res && res.error) {
+      return { success: false, error: res.error };
     }
 
     return { success: false, error: '帳號或密碼錯誤，請確認帳號是否已由管理員啟用！' };
@@ -307,7 +351,7 @@ class AuthService {
   }
 
   /**
-   * 取得所有使用者列表 (供超級管理者審核管理)
+   * 取得所有使用者列表 (供超級管理者審核管理，支援 Local Proxy、直連 Fetch 與 JSONP 跨域穿透)
    */
   async fetchUsersList() {
     if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
@@ -315,19 +359,28 @@ class AuthService {
         const resp = await fetch('/api/getUsers');
         const raw = await resp.json();
         const res = this.unwrap(raw);
-        return (res && res.list) || [];
+        if (res && res.list) return res.list;
       } catch (e) {
         console.error('Fetch users error:', e);
       }
     }
     if (window.apiService && window.apiService.isLiveMode()) {
+      const gasUrl = window.apiService.getApiUrl();
+      const usersUrl = `${gasUrl}?action=getUsers&_t=${Date.now()}`;
       try {
-        const gasUrl = window.apiService.getApiUrl();
-        const resp = await fetch(`${gasUrl}?action=getUsers&_t=${Date.now()}`);
+        const resp = await fetch(usersUrl);
         const raw = await resp.json();
         const res = this.unwrap(raw);
-        return (res && res.list) || [];
-      } catch (e) {}
+        if (res && res.list) return res.list;
+      } catch (fetchErr) {
+        console.warn('⚠️ [Auth] fetchUsersList Fetch 遇到跨域/file協定限制，自動切換至 JSONP 穿透:', fetchErr);
+        try {
+          const res = await this.fetchGasJsonp(usersUrl, 20000);
+          if (res && res.list) return res.list;
+        } catch (jsonpErr) {
+          console.error('❌ [Auth] fetchUsersList JSONP 載入亦失敗:', jsonpErr);
+        }
+      }
     }
     return [];
   }
@@ -362,25 +415,34 @@ class AuthService {
     }
 
     if (window.apiService && window.apiService.isLiveMode()) {
+      const gasUrl = window.apiService.getApiUrl();
+      const postData = {
+        action: 'saveUser',
+        username: 'admin',
+        data: {
+          username: username,
+          status: targetStatus,
+          allowed_companies: payload.allowed_companies,
+          role: role
+        }
+      };
       try {
-        const gasUrl = window.apiService.getApiUrl();
-        const postData = {
-          action: 'saveUser',
-          username: 'admin',
-          data: {
-            username: username,
-            status: targetStatus,
-            allowed_companies: payload.allowed_companies,
-            role: role
-          }
-        };
         const resp = await fetch(gasUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(postData)
         });
-        return await resp.json();
-      } catch (e) {}
+        const raw = await resp.json();
+        return this.unwrap(raw);
+      } catch (postErr) {
+        console.warn('⚠️ [Auth] updateUserStatus POST 失敗，嘗試 GET JSONP 備援:', postErr);
+        try {
+          const getUrl = `${gasUrl}?action=saveUser&username=${encodeURIComponent(username)}&status=${encodeURIComponent(targetStatus)}&allowed_companies=${encodeURIComponent(payload.allowed_companies)}&role=${encodeURIComponent(role)}&operator=admin&_t=${Date.now()}`;
+          return await this.fetchGasJsonp(getUrl, 20000);
+        } catch (jsonpErr) {
+          return { success: false, error: '更新失敗：' + jsonpErr.message };
+        }
+      }
     }
 
     return { success: false, error: '更新失敗' };

@@ -93,6 +93,10 @@ function doGet(e) {
         result = ensureAllCompanySheets();
         break;
 
+      case 'saveUser':
+        result = saveUser(e.parameter || {}, (e && e.parameter && e.parameter.operator) || 'admin');
+        break;
+
       default:
         result = { success: false, error: '未知的 GET action 參數: ' + action };
     }

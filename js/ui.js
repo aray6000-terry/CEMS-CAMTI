@@ -1762,7 +1762,12 @@ class UIManager {
       if (res.success && res.user) {
         this.closeModal(this.modalLogin);
         this.showToast(`歡迎登入，${res.user.fullName}！`, 'success');
-        await window.appStore.loadData();
+        this.render(window.appStore);
+        try {
+          await window.appStore.loadData();
+        } catch (loadErr) {
+          console.warn('載入雲端資料庫異常 (維持本機離線快取):', loadErr);
+        }
       } else {
         if (errBox) {
           errBox.textContent = res.error || '帳號或密碼錯誤，請重新檢查！';
