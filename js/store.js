@@ -77,10 +77,10 @@ class AppStore {
           window.apiService.getEquipment(allowed)
         ]);
 
-        if (Array.isArray(companies) && companies.length > 0) {
+        if (Array.isArray(companies)) {
           this.companies = companies;
         }
-        if (Array.isArray(equipment) && equipment.length > 0) {
+        if (Array.isArray(equipment)) {
           this.equipment = equipment;
           this.equipment.forEach(item => {
             if (!item.brand || item.brand === '其他廠牌' || item.brand === '標準廠牌') {
@@ -121,10 +121,10 @@ class AppStore {
     try {
       const res = await window.apiService.syncDatabaseFromCloud(allowed);
       if (res && res.success) {
-        if (Array.isArray(res.companies) && res.companies.length > 0) {
+        if (Array.isArray(res.companies)) {
           this.companies = res.companies;
         }
-        if (Array.isArray(res.equipment) && res.equipment.length > 0) {
+        if (Array.isArray(res.equipment)) {
           this.equipment = res.equipment;
           this.equipment.forEach(item => {
             if (!item.brand || item.brand === '其他廠牌' || item.brand === '標準廠牌') {
