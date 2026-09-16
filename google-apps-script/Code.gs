@@ -655,23 +655,12 @@ function handleLogin(username, password) {
     if (!rowUser) continue;
 
     if (rowUser === targetUser) {
-      // 密碼比對 (雙向去除前後空格，並容錯純數字、.0 與字串轉換)
+      // 密碼嚴格比對 (依據 Google Sheet 設定，雙向去除前後空格並容錯純數字格式)
       const rowPass = String(row[idxPassword] !== undefined && row[idxPassword] !== null ? row[idxPassword] : '').trim();
       const cleanRowPass = rowPass.replace(/\.0+$/, '');
       const cleanTargetPass = targetPass.replace(/\.0+$/, '');
       
-      let isMatch = (cleanRowPass === cleanTargetPass) || (rowPass === targetPass);
-      // 容錯備援：若主密碼欄位未吻合，檢查該列其他單元格是否有吻合密碼者 (防止使用者試算表欄位順序錯位)
-      if (!isMatch) {
-        for (let c = 0; c < row.length; c++) {
-          if (c === idxUsername) continue;
-          let cellVal = String(row[c] !== undefined && row[c] !== null ? row[c] : '').trim().replace(/\.0+$/, '');
-          if (cellVal && (cellVal === cleanTargetPass || cellVal === targetPass)) {
-            isMatch = true;
-            break;
-          }
-        }
-      }
+      const isMatch = (cleanRowPass === cleanTargetPass) || (rowPass === targetPass);
       
       if (isMatch) {
         const rawStatus = String(row[idxStatus] !== undefined && row[idxStatus] !== null ? row[idxStatus] : '').trim();

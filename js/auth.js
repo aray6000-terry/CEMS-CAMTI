@@ -156,36 +156,6 @@ class AuthService {
       return { success: false, error: '請輸入帳號與密碼！' };
     }
 
-    // 0. 本地超級管理員與管理員帳號緊急授權通道 (確保無論網路連線狀況為何，皆可 100% 登入系統)
-    if (u === 'admin' && (p === 'admin123' || p === '123456' || p === 'admin')) {
-      const adminSession = {
-        username: 'admin',
-        fullName: '系統超級管理員',
-        role: 'admin',
-        status: '啟用',
-        allowedCompanies: ['*'],
-        email: '',
-        phone: ''
-      };
-      this.saveSession(adminSession);
-      return { success: true, user: adminSession, message: '🎉 超級管理員登入成功！' };
-    }
-
-    // 若為知名管理者帳號 (如 aray6000)，密碼 admin / admin123 / 123456 皆直接放行
-    if (u.toLowerCase().indexOf('aray') !== -1 && (p === 'admin' || p === 'admin123' || p === '123456')) {
-      const userSession = {
-        username: u,
-        fullName: '李泰叡 (管理員)',
-        role: 'admin',
-        status: '啟用',
-        allowedCompanies: ['*'],
-        email: '',
-        phone: ''
-      };
-      this.saveSession(userSession);
-      return { success: true, user: userSession, message: '🎉 管理員登入成功！' };
-    }
-
     // 1. 優先透過本地伺服器 Proxy 進行 Google Sheet 登入驗證
     if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
       try {
